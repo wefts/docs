@@ -1,5 +1,7 @@
 # Бібліографія — Heterogeneous Cognitive Swarm
 
+<!-- markdownlint-disable MD029 -->
+
 *Анотований список першоджерел. Кожна позиція має короткий рядок «**→ нам:**» —
 навіщо вона проєкту. Мета — спиратися на перевірені (емпіричні) або хоча б добре
 описані (теоретичні) тези.*
@@ -25,8 +27,9 @@
    **→ нам:** інформація як лог-міра несподіванки — спільний корінь із нашим
    confidence calculus; предок loss-функції.
 
-3. **Rosenblatt, F. (1958).** The Perceptron: A Probabilistic Model for Information
-   Storage and Organization in the Brain. *Psychological Review*, 65(6), 386–408. `[~]`
+3. **Rosenblatt, F. (1958).** The Perceptron: A Probabilistic Model for
+   Information Storage and Organization in the Brain. *Psychological Review*,
+   65(6), 386–408. `[~]`
    **→ нам:** перша машина, що вчиться; історичний корінь Python-стовпа.
 
 4. **Minsky, M. & Papert, S. (1969).** *Perceptrons: An Introduction to
@@ -66,11 +69,13 @@
 
 ## 2. Розподілені системи та патерни архітектури
 
-11. **Lamport, L. (1998).** The Part-Time Parliament. *ACM TOCS*, 16(2), 133–169. `[~]`
+11. **Lamport, L. (1998).** The Part-Time Parliament. *ACM TOCS*, 16(2),
+    133–169. `[~]`
     **→ нам:** Paxos — консенсус між вузлами; основа виборів лідера в ядрі.
 
-12. **Grassé, P.-P. (1959).** La reconstruction du nid et les coordinations
-    interindividuelles… La théorie de la stigmergie. *Insectes Sociaux*, 6, 41–80. `[?]`
+12. **Grassé, P.-P. (1959).** La reconstruction du nid et les
+    coordinations interindividuelles… La théorie de la stigmergie.
+    *Insectes Sociaux*, 6, 41–80. `[?]`
     **→ нам:** першоджерело **стигмергії** — координація через сліди в середовищі.
 
 13. **Hayes-Roth, B. (1985).** A blackboard architecture for control. *Artificial
@@ -133,8 +138,9 @@
     of Physiology*, 160(1), 106–154. `[~]`
     **→ нам:** підтвердження колонкового принципу в зоровій корі.
 
-24. **Hawkins, J. & Ahmad, S. (2016).** Why Neurons Have Thousands of Synapses, a
-    Theory of Sequence Memory in Neocortex. *Frontiers in Neural Circuits*, 10:23. `[✓]`
+24. **Hawkins, J. & Ahmad, S. (2016).** Why Neurons Have Thousands of
+    Synapses, a Theory of Sequence Memory in Neocortex. *Frontiers in Neural
+    Circuits*, 10:23. `[✓]`
     **→ нам:** механізм передбачення/послідовностей у колонці.
 
 25. **Hawkins, J., Lewis, M., Klukas, M., Purdy, S. & Ahmad, S. (2019).** A

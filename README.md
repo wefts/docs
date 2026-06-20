@@ -13,12 +13,19 @@ Repo-specific instructions stay in the repo they belong to:
 
 ## Start Here
 
+- [STATE.md](STATE.md) — current workspace state, ownership, and what is
+  considered canonical today.
 - [architecture/overview.md](architecture/overview.md) — workspace shape,
   ownership boundaries, and the shipping model.
 - [architecture/ports.md](architecture/ports.md) — typed extension points and
   plugin naming rules.
+- [reference/concepts.md](reference/concepts.md) — the short conceptual model.
 - [standards/guardrails.md](standards/guardrails.md) — what the agent may do,
   must ask about, and must never do.
+- [standards/workflow.md](standards/workflow.md) — the cross-repo working loop.
+- [standards/conventions.md](standards/conventions.md) — naming, ownership, and
+  documentation conventions.
+- [standards/code-style.md](standards/code-style.md) — cross-repo code style.
 - [standards/verification.md](standards/verification.md) — how work is checked
   before it is trusted.
 - [reference/glossary.md](reference/glossary.md) — working vocabulary and known
