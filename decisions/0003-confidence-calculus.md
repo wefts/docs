@@ -34,6 +34,10 @@ Full derivation, worked example, and open problem:
 - Correctness depends on detecting path independence — cheap detection at scale
   is an **open problem** (region-based / loop-corrected BP is the principled
   solution space).
+- The same independence problem recurs in the **strength** dimension (edge
+  reinforcement) and is tracked under
+  [ADR-9](0009-stigmergic-loop-stability.md); see
+  [confidence-calculus.md → Independence in the strength dimension](../architecture/confidence-calculus.md#independence-in-the-strength-dimension).
 
 ## Alternatives
 

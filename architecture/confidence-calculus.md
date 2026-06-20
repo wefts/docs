@@ -141,10 +141,64 @@ on every query over a large graph is expensive.
 The principled solution space is **region-based / loop-corrected belief
 propagation** — generalized BP and its relatives [Yedidia, Freeman & Weiss 2005;
 Mooij & Kappen 2007] — which correct overcounting explicitly on regions rather
-than
-hoping paths are independent. Whether a cheap-enough approximation exists for this
-project's online traversal is one of the named open problems; it is the unsolved
-edge of ADR-3, not a settled detail.
+than hoping paths are independent. Whether a cheap-enough approximation exists
+for this project's online traversal is one of the named open problems; it is the
+unsolved edge of ADR-3, not a settled detail.
+
+## Independence in the strength dimension
+
+The independence trap is not confined to confidence aggregation. It reappears,
+unsolved, in the **strength** dimension — edge reinforcement (ADR-9).
+
+An edge's `seen_count` increments once per distinct `(edge, provenance)` event
+(the `edge_provenance` unique guard in `Swarm.Graph.Store`). That guard is exact
+for one hazard — the *same* event must not count twice — and it closes the
+endogenous confirmation loop, where the system re-derives an edge and counts its
+own output. It says nothing about a different hazard: **distinct events that are
+not independent evidence.** Fifty documents that each restate one rumour carry
+fifty distinct provenance keys and reinforce the edge fifty times, exactly as if
+fifty independent witnesses had confirmed it.
+
+This is the shared-ancestor overcounting of the section above, moved from "paths
+sharing a source" to "reinforcements sharing a source." The confidence side
+corrects it (max within a shared-ancestor group). The strength side, today, does
+**not**: it has no per-source ceiling and no lineage grouping.
+
+What holds it in check now is mitigation, not correction:
+
+- **Hill saturation** `f(n) = log(1+n)/(log(1+n)+S)` bounds the inflation — a
+  burst of correlated reinforcements saturates rather than scaling linearly;
+- **decay is the dominant pole** — a one-off correlated burst is stirred in and
+  then forgotten.
+
+So a *transient* correlated burst is largely absorbed. The residual hazard is a
+*sustained* one: a connector that re-emits derivatives of a single source with a
+fresh provenance key each time keeps refreshing `last_seen` and pins the edge
+near saturation indefinitely — converting a decay-dominated edge into an
+effectively immortal one, with no genuine new evidence behind it. Nothing in
+`ports.md` or ingestion currently requires a provenance key to track *evidential
+origin* rather than *emission instance*.
+
+### Solution space (no decision yet)
+
+- **Connector provenance contract (cheapest).** Require provenance keys to be
+  derived from evidential origin (content/source identity), not emission
+  time/instance: re-emitting the same fact must reuse the same key. A rule in
+  `ports.md`, enforced at ingest, pushing the problem to the boundary where
+  origin is actually known.
+- **Per-source reinforcement cap.** Cap an edge's reinforcement contribution per
+  source/lineage — the direct mirror of ADR-3's "max within a shared-ancestor
+  group," applied to strength. One source cannot reinforce past a ceiling no
+  matter how many derivative events it emits.
+- **Lineage-aware reinforcement.** Cluster provenance by source lineage before
+  counting — the strength-dimension twin of partitioning paths into independence
+  groups, and just as hard at scale (the same open problem).
+
+The first is a boundary contract; the second is the elegant in-kernel correction
+(same algebra as ADR-3); the third is the principled-but-expensive general
+solution. Governed by
+[ADR-9](../decisions/0009-stigmergic-loop-stability.md) — the strength-side
+instance of the independence open problem named above.
 
 ## What this is not
 
