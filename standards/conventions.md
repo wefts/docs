@@ -2,50 +2,35 @@
 
 These conventions keep the workspace understandable as it grows.
 
-## Repository Names
+## Repository Names And Ownership
 
-- `docs/` is the shared documentation canon.
-- `swarm/` is the public kernel/control-plane repo.
-- `hive/` is a private instance/deployment repo.
-- `scripts/` is local operator tooling outside git.
+Workspace identity and repository ownership are defined by
+[ADR-10](../decisions/0010-wefts-workspace-split.md). Current status lives in
+[../STATE.md](../STATE.md).
+
+Do not duplicate the workspace layout here. This file records conventions that
+sit below that decision.
 
 ## Plugin Names
 
-Plugin directories and manifest names use:
+Plugin naming is defined by the port contract in
+[../architecture/ports.md](../architecture/ports.md). Do not duplicate the
+allowed kind list here; this file only points at the authority.
 
-```text
-<domain>_<kind>
-```
-
-Examples:
-
-```text
-confluence_connector
-k8s_tool
-```
-
-The domain comes first because people scan for the system or problem space
-before they scan for the adapter type.
-
-Valid kind names for now:
-
-- `connector`;
-- `tool`;
-- `worker`;
-- `channel`;
-- `model`;
-- `skill`.
+The convention is domain-first because people scan for the system or problem
+space before they scan for the adapter type.
 
 ## Scratch Space
 
-Each project owns its own scratch directory:
+Each repo owns its own scratch directory:
 
 ```text
 swarm/tmp/
 hive/tmp/
 ```
 
-Do not recreate a shared top-level `tmp/`.
+Do not recreate a shared top-level `tmp/`. Remote sync excludes scratch; see
+[ADR-12](../decisions/0012-operator-sync-boundary.md).
 
 ## Documentation Placement
 

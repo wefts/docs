@@ -30,6 +30,10 @@ Use this structure:
 
 Proposed | Accepted | Superseded
 
+## Record Completeness
+
+Complete | Stub
+
 ## Context
 
 What problem forced this decision?
@@ -50,6 +54,8 @@ What did we reject and why?
 ## Rules
 
 - One ADR records one decision.
+- Decision status says whether the decision is accepted. Record completeness says
+  whether this markdown file contains the full wording.
 - State the tradeoff, not only the chosen path.
 - Link to measurements or spikes when they exist.
 - Do not silently edit accepted ADRs to mean something else.

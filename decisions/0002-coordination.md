@@ -4,6 +4,10 @@
 
 Accepted
 
+## Record Completeness
+
+Stub
+
 ## Context
 
 Many specialized processes must act without a central conductor and without

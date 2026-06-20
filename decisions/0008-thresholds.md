@@ -4,6 +4,10 @@
 
 Accepted
 
+## Record Completeness
+
+Stub
+
 ## Context
 
 The gate decides simple (handle locally) vs hard (escalate to the consilium). Before

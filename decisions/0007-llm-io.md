@@ -4,6 +4,10 @@
 
 Accepted
 
+## Record Completeness
+
+Stub
+
 ## Context
 
 Large models are rare, deliberate escalations (gate + consilium). Their input and

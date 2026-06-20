@@ -4,6 +4,10 @@
 
 Accepted
 
+## Record Completeness
+
+Stub
+
 ## Context
 
 Who-can-see-what in the shared graph is **security-critical**: the visibility filter

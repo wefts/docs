@@ -4,6 +4,10 @@
 
 Accepted
 
+## Record Completeness
+
+Stub
+
 ## Context
 
 Stigmergic feedback (workers reacting to traces they and others leave) can

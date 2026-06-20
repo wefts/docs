@@ -4,6 +4,10 @@
 
 Accepted
 
+## Record Completeness
+
+Complete
+
 ## Context
 
 Traversal reaches conclusions through chains and corroborating paths of partially

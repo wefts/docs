@@ -42,32 +42,16 @@ A plugin is a capability outside the kernel. It implements a typed port and can
 live in `hive/plugins/` while it is local or experimental. A mature plugin can
 move into its own repo without changing the kernel contract.
 
-Plugin names use:
-
-```text
-<domain>_<kind>
-```
-
-Examples:
-
-```text
-confluence_connector
-k8s_tool
-```
+Plugin naming and allowed port kinds are defined in
+[../architecture/ports.md](../architecture/ports.md).
 
 ## Port
 
 A port is the stable contract between the kernel and the outside world. It says
 what capability exists, not how it is deployed.
 
-Current port kinds:
-
-- `connector`;
-- `tool`;
-- `worker`;
-- `channel`;
-- `model`;
-- `skill`.
+The authoritative port-kind list lives in
+[../architecture/ports.md](../architecture/ports.md).
 
 ## Data Plane And Control Plane
 

@@ -4,6 +4,10 @@
 
 Accepted
 
+## Record Completeness
+
+Stub
+
 ## Context
 
 Embedding and inference are Python-ecosystem work; they should not live in the Elixir

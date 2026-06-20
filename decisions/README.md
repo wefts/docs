@@ -8,6 +8,10 @@ that owns them (`swarm/docs/decisions/`, `hive/`), per
 These are **locked** decisions. They are changed by *superseding* with a new ADR,
 never by silently editing an accepted one.
 
+Decision status and record completeness are separate. `Accepted` means the
+decision is binding. `Stub` means this markdown record still needs the full
+wording transplanted from the older spec.
+
 ## Index
 
 - [ADR-0: Storage Engine](0000-storage-engine.md) — Accepted (settled by benchmark)
@@ -25,8 +29,5 @@ never by silently editing an accepted one.
 - [ADR-11: Hive Plugin Ownership](0011-hive-plugin-ownership.md) — Accepted
 - [ADR-12: Operator Sync Boundary](0012-operator-sync-boundary.md) — Accepted
 
-> Many records below are **skeletons**: title, status, and the parts derivable
-> from the project summary are filled; the full decision text is marked
-> `TODO: transplant from swarm_architecture_spec.md`. Transplant the real
-> wording so these stop being stubs — the numbering and anchors are already
-> correct.
+> Stub records are intentionally usable as anchors. They are not drafts of the
+> decision; they are incomplete write-ups of already accepted decisions.

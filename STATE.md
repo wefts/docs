@@ -43,26 +43,27 @@ the work in progress right now.
 - `standards/` — guardrails, verification, workflow, conventions, code-style,
   how-to-write-adr. All present and current.
 - `architecture/` — overview, ports, **confidence-calculus (just added)**.
-- `decisions/` — ADR-0..12. Present, indexed, and anchored; some records are still
-  skeletons that need full wording transplanted from the old spec.
+- `decisions/` — ADR-0..12. Present, indexed, and anchored. Some records are
+  marked `Stub`: the decision is accepted, but the markdown record still needs
+  full wording transplanted from the old spec.
 - `reference/` — glossary and bibliography (both substantial, annotated, sourced)
   and concepts.
 - `README.md` (authority map) and this `STATE.md`.
 
 ## In flight / known gaps
 
-- **ADR text is not fully migrated.** `docs/decisions/` exists, but several ADRs
-  are still skeletons. The remaining work is to transplant the full accepted
-  wording from the old `swarm_architecture_spec.md`.
+- **ADR text is not fully migrated.** `docs/decisions/` exists, but several ADR
+  records are still marked `Stub`. The remaining work is to transplant the full
+  accepted wording from the old `swarm_architecture_spec.md`.
 - **Naming propagation is in progress.** Wefts/Swarm/Hive was just settled. The
   main shared docs now use the distinction, but older docs may still say
   "Swarm workspace" where they mean **Wefts**.
 - **Guardrail enforcement is partial.** Hooks cover only the 🔒 Never tier. The
   Ask-first tier still rests on discipline — the guard script that would harden it
   is not written.
-- **Root `AGENTS.md` is only a placeholder.** The workspace-level instruction
-  file (the hive↔swarm boundary, nearest-file rule, "read STATE.md and README.md
-  first") is still pending.
+- **Instruction-file migration is incomplete.** Root `AGENTS.md` is now the
+  workspace guide, but `swarm/` still has real instructions in `CLAUDE.md`
+  instead of `swarm/AGENTS.md`, and `hive/` has no repo-level guide yet.
 
 ## Architecture direction (stable)
 
@@ -84,8 +85,9 @@ detail in `architecture/overview.md` — not repeated here.
 
 In order:
 
-1. Transplant the full accepted ADR wording into `docs/decisions/` skeletons
-   (mostly ADR-1..9).
+1. Transplant the full accepted ADR wording into `Stub` records in
+   `docs/decisions/` (mostly ADR-1..9).
 2. Continue propagating the Wefts / Swarm / Hive naming through older docs.
-3. Write the root `AGENTS.md` against this structure.
+3. Migrate repo-level instructions to `AGENTS.md` (`swarm/` first, then `hive/`)
+   and reduce `CLAUDE.md` files to pointers.
 4. Write the Ask-first guard script and promote the high-stakes 📝 lines to 🔒.

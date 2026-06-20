@@ -4,6 +4,10 @@
 
 Accepted
 
+## Record Completeness
+
+Complete
+
 ## Context
 
 The local machine and Spark need the same Wefts workspace shape, but remote sync

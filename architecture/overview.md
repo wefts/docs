@@ -11,7 +11,8 @@ dragging real integrations or private state into the same repository.
 
 ## Workspace Shape
 
-The top-level directory is a Wefts workspace, not a product repo:
+The top-level directory is a Wefts workspace, not a product repo. The locked
+workspace split is [ADR-10](../decisions/0010-wefts-workspace-split.md):
 
 ```text
 wefts/
@@ -21,16 +22,6 @@ wefts/
   scripts/    local operator scripts, outside git
   .mcp.json   local agent/tool wiring
 ```
-
-Each project owns its own scratch directory:
-
-```text
-swarm/tmp/
-hive/tmp/
-```
-
-There is no shared top-level `tmp/`. Scratch belongs to the project whose work
-created it.
 
 ## Repository Roles
 
@@ -90,8 +81,9 @@ moved to its own repo without changing the kernel contract.
 - Private data never lives in `swarm/`.
 - The kernel never imports plugin source as a hidden dependency.
 - Third-party tools attach through a port, a manifest, or an adapter process.
-- Plugin manifests use the `<domain>_<kind>` naming rule.
-- Remote synchronization is an operator action, not an agent default.
+- Plugin manifests follow the naming rule in [ports.md](ports.md).
+- Remote synchronization is an operator action, not an agent default; the sync
+  boundary is [ADR-12](../decisions/0012-operator-sync-boundary.md).
 
 ## Related Docs
 

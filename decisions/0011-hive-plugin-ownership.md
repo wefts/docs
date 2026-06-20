@@ -4,6 +4,10 @@
 
 Accepted
 
+## Record Completeness
+
+Complete
+
 ## Context
 
 Early integrations need to evolve near the deployment environment they depend
@@ -16,27 +20,10 @@ Early plugins live in the private `hive/plugins/` tree. Mature reusable plugins
 may move to their own repos later, but the kernel contract must not change when
 that happens.
 
-Plugin directories and manifest names use:
-
-```text
-<domain>_<kind>
-```
-
-Examples:
-
-```text
-confluence_connector
-k8s_tool
-```
-
-Valid kind names for now:
-
-- `connector`
-- `tool`
-- `worker`
-- `channel`
-- `model`
-- `skill`
+Plugin directory names, manifest names, and allowed port kinds are defined by
+the port contract in [../architecture/ports.md](../architecture/ports.md).
+ADR-11 owns *where early plugins live*; `ports.md` owns *what plugin kinds and
+names mean*.
 
 ## Consequences
 

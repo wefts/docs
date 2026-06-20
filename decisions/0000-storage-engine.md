@@ -4,6 +4,10 @@
 
 Accepted (settled by benchmark, not taste)
 
+## Record Completeness
+
+Complete
+
 ## Context
 
 The storage substrate is the one load-bearing, hard-to-retrofit choice. The
