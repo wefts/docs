@@ -85,8 +85,8 @@ plugin should not require kernel code changes just because it moves from
 
 ## Third-Party Tools
 
-A tool like `~/Code/lrn/GoCRD/k8s_controller` should not be added by importing
-its source tree into the kernel. It should be wrapped as one of:
+A local tool such as `<local k8s controller tool>` should not be added by
+importing its source tree into the kernel. It should be wrapped as one of:
 
 - `k8s_tool` if it performs bounded Kubernetes actions;
 - `k8s_connector` if it primarily watches and ingests cluster state;

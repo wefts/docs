@@ -17,8 +17,8 @@ Three names, three jobs. Keep them distinct in all docs and code:
 - **Hive** — the environment: a concrete deployment instance (compose, plugins, env,
   data roots, secrets pointers). Lives in the private `hive/` repo.
 
-This naming was just decided. Older docs still say "the Swarm workspace" in
-places where they now mean the **`wefts` workspace** — see Known Gaps.
+This naming was just decided. The shared `docs/` tree now uses this distinction;
+repo-specific docs may still need spot checks.
 
 ## Repositories (current)
 
@@ -55,9 +55,9 @@ the work in progress right now.
 - **ADR text is not fully migrated.** `docs/decisions/` exists, but several ADR
   records are still marked `Stub`. The remaining work is to transplant the full
   accepted wording from the old `swarm_architecture_spec.md`.
-- **Naming propagation is in progress.** `wefts` / Swarm / Hive was just
-  settled. The main shared docs now use the distinction, but older docs may
-  still say "Swarm workspace" where they mean **`wefts` workspace**.
+- **Naming propagation is mostly done.** The shared `docs/` tree uses
+  `wefts` / Swarm / Hive consistently. Remaining spot checks belong to
+  repo-specific docs in `swarm/` and `hive/`.
 - **Guardrail enforcement is partial.** Hooks cover only the 🔒 Never tier. The
   Ask-first tier still rests on discipline — the guard script that would harden it
   is not written.
@@ -87,5 +87,5 @@ In order:
 
 1. Transplant the full accepted ADR wording into `Stub` records in
    `docs/decisions/` (mostly ADR-1..9).
-2. Continue propagating the `wefts` / Swarm / Hive naming through older docs.
+2. Spot-check repo-specific docs for stale `wefts` / Swarm / Hive naming.
 3. Write the Ask-first guard script and promote the high-stakes 📝 lines to 🔒.

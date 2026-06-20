@@ -39,7 +39,8 @@ wefts/
 - Kernel-specific implementation detail lives in `swarm/`.
 - Private deployment detail lives in `hive/`.
 - Local sync/operator scripts stay outside product repos.
-- Older docs that say "Swarm workspace" need a naming pass.
+- Shared docs use `wefts` / Swarm / Hive as distinct terms; repo-specific docs
+  may still need spot checks.
 
 ## Alternatives
 
