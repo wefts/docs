@@ -1,82 +1,91 @@
 # Current State
 
-This file records the current shape of the Swarm workspace. It is not a product
-roadmap and not a task list. It is the shortest answer to: "what is true right
-now?"
+The shortest honest answer to "what is true right now?" — read this first, update
+it last. Not a roadmap, not a task list. When this file and an older doc disagree
+about what is current, this file wins; when this file and the code disagree, the
+code wins and this file is stale.
 
-## Workspace
+## Identity (settled)
 
-The top-level directory is a workspace, not a repo:
+Three names, three jobs. Keep them distinct in all docs and code:
+
+- **Wefts** — the interweaving: the whole workspace where everything is linked, and
+  the GitHub org. The unit that ties `docs/`, `swarm/`, and `hive/` together. It is
+  *not* a single repo or a deployable thing — it is the weave.
+- **Swarm** — the product: the local-first heterogeneous cognitive system. Lives in
+  the public `swarm/` kernel repo.
+- **Hive** — the environment: a concrete deployment instance (compose, plugins, env,
+  data roots, secrets pointers). Lives in the private `hive/` repo.
+
+This naming was just decided. Older docs still say "the Swarm workspace" in places
+where they now mean **Wefts** — see Known Gaps.
+
+## Repositories (current)
+
+The top level is a Wefts workspace, not a repo. Inside it:
 
 ```text
-swarm/
-  docs/       shared architecture, standards, vocabulary
-  swarm/      public kernel/control-plane repo
-  hive/       private instance/deployment repo
-  scripts/    local operator scripts, outside git
-  .mcp.json   local agent/tool wiring
+wefts/                 (workspace; org = wefts; top level is NOT a git repo)
+  docs/    git, PUBLIC   shared canon — this repo
+  swarm/   git, public   the product: kernel/control-plane (intended public)
+  hive/    git, PRIVATE  the environment: instance/deployment
+  scripts/ no git        local operator tooling (sync, env), outside git by design
 ```
 
-`docs/`, `swarm/`, and `hive/` may be separate git repos. The top-level
-workspace is not the unit of publication.
+The three repos were **just split apart**, and `docs/` was **just made public**
+(it defaulted to private on creation). Bringing all three into consistent order is
+the work in progress right now.
 
-## Canonical Split
+## What is canonical today
 
-`docs/` is the shared canon:
+`docs/` holds the shared canon and is in good shape:
 
-- cross-repo architecture;
-- standards and guardrails;
-- shared vocabulary;
-- current workspace state.
+- `standards/` — guardrails, verification, workflow, conventions, code-style,
+  how-to-write-adr. All present and current.
+- `architecture/` — overview, ports, **confidence-calculus (just added)**.
+- `decisions/` — ADR-0..12. Present, indexed, and anchored; some records are still
+  skeletons that need full wording transplanted from the old spec.
+- `reference/` — glossary and bibliography (both substantial, annotated, sourced)
+  and concepts.
+- `README.md` (authority map) and this `STATE.md`.
 
-`swarm/` is the public kernel repo:
+## In flight / known gaps
 
-- Elixir/OTP kernel;
-- Python ML service and CLI channel;
-- Protobuf contracts;
-- kernel infra substrate;
-- kernel-specific architecture and implementation docs.
+- **ADR text is not fully migrated.** `docs/decisions/` exists, but several ADRs
+  are still skeletons. The remaining work is to transplant the full accepted
+  wording from the old `swarm_architecture_spec.md`.
+- **Naming propagation is in progress.** Wefts/Swarm/Hive was just settled. The
+  main shared docs now use the distinction, but older docs may still say
+  "Swarm workspace" where they mean **Wefts**.
+- **Guardrail enforcement is partial.** Hooks cover only the 🔒 Never tier. The
+  Ask-first tier still rests on discipline — the guard script that would harden it
+  is not written.
+- **Root `AGENTS.md` is only a placeholder.** The workspace-level instruction
+  file (the hive↔swarm boundary, nearest-file rule, "read STATE.md and README.md
+  first") is still pending.
 
-`hive/` is the private instance repo:
+## Architecture direction (stable)
 
-- deployment wiring;
-- environment examples and secrets pointers;
-- enabled plugins;
-- private data roots;
-- instance-specific notes.
+A local-first heterogeneous cognitive swarm: cheap specialized processes run
+continuously; expensive models are rare, deliberate escalations; coordination
+happens through a shared graph, not direct agent-to-agent messages; the public
+kernel stays small; concrete integrations live outside it behind typed ports. Full
+detail in `architecture/overview.md` — not repeated here.
 
-`scripts/` is local operator tooling. It is intentionally outside git and is not
-part of the public product.
+## Boundaries (stable)
 
-## Current Architecture Direction
+- Secrets never live in `docs/` or `swarm/`, nor in committed `hive/` files.
+- Private data lives only in `hive/`.
+- The kernel never imports plugin source as a hidden dependency.
+- Remote sync is a human/operator action, never an agent default.
+- Each repo owns its own `tmp/`; there is no shared top-level `tmp/`.
 
-The project is a local-first heterogeneous cognitive swarm:
+## Next
 
-- cheap specialized processes run continuously;
-- expensive models are rare escalations;
-- coordination happens through a shared graph;
-- the public kernel stays small;
-- concrete integrations live outside the kernel behind typed ports.
+In order:
 
-The shipping model is a small polyrepo workspace:
-
-- public `swarm/` for stable kernel code;
-- private `hive/` for local deployment and early plugins;
-- optional standalone plugin repos later;
-- shared `docs/` for rules that apply across repos.
-
-## Current Boundaries
-
-- Repo-specific details stay in the owning repo.
-- Private systems, private data, and secrets do not move into `docs/`.
-- The top-level docs may point to `swarm/docs/` or `hive/README.md`, but should
-  not duplicate detailed implementation docs.
-- Each project owns its own `tmp/`.
-- Remote sync is a human/operator action.
-
-## Open Documentation Gaps
-
-- Some shared standards are intentionally compact and will grow when the project
-  has more code and plugins.
-- Kernel-specific docs still live in `swarm/docs/`, by design.
-- Hive-specific operational details still live in `hive/`, by design.
+1. Transplant the full accepted ADR wording into `docs/decisions/` skeletons
+   (mostly ADR-1..9).
+2. Continue propagating the Wefts / Swarm / Hive naming through older docs.
+3. Write the root `AGENTS.md` against this structure.
+4. Write the Ask-first guard script and promote the high-stakes 📝 lines to 🔒.

@@ -9,12 +9,18 @@ A swarm is a system made from many small, specialized processes. Each process is
 limited, but the system becomes useful because the processes share memory,
 observe each other's traces, and escalate only when necessary.
 
-In this project, "swarm" means the thinking system and the public kernel repo.
-When the repository name is ambiguous, use:
+## Wefts
 
+Wefts is the workspace and GitHub org: the weave that ties `docs/`, `swarm/`,
+and `hive/` together. It is not a deployable product and not a single repo.
+
+When names are ambiguous, use:
+
+- `Wefts` for the workspace/org;
 - `Swarm` for the product/system;
 - `swarm/` for the public kernel repo;
-- `hive/` for a private deployment instance.
+- `Hive` for a deployment environment;
+- `hive/` for a private deployment instance repo.
 
 ## Hive
 

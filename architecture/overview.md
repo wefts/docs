@@ -1,19 +1,20 @@
 # Architecture Overview
 
-Swarm is a local-first automation and cognition system built as a
-microkernel/ports-and-adapters architecture. The public kernel owns the stable
-control plane; private hives own concrete deployment choices, plugins,
-integrations, secrets, and data.
+Wefts is the workspace that ties the shared docs, public Swarm kernel, and
+private Hive deployment together. Swarm itself is a local-first automation and
+cognition system built as a microkernel/ports-and-adapters architecture. The
+public kernel owns the stable control plane; private hives own concrete
+deployment choices, plugins, integrations, secrets, and data.
 
 The point of the split is simple: the core can be public and reviewable without
 dragging real integrations or private state into the same repository.
 
 ## Workspace Shape
 
-The top-level directory is a workspace, not a product repo:
+The top-level directory is a Wefts workspace, not a product repo:
 
 ```text
-swarm/
+wefts/
   docs/       shared architecture, standards, vocabulary
   swarm/      public kernel/control-plane repo
   hive/       private instance/deployment repo
@@ -72,7 +73,7 @@ mailbox, or ticket system.
 
 ## Shipping Model
 
-The default development model is a small polyrepo workspace:
+The default development model is a small Wefts polyrepo workspace:
 
 - public `swarm/` for the kernel;
 - private `hive/` for a concrete instance;
