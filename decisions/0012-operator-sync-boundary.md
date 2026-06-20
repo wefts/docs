@@ -10,16 +10,16 @@ Complete
 
 ## Context
 
-The local machine and Spark need the same Wefts workspace shape, but remote sync
-can overwrite production-adjacent files. It must be explicit operator work, not
-an automatic agent default.
+The local machine and Spark need the same `wefts` workspace shape, but remote
+sync can overwrite production-adjacent files. It must be explicit operator work,
+not an automatic agent default.
 
 ## Decision
 
-Sync the whole local Wefts workspace to Spark as:
+Sync the whole local `wefts` workspace to the remote workspace root as:
 
 ```text
-~/Swarm/
+<remote workspace>/
   docs/
   swarm/
   hive/

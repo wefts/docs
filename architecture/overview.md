@@ -1,6 +1,6 @@
 # Architecture Overview
 
-Wefts is the workspace that ties the shared docs, public Swarm kernel, and
+`wefts` is the workspace that ties the shared docs, public Swarm kernel, and
 private Hive deployment together. Swarm itself is a local-first automation and
 cognition system built as a microkernel/ports-and-adapters architecture. The
 public kernel owns the stable control plane; private hives own concrete
@@ -11,7 +11,7 @@ dragging real integrations or private state into the same repository.
 
 ## Workspace Shape
 
-The top-level directory is a Wefts workspace, not a product repo. The locked
+The top-level directory is a `wefts` workspace, not a product repo. The locked
 workspace split is [ADR-10](../decisions/0010-wefts-workspace-split.md):
 
 ```text
@@ -22,6 +22,10 @@ wefts/
   scripts/    local operator scripts, outside git
   .mcp.json   local agent/tool wiring
 ```
+
+The folder name is machine-local. Never hardcode the absolute workspace path in
+product code. Use relative repo paths (`docs/`, `swarm/`, `hive/`, `scripts/`)
+from the workspace root.
 
 ## Repository Roles
 
@@ -64,7 +68,7 @@ mailbox, or ticket system.
 
 ## Shipping Model
 
-The default development model is a small Wefts polyrepo workspace:
+The default development model is a small `wefts` polyrepo workspace:
 
 - public `swarm/` for the kernel;
 - private `hive/` for a concrete instance;

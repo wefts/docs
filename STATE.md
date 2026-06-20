@@ -9,20 +9,20 @@ code wins and this file is stale.
 
 Three names, three jobs. Keep them distinct in all docs and code:
 
-- **Wefts** — the interweaving: the whole workspace where everything is linked, and
-  the GitHub org. The unit that ties `docs/`, `swarm/`, and `hive/` together. It is
-  *not* a single repo or a deployable thing — it is the weave.
+- **`wefts`** — the GitHub namespace and workspace root: the unit that ties
+  `docs/`, `swarm/`, and `hive/` together. It is *not* a product, a single repo,
+  or a deployable thing.
 - **Swarm** — the product: the local-first heterogeneous cognitive system. Lives in
   the public `swarm/` kernel repo.
 - **Hive** — the environment: a concrete deployment instance (compose, plugins, env,
   data roots, secrets pointers). Lives in the private `hive/` repo.
 
-This naming was just decided. Older docs still say "the Swarm workspace" in places
-where they now mean **Wefts** — see Known Gaps.
+This naming was just decided. Older docs still say "the Swarm workspace" in
+places where they now mean the **`wefts` workspace** — see Known Gaps.
 
 ## Repositories (current)
 
-The top level is a Wefts workspace, not a repo. Inside it:
+The top level is a `wefts` workspace, not a repo. Inside it:
 
 ```text
 wefts/                 (workspace; org = wefts; top level is NOT a git repo)
@@ -55,15 +55,15 @@ the work in progress right now.
 - **ADR text is not fully migrated.** `docs/decisions/` exists, but several ADR
   records are still marked `Stub`. The remaining work is to transplant the full
   accepted wording from the old `swarm_architecture_spec.md`.
-- **Naming propagation is in progress.** Wefts/Swarm/Hive was just settled. The
-  main shared docs now use the distinction, but older docs may still say
-  "Swarm workspace" where they mean **Wefts**.
+- **Naming propagation is in progress.** `wefts` / Swarm / Hive was just
+  settled. The main shared docs now use the distinction, but older docs may
+  still say "Swarm workspace" where they mean **`wefts` workspace**.
 - **Guardrail enforcement is partial.** Hooks cover only the 🔒 Never tier. The
   Ask-first tier still rests on discipline — the guard script that would harden it
   is not written.
-- **Instruction-file migration is incomplete.** Root `AGENTS.md` is now the
-  workspace guide, but `swarm/` still has real instructions in `CLAUDE.md`
-  instead of `swarm/AGENTS.md`, and `hive/` has no repo-level guide yet.
+- **Instruction-file migration is mostly done.** Root `AGENTS.md`,
+  `swarm/AGENTS.md`, and `hive/AGENTS.md` are canonical. `CLAUDE.md` files
+  should remain pointers, not second sources of truth.
 
 ## Architecture direction (stable)
 
@@ -87,7 +87,5 @@ In order:
 
 1. Transplant the full accepted ADR wording into `Stub` records in
    `docs/decisions/` (mostly ADR-1..9).
-2. Continue propagating the Wefts / Swarm / Hive naming through older docs.
-3. Migrate repo-level instructions to `AGENTS.md` (`swarm/` first, then `hive/`)
-   and reduce `CLAUDE.md` files to pointers.
-4. Write the Ask-first guard script and promote the high-stakes 📝 lines to 🔒.
+2. Continue propagating the `wefts` / Swarm / Hive naming through older docs.
+3. Write the Ask-first guard script and promote the high-stakes 📝 lines to 🔒.

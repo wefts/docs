@@ -1,8 +1,9 @@
-# Wefts Documentation
+# Shared Documentation
 
-This repository is the shared documentation layer for the Wefts workspace. It
-describes the architecture, standards, and vocabulary that apply across the
-public Swarm kernel repo, the private Hive repo, and the local operator scripts.
+This repository is the shared documentation layer for the `wefts` namespace /
+workspace. It describes the architecture, standards, and vocabulary that apply
+across the public Swarm kernel repo, the private Hive repo, and the local
+operator scripts.
 
 Repo-specific instructions stay in the repo they belong to:
 

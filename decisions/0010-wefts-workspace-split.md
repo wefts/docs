@@ -1,4 +1,4 @@
-# ADR-10: Wefts Workspace Split
+# ADR-10: `wefts` Workspace Split
 
 ## Status
 
@@ -16,10 +16,10 @@ audiences and different publication rules.
 
 ## Decision
 
-Use **Wefts** as the workspace and GitHub org identity. Keep three names
+Use **`wefts`** as the workspace and GitHub namespace. Keep three names
 separate:
 
-- **Wefts** — the workspace/org that ties the repos together.
+- **`wefts`** — the workspace/namespace that ties the repos together.
 - **Swarm** — the product and public kernel/control-plane repo.
 - **Hive** — a concrete private deployment environment.
 

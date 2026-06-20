@@ -9,14 +9,15 @@ A swarm is a system made from many small, specialized processes. Each process is
 limited, but the system becomes useful because the processes share memory,
 observe each other's traces, and escalate only when necessary.
 
-## Wefts
+## wefts
 
-Wefts is the workspace and GitHub org: the weave that ties `docs/`, `swarm/`,
-and `hive/` together. It is not a deployable product and not a single repo.
+`wefts` is the workspace and GitHub namespace: the weave that ties `docs/`,
+`swarm/`, and `hive/` together. It is not a deployable product and not a single
+repo.
 
 When names are ambiguous, use:
 
-- `Wefts` for the workspace/org;
+- `wefts` for the workspace/namespace;
 - `Swarm` for the product/system;
 - `swarm/` for the public kernel repo;
 - `Hive` for a deployment environment;

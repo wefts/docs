@@ -17,9 +17,6 @@ Plugin naming is defined by the port contract in
 [../architecture/ports.md](../architecture/ports.md). Do not duplicate the
 allowed kind list here; this file only points at the authority.
 
-The convention is domain-first because people scan for the system or problem
-space before they scan for the adapter type.
-
 ## Scratch Space
 
 Each repo owns its own scratch directory:
