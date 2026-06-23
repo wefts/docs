@@ -81,6 +81,16 @@ detail in `architecture/overview.md` — not repeated here.
 
 ## Recently shipped
 
+- **Phase C (T5–T9) — answers, cost, channels, identity.** T5 LLM per-escalation
+  budget (ceiling + model-boundary backstop + cost telemetry; the 385k path is
+  refused) → ADR-7 budget. T6 answer-result algebra (found/not_found/partial/error,
+  typed on the wire) → swarm ADR-6. T7 presentation-determinism standard (kernel
+  emits facts, channels render; CLI renders status + verbatim values). T8 kernel
+  self-model (real inventory/freshness/capabilities) + asker identity (`viewer`
+  resolves "my X", scoped) → swarm ADR-7. T9 off-topic deflection (tier0, zero-LLM
+  for recognized off-topic) + `skill` port → swarm ADR-8; chat channel + persona
+  copy deferred to `board/todo/hive-chat-channel`. All five critic-verified; 118
+  tests 0 failures, credo/dialyzer/format clean, CLI 7/0.
 - **Phase B (T3+T4) — connector ingestion contract.** swarm ADR-5: the
   `connector` port gains a kernel-driven `fetch/2` paginated pull, and
   `Swarm.Connector.Sync` owns completeness (drives the cursor to exhaustion,
@@ -131,10 +141,10 @@ The full roadmap is `board/roadmap.md` (phases + status map + the glpi-agent
 connector fold-in); task cards in `board/todo/`; rationale in `board/research/`.
 In order:
 
-1. **Phase C — T5–T9**: cost/budget + LLM-I/O · answer-result algebra · channel
-   rendering · self-model + requester identity · chat-channel persona. Then
-   **Phase D — T10–T13** (backpressure/DLQ, trace TTL/decay/GC, graph zones,
-   coordination control). Phase A (T0–T2) and Phase B (T3–T4) are done.
+1. **Phase D — T10–T13**: backpressure + poison/DLQ · trace TTL/decay/GC (OP#1) ·
+   graph zones + claim-vs-observation typing (N3) · coordination control
+   (stagnation monitor; pattern-match subs partly done via stigmergy). Phases
+   A (T0–T2), B (T3–T4), C (T5–T9) are done.
 2. The real connector implementation: `todo/confluence-mediawiki-connectors`
    (port Confluence + Mediawiki from `~/Code/glpi-agent` behind `fetch/2`, hive).
 3. Kernel follow-ups teed up: `traverse-relaxation` (impl swarm ADR-3),

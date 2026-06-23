@@ -37,9 +37,33 @@ verify-then-climb**:
   catch only *self-declared* inability; fluent wrong answers need a
   **different-model-family judge** and a **measured judge-accuracy metric**.
 
-The **cost/budget dimension** of LLM I/O (per-call ceilings, ground-before-model,
-hierarchical token buckets, circuit breakers) is finalized in **T5**
-(`board/` roadmap) — this ADR fixes the I/O *contract*; T5 adds the *budget*.
+**Budget (cost ceiling), finalized in T5.** Cost asymmetry is a principle; this
+makes it a *ceiling*. The scar: glpi-agent sent 385k input tokens in one turn
+because a tool dumped a raw payload into a model call.
+
+- **Two-layer ceiling, config-driven.** The **global backstop** is enforced at the
+  model boundary itself (`Swarm.ML.Generation.generate/3`): *any* caller — present
+  or future, consilium or not — is **refused fail-loud** (`{:error, {:over_budget,
+  estimated, ceiling}}`) before the RPC ship-out, so no model call can exceed it.
+  The **consilium** adds a tighter, earlier per-escalation ceiling so an
+  escalation is refused before the panel even runs. Either way: refuse, **never
+  silently truncate**.
+- **Per-call, so panel fan-out multiplies it.** The ceiling bounds one prompt; an
+  N-model panel spends ≈ N × (panel prompt) + judge. The bound is per-call by
+  design (each call is what hits a model); total escalation cost is therefore
+  bounded by `panel-width × ceiling`, and is what telemetry accounts.
+- **Ground/compress before the model, never pass a raw source/tool payload.** The
+  kernel *rejects* an ungrounded payload; producing a bounded, grounded context is
+  the caller's job upstream (the digest lesson, 323k→20k). The estimate (bytes/4)
+  is a structural proxy, not a tokenizer — ample against a catastrophic dump,
+  approximate near the boundary.
+- **Cost accounting** — estimated tokens in/out for the *whole* escalation (panel
+  fan-out + judge), plus a telemetry event on **refusal**, so both a cost
+  regression and a spike of over-budget attempts are observable.
+
+Mechanism + numbers: `swarm/docs/design/llm-budget.md`; enforced in
+`Swarm.LLM.Budget`, the `Swarm.ML.Generation` boundary, and the `Swarm.Consilium`
+escalation path.
 
 ## Consequences
 
@@ -50,6 +74,10 @@ hierarchical token buckets, circuit breakers) is finalized in **T5**
   outputs are re-authorized before acting.
 - Detecting confident-wrong answers requires a cross-family judge — a measured
   cost the design accepts rather than pretends away.
+- A single escalation now has a hard cost ceiling: the catastrophic-payload path
+  fails loud at the boundary instead of silently spending. The trade-off is that
+  an over-ceiling query is *refused* rather than auto-compressed — grounding is
+  pushed upstream, which is where the source/tool context actually lives.
 
 ## Alternatives
 
