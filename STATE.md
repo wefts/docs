@@ -43,18 +43,14 @@ the work in progress right now.
 - `standards/` — guardrails, verification, workflow, conventions, code-style,
   how-to-write-adr. All present and current.
 - `architecture/` — overview, ports, **confidence-calculus (just added)**.
-- `decisions/` — ADR-0..12. Present, indexed, and anchored. Some records are
-  marked `Stub`: the decision is accepted, but the markdown record still needs
-  full wording transplanted from the old spec.
+- `decisions/` — ADR-0..12. Present, indexed, anchored, and **all records now
+  `Complete`**: the accepted wording is transplanted from the old spec (T0).
 - `reference/` — glossary and bibliography (both substantial, annotated, sourced)
   and concepts.
 - `README.md` (authority map) and this `STATE.md`.
 
 ## In flight / known gaps
 
-- **ADR text is not fully migrated.** `docs/decisions/` exists, but several ADR
-  records are still marked `Stub`. The remaining work is to transplant the full
-  accepted wording from the old `swarm_architecture_spec.md`.
 - **Naming propagation is mostly done.** The shared `docs/` tree uses
   `wefts` / Swarm / Hive consistently. Remaining spot checks belong to
   repo-specific docs in `swarm/` and `hive/`.
@@ -85,6 +81,11 @@ detail in `architecture/overview.md` — not repeated here.
 
 ## Recently shipped
 
+- **T0 — stub ADRs transplanted.** All eight `Stub` records in `docs/decisions/`
+  (ADR-1,2,4,5,6,7,8,9) now carry the full accepted wording from
+  `swarm/docs/swarm_architecture_spec.md`, grounded in the built kernel and
+  verified by independent critics (faithful transplant, no invention, open
+  problems OP#2/#4 + ADR-9 correlated-events kept open). `board/done/T0…`.
 - **MVP vertical slice** built and canonical in code (`kernel/`, `ml/`, `cli/`):
   graph substrate, gate, consilium, ingest, embeddings, CLI (old `swarm/tmp/tasks`
   01–08; see `board/done/mvp-build`).
@@ -103,10 +104,9 @@ The full roadmap is `board/roadmap.md` (phases + status map + the glpi-agent
 connector fold-in); task cards in `board/todo/`; rationale in `board/research/`.
 In order:
 
-1. **T0 — transplant the stub ADRs** (`docs/decisions/` ADR-1,2,4,5,6,7,8,9 are
-   still `Stub`): fold the accepted wording from `swarm/docs/swarm_architecture_spec.md`.
-   This is the doc-sync debt, and it gates the contract-first tasks.
-2. **T1–T2** — confidence-saturation spike; graph-integrity/provenance/idempotency
-   contract → then T3/T4 (connector contract + reference connector).
-3. Cross-cutting: naming spot-check in `swarm/`/`hive/`; the Ask-first guard script
+1. **T1 — confidence-saturation spike** (dense-graph independence grouping; OP#5),
+   then **T2** — graph-integrity / provenance / idempotency / visibility contract
+   (closes the ADR-9 "correlated events counted as independent" hazard; gates
+   connectors). Then T3/T4 (connector contract + reference connector, glpi fold-in).
+2. Cross-cutting: naming spot-check in `swarm/`/`hive/`; the Ask-first guard script
    (promote 📝 → 🔒).

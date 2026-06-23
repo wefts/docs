@@ -6,7 +6,7 @@ Accepted
 
 ## Record Completeness
 
-Stub
+Complete
 
 ## Context
 
@@ -16,9 +16,27 @@ not just rate limits — is a named open problem.
 
 ## Decision
 
-> TODO: transplant the current stability mechanism from
-> swarm_architecture_spec.md (what is in place today — rate limits, decay,
-> damping — and what guarantees it does and does not give).
+Stability rests on a **saturating trace with dominant decay**, not on rate limits
+alone:
+
+- Trace strength saturates rather than growing linearly:
+  `strength = f(seen_count) * exp(-lambda * age)`, with the Hill form
+  `f(n) = log(1+n) / (log(1+n) + S)` — monotone in `n`, bounded in `[0, 1)`.
+- **Decay is the dominant pole.** A one-off reinforcement burst fades; only
+  sustained independent evidence holds an edge up.
+- **Reinforcement comes only from independent ingest events, not internal
+  re-detections.** This is a precondition for ADR-3's confidence aggregation —
+  without it, the system confirms its own beliefs.
+- Tuning parameters `lambda`, `S`, `mu` live in **one tuning inventory** (ADR-8),
+  never as scattered literals.
+- **Cold-start calibration** uses isotonic/Platt regression on 50–200 external
+  labels and requires ECE below threshold; until then, confidence is not trusted
+  (shared with ADR-8).
+
+In the kernel this is `Swarm.Graph.Strength` (pure functions; `lambda`/`S` from
+config). What it gives: bounded, decaying traces that cannot run away from a single
+source. What it does **not** give: a *formal* convergence guarantee, and it does not
+distinguish correlated-but-provenance-distinct events (see Consequences).
 
 ## Consequences
 
@@ -45,4 +63,12 @@ not just rate limits — is a named open problem.
 
 ## Alternatives
 
-> TODO: transplant rejected stabilization approaches.
+- **Linear `f(seen_count)`.** Rejected — positive feedback without saturation,
+  against a dominant decay, oscillates or runs away; linear growth makes edges
+  effectively immortal.
+- **Reinforcement from any re-detection (including internal).** Rejected — closes
+  an endogenous confirmation loop and breaks the independence precondition ADR-3
+  relies on; reinforcement must come from independent ingest events only.
+- **Rate limiting as the primary control.** Rejected as *sufficient* — it caps the
+  rate of change but not the fixed point; saturation + decay bound the steady
+  state. Rate limits may still complement it operationally.
