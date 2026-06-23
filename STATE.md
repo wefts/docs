@@ -81,6 +81,15 @@ detail in `architecture/overview.md` — not repeated here.
 
 ## Recently shipped
 
+- **T2 — graph-integrity contract.** The shared graph schema is now
+  write-validated at the `Swarm.Graph.Store` boundary (swarm ADR-4, Accepted):
+  type/scope vocabulary, the ADR-5 visibility invariant (edge scope ≤ narrowest
+  endpoint — moved from ingest into the kernel, closing the public-edge-between-
+  private-nodes leak), reliability range, provenance shape. Defense-in-depth: DB
+  CHECK on scope vocab + `FOR SHARE` on the endpoint read; schema version stamped.
+  `mix test` 87/0, credo/dialyzer/format clean; critic-reviewed SOUND-WITH-CAVEATS
+  (caveats applied). Provenance *lineage* stays ADR-9's open problem; durability
+  follow-up `board/todo/graph-rescope-and-trigger`. `board/done/T2…`.
 - **T1 — confidence-saturation spike.** Measured where confidence collapses on a
   dense graph: it is **path enumeration** (the recursive-CTE traversal), not the
   independence-grouping open problem (grouping is ~O(P), sub-second even at 299k
@@ -112,10 +121,13 @@ The full roadmap is `board/roadmap.md` (phases + status map + the glpi-agent
 connector fold-in); task cards in `board/todo/`; rationale in `board/research/`.
 In order:
 
-1. **T2 — graph-integrity / provenance / idempotency / visibility contract**
-   (closes the ADR-9 "correlated events counted as independent" hazard; gates
-   connectors) — the next campaign. A natural companion: the `traverse-relaxation`
-   follow-up from T1. Then T3/T4 (connector contract + reference connector,
-   glpi fold-in).
-2. Cross-cutting: naming spot-check in `swarm/`/`hive/`; the Ask-first guard script
+1. **T3 — typed Connector port contract** (ingestion / provenance / completeness),
+   then **T4 — reference connectors** (port Confluence + Mediawiki from
+   `~/Code/glpi-agent` behind the port; ADR-11). This is the first real vertical
+   slice — connectors now write against the T2-validated schema.
+2. Kernel follow-ups now teed up: `traverse-relaxation` (impl swarm ADR-3),
+   `graph-rescope-and-trigger` (durability for the ADR-4 visibility invariant).
+   The ADR-9 strength-independence decision (provenance evidential-origin) is still
+   the biggest open correctness question.
+3. Cross-cutting: naming spot-check in `swarm/`/`hive/`; the Ask-first guard script
    (promote 📝 → 🔒).

@@ -7,6 +7,14 @@ is one implementation of that contract.
 This is the rule that lets a public kernel coexist with private, experimental,
 or third-party integrations.
 
+> **Ports protect the *call* boundary, not the *data* boundary.** A plugin can
+> obey every port signature and still write malformed or scope-leaking rows into
+> the shared graph. That second boundary is a separate contract — the graph schema
+> is write-validated (type/scope vocabulary, the ADR-5 visibility invariant,
+> reliability, provenance shape) and stamped with a schema version, enforced at
+> `Swarm.Graph.Store`. See swarm ADR-4
+> (`../../swarm/docs/decisions/0004-graph-integrity-contract.md`).
+
 ## Port Kinds
 
 The current top-level kinds are:
