@@ -80,8 +80,8 @@ detail in `architecture/overview.md` — not repeated here.
 - The kernel never imports plugin source as a hidden dependency.
 - Remote sync is a human/operator action, never an agent default.
 - Each repo owns its own `tmp/`. Planning lives in the workspace-root `board/`
-  (Kanban: `ideas/ todo/ doing/ done/` + `research/` + `journal.md`; **never
-  committed**) — the one shared top-level planning dir.
+  (Kanban: `ideas/ todo/ doing/ done/` + `research/` + `journal.md`) — its own
+  **local git repo with no remote** (a backup, never pushed → never leaks).
 
 ## Recently shipped
 
@@ -99,8 +99,9 @@ detail in `architecture/overview.md` — not repeated here.
 
 ## Next
 
-The ordered backlog lives in `board/todo/` (roadmap T0–T13, from
-`board/research/proposal` + two critic reviews). In order:
+The full roadmap is `board/roadmap.md` (phases + status map + the glpi-agent
+connector fold-in); task cards in `board/todo/`; rationale in `board/research/`.
+In order:
 
 1. **T0 — transplant the stub ADRs** (`docs/decisions/` ADR-1,2,4,5,6,7,8,9 are
    still `Stub`): fold the accepted wording from `swarm/docs/swarm_architecture_spec.md`.
