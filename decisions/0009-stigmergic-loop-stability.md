@@ -60,6 +60,11 @@ distinguish correlated-but-provenance-distinct events (see Consequences).
   [confidence-calculus.md → Independence in the strength dimension](../architecture/confidence-calculus.md#independence-in-the-strength-dimension).
   Open until a decision is taken among: connector provenance contract /
   per-source reinforcement cap / lineage-aware reinforcement.
+- **Operational realization (T11).** The decay here is made to actually *evaporate*
+  traces by decay-driven garbage collection — see
+  [swarm ADR-10](../../swarm/docs/decisions/0010-trace-lifecycle-gc.md): traces
+  below a decayed-strength floor are reaped so the graph stays O(1), and ρ (the
+  master stability knob) is re-derived per corpus scale.
 
 ## Alternatives
 

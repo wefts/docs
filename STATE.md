@@ -81,6 +81,14 @@ detail in `architecture/overview.md` — not repeated here.
 
 ## Recently shipped
 
+- **Phase D (T10–T13) — mechanisms & hardening.** T10 poison/DLQ + demand-pull
+  backpressure (swarm ADR-9). T11 decay-driven trace GC + bounded weights +
+  re-derivable ρ (swarm ADR-10, OP#1). T12 graph zones + claim/observation typing
+  with reward-gated persistence — the N3 defense (swarm ADR-11; schema v1→v2). T13
+  stagnation monitor + deduped bystander surface + wired watchdog (swarm ADR-12).
+  All four critic-verified (three hit FLAWED first, re-critiqued after fixes,
+  resolved); 139 tests 0 failures, gates clean. Follow-ups carded
+  (`reward-quorum-and-audit`, `stagnation-escalation-sink`).
 - **Phase C (T5–T9) — answers, cost, channels, identity.** T5 LLM per-escalation
   budget (ceiling + model-boundary backstop + cost telemetry; the 385k path is
   refused) → ADR-7 budget. T6 answer-result algebra (found/not_found/partial/error,
@@ -141,10 +149,14 @@ The full roadmap is `board/roadmap.md` (phases + status map + the glpi-agent
 connector fold-in); task cards in `board/todo/`; rationale in `board/research/`.
 In order:
 
-1. **Phase D — T10–T13**: backpressure + poison/DLQ · trace TTL/decay/GC (OP#1) ·
-   graph zones + claim-vs-observation typing (N3) · coordination control
-   (stagnation monitor; pattern-match subs partly done via stigmergy). Phases
-   A (T0–T2), B (T3–T4), C (T5–T9) are done.
+1. **The roadmap T-sequence (T0–T13) is complete** — phases A (contracts), B
+   (connectors), C (answers/cost/channels/identity), D (mechanisms/hardening) all
+   shipped. What remains is the **follow-up backlog** in `board/todo/`: the real
+   glpi connectors (`confluence-mediawiki-connectors`), kernel hardening
+   (`traverse-relaxation`, `graph-rescope-and-trigger`, `reward-quorum-and-audit`,
+   `stagnation-escalation-sink`, `upsert-node-emit`), the hive chat channel, and
+   cross-cutting (naming spot-check, Ask-first guard script). Re-cut priority with
+   the `architect` skill before the next campaign.
 2. The real connector implementation: `todo/confluence-mediawiki-connectors`
    (port Confluence + Mediawiki from `~/Code/glpi-agent` behind `fetch/2`, hive).
 3. Kernel follow-ups teed up: `traverse-relaxation` (impl swarm ADR-3),
