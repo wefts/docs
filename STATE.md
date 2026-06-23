@@ -81,6 +81,14 @@ detail in `architecture/overview.md` — not repeated here.
 
 ## Recently shipped
 
+- **T1 — confidence-saturation spike.** Measured where confidence collapses on a
+  dense graph: it is **path enumeration** (the recursive-CTE traversal), not the
+  independence-grouping open problem (grouping is ~O(P), sub-second even at 299k
+  groups). Decision (swarm ADR-3, Proposed): node-bounded best-conf-per-node
+  relaxation + best-effort-above-budget; region-based BP deferred (off critical
+  path). Bench `swarm/kernel/bench/confidence_saturation.exs`; critic-verified
+  (SOUND-WITH-CAVEATS, equivalence independently confirmed). Impl follow-up:
+  `board/todo/traverse-relaxation`. `board/done/T1…`.
 - **T0 — stub ADRs transplanted.** All eight `Stub` records in `docs/decisions/`
   (ADR-1,2,4,5,6,7,8,9) now carry the full accepted wording from
   `swarm/docs/swarm_architecture_spec.md`, grounded in the built kernel and
@@ -104,9 +112,10 @@ The full roadmap is `board/roadmap.md` (phases + status map + the glpi-agent
 connector fold-in); task cards in `board/todo/`; rationale in `board/research/`.
 In order:
 
-1. **T1 — confidence-saturation spike** (dense-graph independence grouping; OP#5),
-   then **T2** — graph-integrity / provenance / idempotency / visibility contract
+1. **T2 — graph-integrity / provenance / idempotency / visibility contract**
    (closes the ADR-9 "correlated events counted as independent" hazard; gates
-   connectors). Then T3/T4 (connector contract + reference connector, glpi fold-in).
+   connectors) — the next campaign. A natural companion: the `traverse-relaxation`
+   follow-up from T1. Then T3/T4 (connector contract + reference connector,
+   glpi fold-in).
 2. Cross-cutting: naming spot-check in `swarm/`/`hive/`; the Ask-first guard script
    (promote 📝 → 🔒).

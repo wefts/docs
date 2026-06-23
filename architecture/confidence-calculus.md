@@ -145,6 +145,18 @@ than hoping paths are independent. Whether a cheap-enough approximation exists
 for this project's online traversal is one of the named open problems; it is the
 unsolved edge of ADR-3, not a settled detail.
 
+**Measured (T1 spike, 2026-06).** The saturation spike
+([swarm ADR-3](../../swarm/docs/decisions/0003-confidence-traversal-bounding.md);
+bench numbers in `swarm/docs/design/confidence-saturation-spike.md`) found that
+**grouping is not the wall — path *enumeration* is.** The recursive-CTE traversal
+materializes one row per path (`fanout^depth`) and collapses by ~72k edges at
+fanout 8 / depth 9, long before grouping runs; grouping itself is ~`O(P)` given
+the path set. So the kernel fix is **node-bounded traversal** (best-confidence-
+per-node relaxation, identical result for single-source), and region-based BP for
+large-scale multi-origin partitioning is **deferred, not on the critical path** —
+it is the cheap step, optimized only once multi-origin corroboration at scale
+exists.
+
 ## Independence in the strength dimension
 
 The independence trap is not confined to confidence aggregation. It reappears,
