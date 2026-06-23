@@ -79,13 +79,33 @@ detail in `architecture/overview.md` — not repeated here.
 - Private data lives only in `hive/`.
 - The kernel never imports plugin source as a hidden dependency.
 - Remote sync is a human/operator action, never an agent default.
-- Each repo owns its own `tmp/`; there is no shared top-level `tmp/`.
+- Each repo owns its own `tmp/`. Planning lives in the workspace-root `board/`
+  (Kanban: `ideas/ todo/ doing/ done/` + `research/` + `journal.md`; **never
+  committed**) — the one shared top-level planning dir.
+
+## Recently shipped
+
+- **MVP vertical slice** built and canonical in code (`kernel/`, `ml/`, `cli/`):
+  graph substrate, gate, consilium, ingest, embeddings, CLI (old `swarm/tmp/tasks`
+  01–08; see `board/done/mvp-build`).
+- **Dockerization** — full containerized stack (DHI images, `hive/` compose with
+  **GPU Ollama**, proven offline boot, digest-pinned 3-tier registry, HA replicas);
+  `swarm/docs/design/dockerization-design.md`, `hive/docs/operations.md`.
+- **Stigmergy signal** — graph-write → worker reaction (outbox → tailer → dispatch →
+  per-key lanes). swarm-local **ADR-2** (Accepted) + spec; `board/done/stigmergy-signal`.
+- **`swarm/infra/` → `swarm/dev/`** rename; **model-residency scheduler** concept
+  (swarm-local **ADR-1**, Proposed). `swarm/` now carries repo-local ADRs in
+  `swarm/docs/decisions/`, distinct from the workspace `docs/decisions/`.
 
 ## Next
 
-In order:
+The ordered backlog lives in `board/todo/` (roadmap T0–T13, from
+`board/research/proposal` + two critic reviews). In order:
 
-1. Transplant the full accepted ADR wording into `Stub` records in
-   `docs/decisions/` (mostly ADR-1..9).
-2. Spot-check repo-specific docs for stale `wefts` / Swarm / Hive naming.
-3. Write the Ask-first guard script and promote the high-stakes 📝 lines to 🔒.
+1. **T0 — transplant the stub ADRs** (`docs/decisions/` ADR-1,2,4,5,6,7,8,9 are
+   still `Stub`): fold the accepted wording from `swarm/docs/swarm_architecture_spec.md`.
+   This is the doc-sync debt, and it gates the contract-first tasks.
+2. **T1–T2** — confidence-saturation spike; graph-integrity/provenance/idempotency
+   contract → then T3/T4 (connector contract + reference connector).
+3. Cross-cutting: naming spot-check in `swarm/`/`hive/`; the Ask-first guard script
+   (promote 📝 → 🔒).
