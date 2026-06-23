@@ -81,6 +81,16 @@ detail in `architecture/overview.md` — not repeated here.
 
 ## Recently shipped
 
+- **Phase B (T3+T4) — connector ingestion contract.** swarm ADR-5: the
+  `connector` port gains a kernel-driven `fetch/2` paginated pull, and
+  `Swarm.Connector.Sync` owns completeness (drives the cursor to exhaustion,
+  retries flaky fetches, logs source ceilings instead of silently capping, tracks
+  the delta watermark, reconciles against a declared total, and returns a report —
+  never raw payloads, so a model only ever reads graph state). Proven by a
+  hostile-fixture connector + an 8-test completeness gate. `mix test` 95/0,
+  credo/dialyzer/format clean; critic SOUND-WITH-CAVEATS (fixes applied). The real
+  Confluence/Mediawiki glpi port is the follow-up
+  `board/todo/confluence-mediawiki-connectors` (hive). `board/done/T3…`,`T4…`.
 - **T2 — graph-integrity contract.** The shared graph schema is now
   write-validated at the `Swarm.Graph.Store` boundary (swarm ADR-4, Accepted):
   type/scope vocabulary, the ADR-5 visibility invariant (edge scope ≤ narrowest
@@ -121,13 +131,15 @@ The full roadmap is `board/roadmap.md` (phases + status map + the glpi-agent
 connector fold-in); task cards in `board/todo/`; rationale in `board/research/`.
 In order:
 
-1. **T3 — typed Connector port contract** (ingestion / provenance / completeness),
-   then **T4 — reference connectors** (port Confluence + Mediawiki from
-   `~/Code/glpi-agent` behind the port; ADR-11). This is the first real vertical
-   slice — connectors now write against the T2-validated schema.
-2. Kernel follow-ups now teed up: `traverse-relaxation` (impl swarm ADR-3),
+1. **Phase C — T5–T9**: cost/budget + LLM-I/O · answer-result algebra · channel
+   rendering · self-model + requester identity · chat-channel persona. Then
+   **Phase D — T10–T13** (backpressure/DLQ, trace TTL/decay/GC, graph zones,
+   coordination control). Phase A (T0–T2) and Phase B (T3–T4) are done.
+2. The real connector implementation: `todo/confluence-mediawiki-connectors`
+   (port Confluence + Mediawiki from `~/Code/glpi-agent` behind `fetch/2`, hive).
+3. Kernel follow-ups teed up: `traverse-relaxation` (impl swarm ADR-3),
    `graph-rescope-and-trigger` (durability for the ADR-4 visibility invariant).
    The ADR-9 strength-independence decision (provenance evidential-origin) is still
    the biggest open correctness question.
-3. Cross-cutting: naming spot-check in `swarm/`/`hive/`; the Ask-first guard script
+4. Cross-cutting: naming spot-check in `swarm/`/`hive/`; the Ask-first guard script
    (promote 📝 → 🔒).
