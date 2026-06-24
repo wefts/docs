@@ -81,6 +81,32 @@ detail in `architecture/overview.md` — not repeated here.
 
 ## Recently shipped
 
+- **Data-foundation epic Phase 1 — ADR-14 / C1′ is BUILT, live-verified, and the answer
+  path now retrieves content.** Five cards (swarm): (1) a stateless `content`/`chunk`
+  side-store (FK CASCADE, HNSW + GIN-FTS, scope read via `node.scope`); (2) a closed
+  kernel **node-type vocabulary** (`Contract.types/0`, fail-loud; edge/relation types stay
+  open), schema stamped v3; (3) no-LLM ingest that populates `content` + `chunk` +
+  aggregated `node.vec` (prose strip → segmenter → `Content.put_body` in-tx → `Embedder`
+  worker off-tx) — closes the structure-not-prose gap; (4) scope-aware per-kind
+  `merge_nodes` (cross-scope **refused**, chunk-span union + content survivorship +
+  `node.vec` re-aggregate) + a reversible standing **`node_alias`** table consulted by
+  `upsert_node`; (5) **hybrid retrieval** `Retrieval.search` — lexical(tsvector/GIN) ∥
+  dense(pgvector HNSW) RRF-fused, scope on both arms, → recursive-CTE traversal, cited
+  spans always. Then a **relevance floor**: the dense arm's absolute cosine gates each
+  chunk (lexical hit OR cosine ≥ floor) before RRF, so the system can return `:not_found`
+  for out-of-scope queries; `Core.ask` now routes through this hybrid path (owner "my X"
+  stays key-based, T8 preserved). Verified on a live `swarm_slice` (real bge-m3, ~96
+  Wikipedia pages): answerability 0%→~100% (floor), recall@1 ~30%→98%, recall@5 100%,
+  fragmentation 0, retrieval p50 ~190ms (≈ the query-embed round-trip). Checked by a
+  decorrelated critic council + **multi-agent manual QA** (privacy/scope no-leak, content
+  recall, cross-lingual UA/FR, paraphrase all pass). A KEY diagnosis: the early "embedding
+  hubness" / "no recall lift" symptoms were a measurement+fusion artefact (RRF discarded
+  the absolute cosine), not the embeddings. Honest open gaps, all carded in `board/todo/`:
+  key/title-arm out-of-scope leak (~2/10 stub-title matches), `:swarm,:retrieval` floor is
+  absolute (relative gate is the Phase-2 calibration), `"my"`-in-title false-ownership,
+  and the embed worker is wired but the deployed hive image predates it. **Phase 2**
+  (source-adapted segmenter, per-type aggregate-vs-identity vec) stays GATED on the hive
+  Confluence connector. swarm `main` carries it (3 feat branches ff-merged), **not pushed**.
 - **Data-foundation research epic — the memory model is decided (no code).** A
   research-first epic (`board/research/data-foundation-research.md`) ran in 4 steps:
   landscape survey (3 decorrelated web-grounded agents → `board/research/data-landscape.md`),
