@@ -14,6 +14,8 @@ Repo-specific instructions stay in the repo they belong to:
 
 ## Start Here
 
+- [guide/](guide/) — **plain-language guide** to how Swarm works, for readers from any
+  background (the friendly layer; the canon below is the precise version).
 - [STATE.md](STATE.md) — current workspace state, ownership, and what is
   considered canonical today.
 - [architecture/overview.md](architecture/overview.md) — workspace shape,
