@@ -32,9 +32,7 @@ wefts/                 (workspace; org = wefts; top level is NOT a git repo)
   scripts/ no git        local operator tooling (sync, env), outside git by design
 ```
 
-The three repos were **just split apart**, and `docs/` was **just made public**
-(it defaulted to private on creation). Bringing all three into consistent order is
-the work in progress right now.
+The three repos are split apart and `docs/` is public; the workspace shape is settled.
 
 ## What is canonical today
 
@@ -42,11 +40,14 @@ the work in progress right now.
 
 - `standards/` — guardrails, verification, workflow, conventions, code-style,
   how-to-write-adr. All present and current.
-- `architecture/` — overview, ports, **confidence-calculus (just added)**.
-- `decisions/` — ADR-0..12. Present, indexed, anchored, and **all records now
-  `Complete`**: the accepted wording is transplanted from the old spec (T0).
+- `architecture/` — overview, ports, confidence-calculus.
+- `decisions/` — **workspace** ADR-0..12, indexed, anchored, all records `Complete`.
+  The **swarm-local** sequence ADR-1..14 lives in `swarm/docs/decisions/` (a separate
+  numbering; ADR-13 entity resolution, ADR-14 data/memory model are the newest).
 - `reference/` — glossary and bibliography (both substantial, annotated, sourced)
-  and concepts.
+  and concepts. (The shipped memory vocabulary — *content / chunk / hybrid retrieval /
+  answerability* — is not yet in the glossary; minor follow-up.)
+- `guide/` — plain-language guides (memory model, search, the graph).
 - `README.md` (authority map) and this `STATE.md`.
 
 ## In flight / known gaps
@@ -60,6 +61,16 @@ the work in progress right now.
 - **Instruction-file migration is mostly done.** Root `AGENTS.md`,
   `swarm/AGENTS.md`, and `hive/AGENTS.md` are canonical. `CLAUDE.md` files
   should remain pointers, not second sources of truth.
+- **Answer-path quality gaps (carded, from the data-impl knowledge-test).** The
+  retrieval/answer layer is validated only on ONE clean source so far. Open in
+  `board/todo/`: key/title arm can false-`found` a content-less stub by exact title
+  (`key-arm-answerability`); `"my"` inside a title misroutes to the identity path
+  (`first-person-false-ownership`); the relevance floor is absolute (a relative gate
+  is the Phase-2 calibration); the dense arm lowers MRR on exact-keyword probes (RRF
+  fusion weighting → `data-impl-vector-recall`). All localized, none structural.
+- **Data-impl Phase 2 is gated on a second, messy real source.** The source-adapted
+  segmenter and per-type aggregate-vs-identity vector measurement need ≥2 source shapes;
+  they wait on `confluence-mediawiki-connectors` (access now unblocked).
 
 ## Architecture direction (stable)
 
@@ -206,23 +217,22 @@ detail in `architecture/overview.md` — not repeated here.
 
 ## Next
 
-The full roadmap is `board/roadmap.md` (phases + status map + the glpi-agent
-connector fold-in); task cards in `board/todo/`; rationale in `board/research/`.
-In order:
+The full roadmap is `board/roadmap.md`; task cards in `board/todo/`; rationale in
+`board/research/`. The T0–T13 sequence, Phase E, the data-foundation research epic, and
+**data-impl Phase 1** are all shipped. The next cut was set by a 2-family decorrelated
+council (gemini-pro-latest + local gemma, 2026-06-24; journal) — **A next, instrument B
+during it, watch D**:
 
-1. **The roadmap T-sequence (T0–T13) is complete** — phases A (contracts), B
-   (connectors), C (answers/cost/channels/identity), D (mechanisms/hardening) all
-   shipped. What remains is the **follow-up backlog** in `board/todo/`: the real
-   glpi connectors (`confluence-mediawiki-connectors`), kernel hardening
-   (`traverse-relaxation`, `graph-rescope-and-trigger`, `reward-quorum-and-audit`,
-   `stagnation-escalation-sink`, `upsert-node-emit`), the hive chat channel, and
-   cross-cutting (naming spot-check, Ask-first guard script). Re-cut priority with
-   the `architect` skill before the next campaign.
-2. The real connector implementation: `todo/confluence-mediawiki-connectors`
-   (port Confluence + Mediawiki from `~/Code/glpi-agent` behind `fetch/2`, hive).
-3. Kernel follow-ups teed up: `traverse-relaxation` (impl swarm ADR-3),
-   `graph-rescope-and-trigger` (durability for the ADR-4 visibility invariant).
-   The ADR-9 strength-independence decision (provenance evidential-origin) is still
-   the biggest open correctness question.
-4. Cross-cutting: naming spot-check in `swarm/`/`hive/`; the Ask-first guard script
-   (promote 📝 → 🔒).
+1. **A — ingest a second, messy real source** (`todo/confluence-mediawiki-connectors`,
+   hive; access unblocked). Every Phase-1 metric is overfit to one clean prose source;
+   a non-prose source (HTML/tables/code) is the only way to learn whether retrieval +
+   segmentation + the relevance floor survive reality. It is also the GATE for Phase 2.
+   Carry the council caveat: re-measure traversal cost on the messier/denser graph.
+2. **data-impl Phase 2** (gated on A): `todo/data-impl-segmenter` (source-adapted
+   segmentation) + `todo/data-impl-vector-recall` (per-type vec, RRF/relative-floor tuning).
+3. **B — `todo/traverse-relaxation`** (impl swarm ADR-3): a latent scaling wall, not a
+   current blocker (stage-2 ≈ +10ms at slice scale); promote when the A re-measurement
+   shows traversal cost climbing.
+4. **D — ADR-9 evidential-origin** stays the biggest open correctness question; promote
+   when multi-source ingest starts compounding corroboration. Localized answer-path fixes
+   (`key-arm-answerability`, `first-person-false-ownership`) slot after A or opportunistically.
