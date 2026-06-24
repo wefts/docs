@@ -92,6 +92,31 @@ detail in `architecture/overview.md` — not repeated here.
 
 ## Recently shipped
 
+- **Campaign A — real Confluence + intranet MediaWiki connectors, live-verified; the
+  Phase-1 metrics de-risked off clean prose.** Two self-contained `hive/plugins`
+  connectors (private repo) implement the ADR-5 `fetch/2` contract and are auto-loaded by
+  `Swarm.Plugins` as `"confluence"` + `"mediawiki"` — the in-process dev-adapter mode
+  (ports.md, ADR-11); no kernel change, source-specific parsing kept out of the public
+  kernel by design. Confluence: HTTP Basic, CQL search endpoint, **opaque `_links.next`
+  cursor** (a real-data bug — the endpoint silently ignores a manual `start` offset and
+  re-returns page 1; the de-risk *found and fixed* it), storage-XHTML→prose, `<ri:page>`
+  links + ancestors `child_of`, label/length skip, `group` scope. MediaWiki: allpages +
+  `continue` pagination, wikitext→prose, link + redirect resolution, best-effort
+  BotPassword login (degrades to anon), `group` scope. Both kernel-driven for completeness
+  (`truncated?` on a ceiling, never silent). Hermetic tests 7/7 + 8/8, credo/format clean,
+  live-smoke + a multi-source live slice (`hive/scripts/`). **Re-measured on a 3-source,
+  mixed-scope `swarm_slice`** (2345 public Wikipedia + 821 group intranet + 600 embedded):
+  recall@5 **HOLDS on the messy corpus — 98.7% (intranet) vs 100% (Wikipedia), answerability
+  100%**; content-over-title lift is *larger* on real org data (+84pp vs +64pp). Scope
+  isolation held (intranet never `public`). Traversal cost flat ~2 ms to depth 4 (ADR-3
+  wall not triggered; hubs shallow so still under-tested). **New honest gaps, carded:**
+  fragmentation 0→3 same-scope groups (the predicted entity-resolution soft-match case,
+  `todo/entity-resolution`); hybrid **MRR degrades on messy data** (0.77 vs lexical 0.989) —
+  the dense arm reorders exact hits down, a Phase-2 fusion-tuning signal needing a
+  paraphrase probe set (`todo/hybrid-rank-on-messy`). Verdicts from a decorrelated council
+  (codex gpt-5.5 + local gemma, independently convergent). hive `main` carries it (feat +
+  fix + chore branches ff-merged), **not pushed**. This **unblocks data-impl Phase 2**
+  (`data-impl-segmenter`, `data-impl-vector-recall`) — the ≥2-source-shape gate is met.
 - **Data-foundation epic Phase 1 — ADR-14 / C1′ is BUILT, live-verified, and the answer
   path now retrieves content.** Five cards (swarm): (1) a stateless `content`/`chunk`
   side-store (FK CASCADE, HNSW + GIN-FTS, scope read via `node.scope`); (2) a closed
@@ -116,8 +141,9 @@ detail in `architecture/overview.md` — not repeated here.
   key/title-arm out-of-scope leak (~2/10 stub-title matches), `:swarm,:retrieval` floor is
   absolute (relative gate is the Phase-2 calibration), `"my"`-in-title false-ownership,
   and the embed worker is wired but the deployed hive image predates it. **Phase 2**
-  (source-adapted segmenter, per-type aggregate-vs-identity vec) stays GATED on the hive
-  Confluence connector. swarm `main` carries it (3 feat branches ff-merged), **not pushed**.
+  (source-adapted segmenter, per-type aggregate-vs-identity vec) is now **UNGATED** —
+  Campaign A delivered the ≥2-source-shape requirement (above). swarm `main` carries it
+  (3 feat branches ff-merged), **not pushed**.
 - **Data-foundation research epic — the memory model is decided (no code).** A
   research-first epic (`board/research/data-foundation-research.md`) ran in 4 steps:
   landscape survey (3 decorrelated web-grounded agents → `board/research/data-landscape.md`),
@@ -218,21 +244,21 @@ detail in `architecture/overview.md` — not repeated here.
 ## Next
 
 The full roadmap is `board/roadmap.md`; task cards in `board/todo/`; rationale in
-`board/research/`. The T0–T13 sequence, Phase E, the data-foundation research epic, and
-**data-impl Phase 1** are all shipped. The next cut was set by a 2-family decorrelated
-council (gemini-pro-latest + local gemma, 2026-06-24; journal) — **A next, instrument B
-during it, watch D**:
+`board/research/`. The T0–T13 sequence, Phase E, the data-foundation research epic,
+**data-impl Phase 1**, and now **Campaign A (real connectors)** are all shipped.
 
-1. **A — ingest a second, messy real source** (`todo/confluence-mediawiki-connectors`,
-   hive; access unblocked). Every Phase-1 metric is overfit to one clean prose source;
-   a non-prose source (HTML/tables/code) is the only way to learn whether retrieval +
-   segmentation + the relevance floor survive reality. It is also the GATE for Phase 2.
-   Carry the council caveat: re-measure traversal cost on the messier/denser graph.
-2. **data-impl Phase 2** (gated on A): `todo/data-impl-segmenter` (source-adapted
-   segmentation) + `todo/data-impl-vector-recall` (per-type vec, RRF/relative-floor tuning).
-3. **B — `todo/traverse-relaxation`** (impl swarm ADR-3): a latent scaling wall, not a
-   current blocker (stage-2 ≈ +10ms at slice scale); promote when the A re-measurement
-   shows traversal cost climbing.
+1. **A — DONE.** Real Confluence + intranet MediaWiki connectors shipped and
+   live-verified (see Recently shipped). Recall held on the messy corpus; the de-risk
+   surfaced two carded gaps (fragmentation soft-match; hybrid MRR on messy data) and
+   measured traversal cost flat (B not promoted).
+2. **data-impl Phase 2** (now UNGATED): `todo/data-impl-segmenter` (source-adapted
+   segmentation, now ≥2 source shapes to tune against) + `todo/data-impl-vector-recall`
+   (per-type vec, RRF/relative-floor tuning) — the latter now informed by
+   `todo/hybrid-rank-on-messy` (dense arm reorders exact hits down on real content).
+3. **B — `todo/traverse-relaxation`** (impl swarm ADR-3): stays deferred — A's
+   re-measurement showed traversal cost flat (~2 ms to depth 4), not climbing; promote
+   only if a deeper/denser region exercises the path-enumeration wall.
 4. **D — ADR-9 evidential-origin** stays the biggest open correctness question; promote
-   when multi-source ingest starts compounding corroboration. Localized answer-path fixes
-   (`key-arm-answerability`, `first-person-false-ownership`) slot after A or opportunistically.
+   when multi-source ingest starts compounding corroboration (now live — watch it).
+   Localized answer-path fixes (`key-arm-answerability`, `first-person-false-ownership`)
+   slot in opportunistically.
