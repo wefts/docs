@@ -81,6 +81,24 @@ detail in `architecture/overview.md` — not repeated here.
 
 ## Recently shipped
 
+- **Phase E — first live slice (the kernel parses real data at last).** One campaign
+  (`board/done/phaseE-live-slice`): E1 reconsolidated `swarm/docs/system_architecture.md`
+  into a top-down story with all 8 Phase B/C/D subsystems, an admitted control plane,
+  and an honest "contract-vs-proven-on-real-data" §12 (codex-reviewed). E2 built a
+  public **Wikipedia/MediaWiki connector** (`fetch/2`, allpages + `continue`, wikitext
+  strip, link graph) — 9 tests — and ran a real ingest→graph→ask loop. **The entire
+  T0–T13 marathon was deployed to the conditional hive prod for the first time** (the
+  running image was pre-marathon MVP); a live run put 1313 article nodes / 1379 edges
+  into prod `swarm_dev` and answered via the deployed Core API (self-model + graph
+  retrieval). The predicted failure modes are now **confirmed on real data**: entity
+  fragmentation (**now fixed**, swarm ADR-13 Accepted: layer 1 URL-decode +
+  layer 2 kernel `merge_nodes/3` provenance-preserving merge + MediaWiki redirect
+  resolution at ingest — the live fragmentation probe dropped 4→0 on real data),
+  off-topic deflection collapses to escalate when ML is down, consilium escalation
+  latency >280s (motivates swarm ADR-1), and ingest persists structure not prose
+  (no node `vec`/content). Full suite 148/0; format/credo/markdownlint clean; codex
+  consilium on both load-bearing docs. swarm ADR-13 (entity resolution, Proposed)
+  added. Changes in the `swarm/` working tree pending an operator commit; not pushed.
 - **Phase D (T10–T13) — mechanisms & hardening.** T10 poison/DLQ + demand-pull
   backpressure (swarm ADR-9). T11 decay-driven trace GC + bounded weights +
   re-derivable ρ (swarm ADR-10, OP#1). T12 graph zones + claim/observation typing
