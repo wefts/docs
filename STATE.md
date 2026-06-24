@@ -81,6 +81,23 @@ detail in `architecture/overview.md` — not repeated here.
 
 ## Recently shipped
 
+- **Data-foundation research epic — the memory model is decided (no code).** A
+  research-first epic (`board/research/data-foundation-research.md`) ran in 4 steps:
+  landscape survey (3 decorrelated web-grounded agents → `board/research/data-landscape.md`),
+  candidate models (`data-options.md`, 4 distinct), a **3-family decorrelated consilium**
+  (codex / gemini-3.1-pro / local glm-4.7-flash — SOUND-WITH-CAVEATS ×2 + a FLAWED whose
+  fix *was* the converged fix), and the write-up. Outcome **swarm ADR-14 (Proposed)** +
+  `swarm/docs/design/data-memory-model.md`: **C1′** — a coarse, lineage-bearing graph node
+  (1 source ≈ 1 origin; sole evidence-bearing tier) over a **stateless content/chunk
+  side-store** (chunks = HNSW-indexed retrieval handles, never evidence-bearing); node
+  vector is an aggregate/identity vector (not a full-doc mean; source-adapted segmentation,
+  bge-m3 8192 limit); retrieval = hybrid lexical+dense (RRF in SQL) → native graph
+  traversal; normalization = the ADR-13 funnel + two new seams (kernel-owned **type
+  vocabulary**, **scope-aware merges**); claim/triple extraction is **reward-gated
+  enrichment**, never the continuous default. Lint-clean; consilium recorded in
+  `board/journal.md`. **Unblocks** `board/todo/ingest-persist-content` as a build campaign.
+  No implementation code written. (A `scripts/gemini_review.sh` wrapper was added so the
+  Gemini key is sourced at script runtime, never in agent context.)
 - **Phase E — first live slice (the kernel parses real data at last).** One campaign
   (`board/done/phaseE-live-slice`): E1 reconsolidated `swarm/docs/system_architecture.md`
   into a top-down story with all 8 Phase B/C/D subsystems, an admitted control plane,
