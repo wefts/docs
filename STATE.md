@@ -339,17 +339,19 @@ foundation AND the cognitive layer are feature-complete — off by default.**
 
 The forward cut (review #5 + a 2-family council, 2026-06-25 — journal):
 
-1. **NEXT — a persistent-shadow integrated turn-on + calibration** (`board/todo/cognitive-turn-on-calibration`).
-   The cognitive layer is feature-complete but the **integrated stigmergic loop** (enrichment → ER →
-   graph mutation → altered retrieval/enrichment) has NEVER run as a whole — pieces were validated on a
-   disposable slice and wiped. Council (both SOUND-WITH-CAVEATS): do NOT run it on the golden/conditional-
-   prod corpus first; **clone the real corpus into an isolated, persistent staging env**, turn the loop
-   ON, run it hot, and watch for **emergent feedback poisoning** (entities collapsing into super-nodes,
-   cascading over-corroboration). Calibrate the heuristic defaults (reward-gate priority weights, ER
-   vector/lexical gates, ADR-8 deflection, relevance floor) from the logged decisions
-   (`Priority.explain`, `entity_resolution_audit`); re-measure fragmentation → 0. **Watch for multi-
-   origin corroboration appearing** — the trigger to promote the deferred lineage-aware clustering
-   (ADR-13). Only after stable, honest equilibrium → production.
+1. **Cognitive turn-on + calibration** (`board/doing/cognitive-turn-on-calibration`). The integrated
+   stigmergic loop (enrichment → ER → graph mutation → altered retrieval/enrichment) now HAS an
+   apparatus: **CTC-1 the integrated-loop harness is shipped + validated** (`hive/scripts/cognitive_loop.exs`)
+   — cadence-separated, staged + reversible, a top-1-concentration circuit-breaker that halts + rolls
+   back on poisoning, a null-run control mode, run on a persistent PUBLIC shadow (`swarm_shadow`).
+   Shakedown converges; an injected runaway trips the breaker + rolls back. That is a SHAKEDOWN, not
+   calibration. **NEXT (operator + a small kernel add):** persist enrichment priority decisions (CTC-2
+   prereq), then the operator clones the REAL intranet corpus into the persistent shadow, runs the loop
+   HOT for days, calibrates the heuristics (reward-gate weights, ER vec/lex gates, ADR-8 deflection,
+   relevance floor) from real logged decisions, re-measures fragmentation → 0, and measures
+   answerability lift. Stable honest equilibrium → reviewed go/no-go to prod. **Watch for multi-origin
+   corroboration appearing** → promote the deferred lineage-aware clustering (ADR-13). Report scaffold:
+   `board/research/cognitive-turn-on-calibration.md`.
 2. **Opportunistic:** `key-arm-answerability`, `first-person-false-ownership` (localized answer-path).
 
 (Shipped since: **`node-vec-per-type`** — per-type vec resolved by construction (entity=identity,
