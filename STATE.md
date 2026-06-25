@@ -357,12 +357,21 @@ The forward cut (review #5 + a 2-family council, 2026-06-25 — journal):
    TRAVERSAL lift). **CTC-4 scaffolded:** the report + a 10-gate go/no-go decorrelated-council template;
    a completeness council (codex + gemma) added the two most critical prod gates — reversibility of a
    wrong merge (provenance + tested rollback) and scope/privacy isolation across mutation paths. **The
-   whole CTC apparatus (1–4) is built + validated; the epic now blocks ONLY on the operator:** clone the
-   REAL intranet corpus into the persistent shadow, run the loop HOT for days, run `calibrate.exs` +
-   `answerability_lift.exs` on the real logs, re-measure fragmentation → 0, fill the go/no-go gates →
-   reviewed promotion. **Watch for multi-origin corroboration appearing** → promote the deferred
-   lineage-aware clustering (ADR-13). Report + gates: `board/research/cognitive-turn-on-calibration.md`.
-2. **Opportunistic:** `key-arm-answerability`, `first-person-false-ownership` (localized answer-path).
+   whole CTC apparatus (1–4) is built + validated — but only with MOCK enrichment** (the orchestration
+   shell is proven; real integration under live inference is not).
+
+   **Refined by review #6 + a 2-family council (codex + gemini-pro-latest):** the critical path is NOT
+   purely operator-gated. **NEXT is an execution-session step — CTC-5, a real-LLM integrated dry-run on
+   the PUBLIC Wikipedia shadow** (`board/todo/ctc-5-public-shadow-dryrun`): run the CTC-1 loop with the
+   real local LLM + bge-m3 + real ER + rollback, hours-scale, breaker armed — to catch what mocks can't
+   (connection lifetime, prompt/schema drift, token/cost, rollback under real mutation) AND establish
+   baseline loop-physics so the operator's later run can tell domain-mismatch from a loop-physics flaw.
+   **THEN the operator's real-corpus hot run** (`doing/cognitive-turn-on-calibration`): clone the REAL
+   intranet corpus into the persistent shadow, run HOT for days, `calibrate.exs` + `answerability_lift.exs`
+   on real logs, re-measure fragmentation → 0, fill the 10-gate go/no-go → reviewed promotion. **Watch
+   for multi-origin corroboration** → promote the deferred lineage-aware clustering (ADR-13). Lineage
+   clustering stays deferred until that trigger (don't promote before the hot run).
+2. **Opportunistic (can run in parallel):** `key-arm-answerability`, `first-person-false-ownership`.
 
 (Shipped since: **`node-vec-per-type`** — per-type vec resolved by construction (entity=identity,
 prose=aggregate) + embed path write-amplification-bounded via `content.embedded_hash`. And
