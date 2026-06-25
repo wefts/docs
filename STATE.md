@@ -61,15 +61,27 @@ The three repos are split apart and `docs/` is public; the workspace shape is se
 - **Instruction-file migration is mostly done.** Root `AGENTS.md`,
   `swarm/AGENTS.md`, and `hive/AGENTS.md` are canonical. `CLAUDE.md` files
   should remain pointers, not second sources of truth.
-- **The cognitive-swarm thesis is unproven (the load-bearing gap).** What runs
-  end-to-end is a strong private hybrid-retrieval-over-graph with answerability. The
-  differentiator — confidence-traversal, reward-gated **enrichment** (never fired),
-  stigmergic workers (one reactor), `node.vec` (write-only) — is **built but dormant**.
-  The next move (`board/todo/cognitive-activation-spike`) exercises it under guard.
-- **ADR-9 evidential-origin is the standing correctness debt, now live-relevant.**
-  Multi-source ingest surfaced 3 fragmentation groups; N derivatives of one source can
-  over-corroborate as independent. Teed up *behind* the activation spike (the spike
-  produces the real stress data ADR-9 must be designed from).
+- **The cognitive-swarm thesis is mechanism-real but inert (spike done, gap re-scoped).**
+  The guarded cognitive-activation spike (`board/done/cognitive-activation-spike`,
+  research note in `board/research/`) proved on the live slice that the dormant machinery
+  WORKS when forced: reward-gated **enrichment** fires and yields useful typed cognition
+  (7.9 triples/node), a second stigmergic reactor coexists and the worker→graph→worker loop
+  converges, and `node.vec` got its first real consumer (soft entity-resolution, 24
+  fragmentation pairs). BUT the evidence **accounting** is dead code (`combine_typed` unwired;
+  `seen_count` ⊥ `reliability` in traversal). So Swarm today remains honestly excellent
+  private hybrid-retrieval-over-graph with answerability — the cognitive differentiator is
+  now *demonstrated and reachable*, not yet load-bearing. All spike state was **wiped** to the
+  pre-snapshot (verified); no enriched state persists.
+- **ADR-9 evidential-origin is the standing correctness debt — now the NEXT epic, designed
+  from measurement.** The spike profiled the stress: over-corroboration is **semantic, not
+  exact-triple** (0/148 exact corroboration; the risk lives in near-duplicate entities) and is
+  **coupled to entity-resolution** (fragmentation hides corroboration; naive dense soft-merge
+  manufactures it). ADR-9 must make **origin** (not provenance-event) first-class, **wire**
+  `combine_typed` into the read path, and separate independent origins from derivatives before
+  any confidence/merge consumes the count. A council surfaced a coupled second track — a
+  **reward-gating + watermark + priority control plane** for enrichment
+  (`board/todo/enrichment-reward-gate-control-plane`) so it fires rarely on worth-it nodes
+  (the budget fuse is not a scheduler).
 - **Answer-path quality gaps (carded, localized).** `key-arm-answerability` (stub-title
   out-of-scope leak), `first-person-false-ownership` ("my" in a title); the absolute
   relevance floor's relative-gate calibration + paraphrase-MRR tuning live in
@@ -95,6 +107,22 @@ detail in `architecture/overview.md` — not repeated here.
 
 ## Recently shipped
 
+- **Cognitive-activation spike — the cognitive thesis tested on the live slice (guarded,
+  disposable), and ADR-9 profiled from measurement.** A research/spike campaign
+  (`board/done/cognitive-activation-spike`, note in `board/research/`) forced the dormant
+  cognitive layer to fire under a hard guard (snapshot → activate → measure → **wipe to the
+  verified snapshot**). Found: reward-gated **enrichment was a concept with no implementation**
+  (the LLM engine exists; built a disposable extractor → 7.9 useful S-P-O triples/node, 0 parse
+  failures); on 30 intranet sources it wrote 150 claims / 239 entities / 148 single-source-capped
+  claim edges. A 2nd stigmergy reactor coexisted; the worker→graph→worker loop **converges**
+  (proven deterministically — enrichment output {entity} ⊥ input {article}); `node.vec` got its
+  **first consumer** (soft entity-resolution surfaced **24 near-dup pairs** the exact key missed).
+  ADR-9 stress: exact-(s,p,o) corroboration **0/148** — over-corroboration is **semantic and
+  coupled to entity-resolution**; plus two code-level certainties (`combine_typed` unwired,
+  `seen_count` ⊥ `reliability`). Traversal stayed flat **0.8–2.6 ms** to depth 4. Council (gemini-
+  3.1-pro + local gemma4, BOTH SOUND-WITH-CAVEATS) added a coupled track: a reward-gating + watermark
+  + priority **control plane** (a budget fuse is not a scheduler). Disposable tooling in `hive/`
+  (`main`, **not pushed**); **no enriched state persists**. **Unblocks ADR-9 as the next epic.**
 - **data-impl Phase 2 — structure-aware segmentation + weighted-RRF ranking; the
   data-foundation epic is COMPLETE.** Card 6: a canonical Markdown body profile
   (`swarm_markdown_v1`) + a structure-aware kernel segmenter (headings → sections; code
@@ -266,21 +294,23 @@ detail in `architecture/overview.md` — not repeated here.
 
 The full roadmap is `board/roadmap.md`; task cards in `board/todo/`; rationale in
 `board/research/`. The T0–T13 sequence, Phase E, the data-foundation research epic,
-**data-impl Phase 1 + 2** (the whole epic), and **Campaign A (real connectors)** are all
-shipped. The data-foundation memory model (ADR-14) is now built end-to-end and tuned on
-real 2-source data; **no large in-flight epic remains** — the next move is a fresh choice.
+**data-impl Phase 1 + 2**, **Campaign A (real connectors)**, and the **guarded
+cognitive-activation spike** are all shipped. The cognitive thesis is now *tested* (mechanism-real
+but inert) and ADR-9's stress is *measured* — so the next move is no longer a fresh unknown.
 
-The forward cut (architecture review #3 + a 2-family council, 2026-06-25 — journal):
+The forward cut (cognitive-activation spike + its 2-family council, 2026-06-25 — journal):
 
-1. **NEXT — a guarded cognitive-activation spike** (`board/todo/cognitive-activation-spike`).
-   The biggest unknown is whether the cognitive thesis is real (enrichment has never fired).
-   Run a **disposable epoch** on the live slice (snapshot + a temporary confidence cap on
-   un-cross-sourced claims), force enrichment + stigmergy to fire, observe — proving the engine
-   AND producing the real stress data the ADR-9 foundation must be designed from. Then wipe.
-2. **Then — D: ADR-9 evidential-origin**, designed from the spike's measured stress (not the
-   abstract). The oldest open correctness question; everything cognitive rests on it.
-3. **B — `traverse-relaxation`** stays deferred (traversal flat ~2 ms to depth 4); the denser
-   enriched graph from the spike is its likely trigger.
-4. **Opportunistic / cross-cutting:** `key-arm-answerability`, `first-person-false-ownership`
-   (localized answer-path); `entity-resolution` soft-match (3 real fragmentation groups;
-   `node.vec` unblocks the ANN-candidate step); `node-vec-per-type` (unparks when a consumer exists).
+1. **NEXT — ADR-9 evidential-origin**, designed from the spike's measured stress (above): make
+   **origin** (not provenance-event) first-class; **wire** the existing `combine_typed`
+   group-collapse into the read path; separate independent origins from derivatives before any
+   confidence/merge consumes the count. Likely research-first (survey → candidates → council → ADR),
+   like the data-foundation epic. Everything cognitive rests on it.
+2. **Coupled with ADR-9 — `enrichment-reward-gate-control-plane`** (new card): the reward-gate +
+   watermark + priority control plane a real kernel enrichment worker needs (the spike showed a
+   blanket reactor hammers the budget fuse). Shares ADR-9's lineage/origin substrate.
+3. **`traverse-relaxation`** stays deferred (traversal flat 0.8–2.6 ms to depth 4); its trigger is
+   real enrichment **at scale**, not the spike's 30 sources.
+4. **Opportunistic / cross-cutting:** `entity-resolution` soft-match (now with measured evidence —
+   24 near-dup pairs; `node.vec` consumer demonstrated) is the natural co-track with ADR-9;
+   `key-arm-answerability`, `first-person-false-ownership` (localized answer-path);
+   `node-vec-per-type` (**unparked** — a node.vec consumer now exists).
