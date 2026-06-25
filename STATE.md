@@ -112,6 +112,23 @@ detail in `architecture/overview.md` — not repeated here.
 
 ## Recently shipped
 
+- **CTC-5 real-LLM public-shadow dry-run — the cognitive loop run under LIVE inference, guarded +
+  wiped** (`board/done/ctc-5-public-shadow-dryrun`; note in `board/research/`). The first time the
+  integrated loop (LLM S-P-O enrichment → entity-resolution → graph mutation → relaxation) ran with the
+  REAL local fleet (qwen3:14b + bge-m3) on the persistent PUBLIC Wikipedia shadow — not mocks. 20
+  sources / 2 cycles: **no divergence, no breaker**, top-1 concentration DECREASED 0.056→0.032, seen_max
+  stayed 1 (honest single-origin corroboration), ER 13-proposed/2-merged/11-rejected (conservative).
+  **No JSON/timeout/connection errors** — the real path held; the one real integration-safety bug was
+  found + fixed BEFORE any mutation (the harness DB guard trusted the env-var view, not the connected
+  DB — an unset `SWARM_DB_NAME` in dev would have hit `swarm_dev`; now asserts `current_database()`,
+  hive `5bf7fd5`). Two calibration findings for the operator from `calibrate.exs` on the real logs:
+  **#3** the ER `vec_threshold=0.85` over-proposes (pre-LLM precision 0.154) → raise toward ~0.93;
+  **#4** the reward `worth_it` gate is non-selective (100% worth-it at threshold 0.35, p50=0.891) →
+  must raise before a costly hot run. `answerability_lift.exs` exercised (traversal lift 0.0 —
+  inconclusive on saturated recall, NOT a value verdict). Council (codex + gemma4:e4b, convergent
+  SOUND-WITH-CAVEATS): this de-risks the **integration/mechanics path**, not private-corpus semantics —
+  don't over-generalize from disjoint public data. Guard honored: snapshot → run → **wipe-to-seed
+  verified row-for-row** (no enriched state persists). **Next = the operator's hot run.**
 - **Entity-resolution soft-match — built + validated (Y, unblocked by ADR-13)**
   (`board/done/entity-resolution`; swarm ADR-13 §3.2). The semantic-fragmentation gap's last layer:
   **ER-1** entity identity vectors (embed the key — worker-minted entities have no body); **ER-2**
@@ -360,13 +377,15 @@ The forward cut (review #5 + a 2-family council, 2026-06-25 — journal):
    whole CTC apparatus (1–4) is built + validated — but only with MOCK enrichment** (the orchestration
    shell is proven; real integration under live inference is not).
 
-   **Refined by review #6 + a 2-family council (codex + gemini-pro-latest):** the critical path is NOT
-   purely operator-gated. **NEXT is an execution-session step — CTC-5, a real-LLM integrated dry-run on
-   the PUBLIC Wikipedia shadow** (`board/todo/ctc-5-public-shadow-dryrun`): run the CTC-1 loop with the
-   real local LLM + bge-m3 + real ER + rollback, hours-scale, breaker armed — to catch what mocks can't
-   (connection lifetime, prompt/schema drift, token/cost, rollback under real mutation) AND establish
-   baseline loop-physics so the operator's later run can tell domain-mismatch from a loop-physics flaw.
-   **THEN the operator's real-corpus hot run** (`doing/cognitive-turn-on-calibration`): clone the REAL
+   **Refined by review #6, then DONE:** the critical path was not purely operator-gated — an
+   execution-session real-LLM dry-run came first. **CTC-5 is now SHIPPED** (`board/done/ctc-5-public-
+   shadow-dryrun`): the CTC-1 loop ran under live inference on the public shadow — no divergence/no
+   breaker over 20 sources, the real path held (one guard bug found+fixed pre-mutation), and it left the
+   operator an empirical loop-physics baseline + two gate-calibration findings (#3 raise ER
+   `vec_threshold` toward 0.93; #4 raise the non-selective reward gate). Wiped to seed, verified.
+   **NEXT is now the operator's instrumented real-corpus hot run** (`doing/cognitive-turn-on-calibration`),
+   de-risked at the integration layer (council caveat: public→private de-risks mechanics, not
+   private-corpus semantics). It will: clone the REAL
    intranet corpus into the persistent shadow, run HOT for days, `calibrate.exs` + `answerability_lift.exs`
    on real logs, re-measure fragmentation → 0, fill the 10-gate go/no-go → reviewed promotion. **Watch
    for multi-origin corroboration** → promote the deferred lineage-aware clustering (ADR-13). Lineage
