@@ -112,6 +112,15 @@ detail in `architecture/overview.md` — not repeated here.
 
 ## Recently shipped
 
+- **Entity-resolution soft-match — built + validated (Y, unblocked by ADR-13)**
+  (`board/done/entity-resolution`; swarm ADR-13 §3.2). The semantic-fragmentation gap's last layer:
+  **ER-1** entity identity vectors (embed the key — worker-minted entities have no body); **ER-2**
+  candidate proposal under a TWO-signal hard gate (vector cosine AND lexical token-Jaccard — cosine
+  alone over-proposes and a false merge contaminates evidence, which origin accounting can't undo);
+  **ER-3** a conservative LLM confirm (precision-first; any doubt ⇒ no merge) → origin-safe
+  `merge_nodes`, with an audit trail of every decision (ids/scores, no content). **Validated on the
+  slice** (bge-m3 + qwen3:14b): a true dup merged (cosine 0.962), a distinct pair did not — precision
+  OK; wiped. Off by default.
 - **Enrichment worker — the reward-gated cognitive layer, built + validated**
   (`board/done/enrichment-worker`; ADR-13 / EOS-4). Ran as a `wefts-campaign`, one card at a time
   with code review + a 2-family council each: **EW-1** edge-level `evidence_kind` (the assertion
@@ -323,20 +332,18 @@ detail in `architecture/overview.md` — not repeated here.
 The full roadmap is `board/roadmap.md`; task cards in `board/todo/`; rationale in
 `board/research/`. The T0–T13 sequence, Phase E, the data-foundation research epic,
 **data-impl Phase 1 + 2**, **Campaign A (real connectors)**, the **guarded cognitive-activation
-spike**, the **evidence-origin substrate (ADR-13, X)**, and now the **reward-gated enrichment worker**
-are all shipped + verified. The cognitive differentiator is **built** (off by default); the evidence
-accounting that was dead code is wired; claims corroborate honestly. The foundation AND the cognitive
-layer now exist.
+spike**, the **evidence-origin substrate (ADR-13, X)**, the **reward-gated enrichment worker**, and
+the **entity-resolution soft-match (Y)** are all shipped + verified. The evidence accounting that was
+dead code is wired; claims corroborate honestly; duplicate entities fold without inflating. **The
+foundation AND the cognitive layer are feature-complete — off by default.**
 
-The forward cut (after the enrichment worker landed, 2026-06-25 — journal):
+The forward cut (after enrichment + entity-resolution landed, 2026-06-25 — journal):
 
-1. **Turn it on, deliberately.** A real corpus enrichment run on the slice (bounded worth-it scan),
-   then **calibrate the priority weights/threshold** (ADR-8) from the logged `Priority.explain`
-   decisions — the heuristic defaults are tunable, not yet calibrated. Promote **ADR-13 →
-   Accepted** once the operator confirms the design in production.
-2. **Y — `entity-resolution` soft-match is now UNBLOCKED** (X shipped): origin accounting exists, so
-   soft-merging the 24 near-dup pairs no longer manufactures inflation. `node-vec-per-type` is
-   **unparked** (a `node.vec` consumer now exists).
-3. **`traverse-relaxation`** stays deferred (traversal flat 0.8–2.6 ms to depth 4); trigger is real
-   enrichment **at scale** — now reachable once enrichment is turned on.
-4. **Opportunistic:** `key-arm-answerability`, `first-person-false-ownership` (localized answer-path).
+1. **Turn it on, deliberately, then calibrate.** A real corpus run on the slice (bounded worth-it
+   enrichment scan + an entity-resolution pass), then **calibrate** the priority weights/threshold and
+   the ER vector/lexical thresholds (ADR-8) from the logged decisions (`Priority.explain`,
+   `entity_resolution_audit`) — defaults are heuristic, not yet calibrated. Re-measure the
+   fragmentation probe → 0 on the real intranet corpus. Promote **ADR-13 → Accepted** once confirmed.
+2. **`traverse-relaxation`** stays deferred (traversal flat 0.8–2.6 ms to depth 4); trigger is real
+   enrichment **at scale** — now reachable once enrichment is turned on. `node-vec-per-type` unparked.
+3. **Opportunistic:** `key-arm-answerability`, `first-person-false-ownership` (localized answer-path).
