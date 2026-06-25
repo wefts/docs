@@ -47,7 +47,8 @@ The three repos are split apart and `docs/` is public; the workspace shape is se
 - `reference/` — glossary and bibliography (both substantial, annotated, sourced)
   and concepts. The glossary now carries the shipped memory vocabulary (§8: content /
   chunk / hybrid retrieval / RRF / relevance floor / answerability).
-- `guide/` — plain-language guides (memory model, search, the graph).
+- `guide/` — plain-language guides, now tracking shipped reality (8 pages: memory model,
+  search incl. answerability, the graph, resolution, provenance, origins, trust, cognition).
 - `README.md` (authority map) and this `STATE.md`.
 
 ## In flight / known gaps

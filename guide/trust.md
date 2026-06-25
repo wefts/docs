@@ -12,7 +12,8 @@ that stop it from fooling itself.
 
 If several **separate** sources say the same thing, confidence should go up — that is real
 corroboration. The key word is *separate*. Two echoes of one source are not two witnesses;
-they are one witness, twice.
+they are one witness, twice. (What counts as *one* source is its own question:
+[origins.md](origins.md).)
 
 This is why the design insists on **one source, one card** (see
 [memory-model.md](memory-model.md)). If a single page were chopped into fifty cards, those
@@ -38,7 +39,8 @@ flowchart TD
 - **Guesses do not count as independent witnesses.** When a language model later infers
   something from existing cards, that inference is marked as a *claim*, not fresh
   evidence. A burst of model-generated claims about one fact collapses to a single voice,
-  so the model cannot agree with itself into certainty.
+  so the model cannot agree with itself into certainty. (That inference step is the
+  cognitive layer: [cognition.md](cognition.md).)
 
 ## Some sources are trusted more than others
 
@@ -46,12 +48,16 @@ Where a card came from also feeds its trust. An official reference and a fan wik
 weighted differently — the origin (see [provenance.md](provenance.md)) is part of the
 score, not just a label.
 
-## An honest open problem
+## What's built, and what's still hard
 
-Telling genuinely independent evidence apart from many echoes of one origin is the hardest
-part, and it is **not fully solved** — it is active work in the kernel. The rules above
-contain the problem (coarse cards, silent chunks, collapsed claims) but do not make it
-disappear. When this guide says Swarm is "sure", read it as "sure given what it can
-currently tell apart".
+The blunt version of this problem is **closed**: Swarm counts distinct **origins**, not
+documents, so fifty copies of one rumour reinforce nothing ([origins.md](origins.md)), and
+model-made claims collapse to one voice. Those defenses are built and working, not aspirational.
 
-Next: [provenance.md](provenance.md).
+What stays genuinely hard is the subtle case — sources quietly *derived from one another*
+(A copies B copies C), which look independent until you trace the lineage. Doing that across
+a large corpus is expensive, so it is **deferred** until real data actually overlaps that
+way. So when this guide says Swarm is "sure", still read it as "sure given what it can
+currently tell apart" — but the everyday trap is now shut, not open.
+
+Next: [cognition.md](cognition.md).

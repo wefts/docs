@@ -58,4 +58,4 @@ flowchart TD
 This is also where Swarm works out **how sure** it is, by weighing the paths between
 cards — the subject of [trust.md](trust.md).
 
-Next: [trust.md](trust.md).
+Next: [resolution.md](resolution.md).

@@ -25,7 +25,8 @@ flowchart TD
 
 Cleaning at the connector is also where messy names get fixed — turning two spellings of
 one title into one card (for example "Allmusic" and "AllMusic"). That is what makes "two
-pages about one thing are one memory" actually true.
+pages about one thing are one memory" actually true; the full story of folding duplicates,
+including by *meaning*, is in [resolution.md](resolution.md).
 
 ## Searching within one source
 
@@ -56,8 +57,10 @@ flowchart TD
 ```
 
 So you can ask it either way: *"what does Wikipedia say about the ring?"* (filter by
-source) or *"what do we know about the ring, across everything?"* (the shared card). And
-because origin feeds trust ([trust.md](trust.md)), the official source and the fan wiki
+source) or *"what do we know about the ring, across everything?"* (the shared card). Keeping
+them as three cards also keeps the count honest: they are three genuine origins, so they
+*do* corroborate as three — unlike fifty copies of one source ([origins.md](origins.md)).
+And because origin feeds trust ([trust.md](trust.md)), the official source and the fan wiki
 can be weighed differently.
 
-Back to the start: [memory-model.md](memory-model.md).
+Next: [origins.md](origins.md).

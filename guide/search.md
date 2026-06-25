@@ -30,8 +30,9 @@ flowchart TD
     Q["query: 'the ring'"]
     Q --> W["by word<br/>inverted index"]
     Q --> M["by meaning<br/>vectors"]
-    W --> R["merge the two lists"]
-    M --> R
+    W --> F["relevance floor<br/>word-hit OR close enough"]
+    M --> F
+    F --> R["merge the survivors (RRF)"]
     R --> G["group hits back to their cards<br/>(chunks → memories)"]
     G --> H["hand the cards to the graph"]
 ```
@@ -45,6 +46,21 @@ flowchart TD
 
 From there, the graph takes over ([the-graph.md](the-graph.md)) to turn "matching pages"
 into "the one memory or entity you meant".
+
+## Knowing when there's no answer
+
+There is one step before the merge: a **relevance floor**. A chunk only survives if it was
+a word hit **or** its meaning is genuinely close to the query (above a set distance). If
+*nothing* clears the floor, Swarm returns **"not found"** rather than handing back its
+nearest — but still weak — guess.
+
+This is the difference between a search that always returns *something* and one that can
+honestly say *"I don't know."* For a memory that feeds answers, saying nothing is often
+better than saying something wrong.
+
+(Honest caveat: the floor is currently an absolute distance, so faint matches — paraphrases
+and cross-language hits — sit lower and can be cut; a *relative* floor is planned Phase-2
+calibration, not built yet.)
 
 ## What search will not do (on purpose)
 

@@ -12,9 +12,10 @@
 notion of *meaning*.
 
 Swarm's whole job is to search **meaning**, not letters: to know that two pages about the
-same thing are *one* memory, and that "Allmusic" and "AllMusic" are *one* name. To do
-that, it cannot just dump text in a file and grep it. It stores knowledge in a shape
-built for meaning. This page explains that shape.
+same thing are *one* memory, and that "Allmusic" and "AllMusic" are *one* name (how that
+folding happens: [resolution.md](resolution.md)). To do that, it cannot just dump text in a
+file and grep it. It stores knowledge in a shape built for meaning. This page explains that
+shape.
 
 ## Two separate things: a card and its text
 
@@ -59,7 +60,9 @@ keeps trust honest. (More in [trust.md](trust.md).)
 ## The content and chunks (the text)
 
 The page's text does **not** sit on the card. It is stored as **content**, then cut into
-**chunks** — short passages, usually one per section.
+**chunks** — short passages, usually one per section. The cutter is *structure-aware*:
+tables and code blocks are kept whole rather than split down the middle, so a chunk stays
+meaningful.
 
 Each chunk carries a **vector**: a fixed list of numbers (1024 of them, in our case) that
 captures the passage's *meaning*. Think of it as coordinates of a point in a "space of

@@ -30,14 +30,20 @@ Read them in order, or jump to what you need:
 
 1. [memory-model.md](memory-model.md) — the two things Swarm stores: a *card* and its
    *text*.
-2. [search.md](search.md) — the two indexes that turn a query into matches: by word and by
-   meaning.
+2. [search.md](search.md) — the two indexes that turn a query into matches, and how Swarm
+   can say "not found".
 3. [the-graph.md](the-graph.md) — the web of links, and why finding things is not the same
    as walking it.
-4. [trust.md](trust.md) — how sure Swarm is, and why "one source, one card" keeps it
-   honest.
+4. [resolution.md](resolution.md) — how duplicates fold, so two pages about one thing
+   become one memory.
 5. [provenance.md](provenance.md) — where a memory came from, and how to ask within one
    source.
+6. [origins.md](origins.md) — what counts as *one* piece of evidence (and the rumour-copied-
+   fifty-times trap).
+7. [trust.md](trust.md) — how sure Swarm is, and why "one source, one card" keeps it
+   honest.
+8. [cognition.md](cognition.md) — going beyond search: Swarm reading its own memory to
+   extract claims (off by default).
 
 ## The one idea to keep
 
