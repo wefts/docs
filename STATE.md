@@ -61,17 +61,18 @@ The three repos are split apart and `docs/` is public; the workspace shape is se
 - **Instruction-file migration is mostly done.** Root `AGENTS.md`,
   `swarm/AGENTS.md`, and `hive/AGENTS.md` are canonical. `CLAUDE.md` files
   should remain pointers, not second sources of truth.
-- **The cognitive-swarm thesis is mechanism-real but inert (spike done, gap re-scoped).**
-  The guarded cognitive-activation spike (`board/done/cognitive-activation-spike`,
-  research note in `board/research/`) proved on the live slice that the dormant machinery
-  WORKS when forced: reward-gated **enrichment** fires and yields useful typed cognition
-  (7.9 triples/node), a second stigmergic reactor coexists and the worker→graph→worker loop
-  converges, and `node.vec` got its first real consumer (soft entity-resolution, 24
-  fragmentation pairs). The evidence **accounting** was dead code at spike time
-  (`combine_typed` unwired) — **now wired (ADR-13, below).** Swarm today remains honestly excellent
-  private hybrid-retrieval-over-graph with answerability — the cognitive differentiator is
-  now *demonstrated and reachable*, not yet load-bearing (no enrichment worker runs yet). All spike
-  state was **wiped** to the pre-snapshot (verified); no enriched state persists.
+- **The cognitive-swarm thesis is now BUILT (reward-gated), not just demonstrated.**
+  The cognitive-activation spike (`board/done/cognitive-activation-spike`) proved the machinery works
+  when forced (7.9 triples/node; converging loop; `node.vec`'s first consumer). The evidence
+  accounting that was dead code then (`combine_typed` unwired) is **wired** (ADR-13 substrate), and a
+  real **reward-gated enrichment worker** is now **built and validated** (`board/done/enrichment-worker`):
+  it extracts S-P-O claims and writes them as `claim`-kind assertions onto the sound evidence base
+  (they corroborate honestly, derivatives don't inflate). Validated end-to-end on the slice
+  (qwen3:14b, 8 claims/node/110 s, then wiped). It is **off by default** — enrichment is the
+  cost-asymmetry pillar (~120 s/source), fired deliberately by a bounded worth-it scan, never
+  continuously. So the cognitive differentiator is **reachable and built**, awaiting a deliberate
+  corpus run + threshold calibration to become load-bearing; today's honest identity remains
+  excellent private hybrid-retrieval-over-graph with answerability, now with cognition on tap.
 - **ADR-13 evidential origin — SHIPPED end-to-end (the standing correctness debt, now paid).**
   ("ADR-9 evidential-origin" in older notes = the open problem; decided as **workspace ADR-13**,
   Proposed.) The evidence/metadata substrate is built and verified in swarm
@@ -111,6 +112,16 @@ detail in `architecture/overview.md` — not repeated here.
 
 ## Recently shipped
 
+- **Enrichment worker — the reward-gated cognitive layer, built + validated**
+  (`board/done/enrichment-worker`; ADR-13 / EOS-4). Ran as a `wefts-campaign`, one card at a time
+  with code review + a 2-family council each: **EW-1** edge-level `evidence_kind` (the assertion
+  carries its kind, not the source node — refines EOS-2); **EW-2** the worker (extract S-P-O → claim
+  assertions, origin = source, prior reliability 0.5); **EW-3** content-sensitive watermark +
+  stale-claim replacement (a write failure aborts the run); **EW-4** worth-it priority scheduler
+  (novelty gate + centrality + criticality; `explain/2` audit); **EW-5** bounded worth-it scan +
+  generation-bounded convergence + per-candidate row lease. **Validated end-to-end on the slice**
+  (qwen3:14b, 8 claims/node/110 s, then wiped to baseline). Off by default (cost-asymmetry). The real
+  run caught a bug mocks couldn't (a connection held across the 120 s LLM) — fixed with a row lease.
 - **ADR-13 evidential origin — the evidence/metadata substrate, shipped end-to-end**
   (`board/done/evidence-origin-substrate`; workspace ADR-13 Proposed; spec
   `swarm/docs/design/evidence-origin-substrate.md`). Ran as a `wefts-campaign`, one card at a time,
@@ -312,20 +323,20 @@ detail in `architecture/overview.md` — not repeated here.
 The full roadmap is `board/roadmap.md`; task cards in `board/todo/`; rationale in
 `board/research/`. The T0–T13 sequence, Phase E, the data-foundation research epic,
 **data-impl Phase 1 + 2**, **Campaign A (real connectors)**, the **guarded cognitive-activation
-spike**, and now the **evidence-origin substrate (ADR-13, X)** are all shipped. The cognitive
-thesis is *tested* (mechanism-real but inert), and the evidence accounting that was dead code is now
-**wired and verified** — so the foundation under any cognitive layer is sound.
+spike**, the **evidence-origin substrate (ADR-13, X)**, and now the **reward-gated enrichment worker**
+are all shipped + verified. The cognitive differentiator is **built** (off by default); the evidence
+accounting that was dead code is wired; claims corroborate honestly. The foundation AND the cognitive
+layer now exist.
 
-The forward cut (after the evidence-origin substrate landed, 2026-06-25 — journal):
+The forward cut (after the enrichment worker landed, 2026-06-25 — journal):
 
-1. **`enrichment-worker`** (`board/todo/enrichment-worker`) — the deferred BUILD of the reward-gate
-   control plane (EOS-4 design: watermark + worth-it priority + zone/generation guard) **plus** the
-   worker itself (extraction + claim writing). Now buildable on a SOUND base: claims corroborate
-   honestly, derivatives don't inflate. **Guardrail (ADR-13):** the worker must not ship without the
-   gate. Everything cognitive rests on this.
+1. **Turn it on, deliberately.** A real corpus enrichment run on the slice (bounded worth-it scan),
+   then **calibrate the priority weights/threshold** (ADR-8) from the logged `Priority.explain`
+   decisions — the heuristic defaults are tunable, not yet calibrated. Promote **ADR-13 →
+   Accepted** once the operator confirms the design in production.
 2. **Y — `entity-resolution` soft-match is now UNBLOCKED** (X shipped): origin accounting exists, so
    soft-merging the 24 near-dup pairs no longer manufactures inflation. `node-vec-per-type` is
    **unparked** (a `node.vec` consumer now exists).
 3. **`traverse-relaxation`** stays deferred (traversal flat 0.8–2.6 ms to depth 4); trigger is real
-   enrichment **at scale**, not the spike's 30 sources.
+   enrichment **at scale** — now reachable once enrichment is turned on.
 4. **Opportunistic:** `key-arm-answerability`, `first-person-false-ownership` (localized answer-path).
