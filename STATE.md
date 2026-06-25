@@ -120,8 +120,8 @@ detail in `architecture/overview.md` — not repeated here.
   ADR-9 stress: exact-(s,p,o) corroboration **0/148** — over-corroboration is **semantic and
   coupled to entity-resolution**; plus two code-level certainties (`combine_typed` unwired,
   `seen_count` ⊥ `reliability`). Traversal stayed flat **0.8–2.6 ms** to depth 4. Council (gemini-
-  3.1-pro + local gemma4, BOTH SOUND-WITH-CAVEATS) added a coupled track: a reward-gating + watermark
-  + priority **control plane** (a budget fuse is not a scheduler). Disposable tooling in `hive/`
+  3.1-pro + local gemma4, BOTH SOUND-WITH-CAVEATS) added a coupled track: a reward-gating +
+  watermark + priority **control plane** (a budget fuse is not a scheduler). Disposable tooling in `hive/`
   (`main`, **not pushed**); **no enriched state persists**. **Unblocks ADR-9 as the next epic.**
 - **data-impl Phase 2 — structure-aware segmentation + weighted-RRF ranking; the
   data-foundation epic is COMPLETE.** Card 6: a canonical Markdown body profile
@@ -300,17 +300,18 @@ but inert) and ADR-9's stress is *measured* — so the next move is no longer a 
 
 The forward cut (cognitive-activation spike + its 2-family council, 2026-06-25 — journal):
 
-1. **NEXT — ADR-9 evidential-origin**, designed from the spike's measured stress (above): make
-   **origin** (not provenance-event) first-class; **wire** the existing `combine_typed`
-   group-collapse into the read path; separate independent origins from derivatives before any
-   confidence/merge consumes the count. Likely research-first (survey → candidates → council → ADR),
-   like the data-foundation epic. Everything cognitive rests on it.
-2. **Coupled with ADR-9 — `enrichment-reward-gate-control-plane`** (new card): the reward-gate +
-   watermark + priority control plane a real kernel enrichment worker needs (the spike showed a
-   blanket reactor hammers the budget fuse). Shares ADR-9's lineage/origin substrate.
-3. **`traverse-relaxation`** stays deferred (traversal flat 0.8–2.6 ms to depth 4); its trigger is
-   real enrichment **at scale**, not the spike's 30 sources.
-4. **Opportunistic / cross-cutting:** `entity-resolution` soft-match (now with measured evidence —
-   24 near-dup pairs; `node.vec` consumer demonstrated) is the natural co-track with ADR-9;
-   `key-arm-answerability`, `first-person-false-ownership` (localized answer-path);
-   `node-vec-per-type` (**unparked** — a node.vec consumer now exists).
+Review #4 + a 2-family council (gemini-pro-latest + qwen3, 2026-06-25 — journal) refined the cut:
+
+1. **NEXT — the evidence/metadata substrate** (`board/todo/evidence-origin-substrate`), ONE epic
+   covering **X** (workspace ADR-9: origin first-class, **wire** the dead-code `combine_typed` into
+   the read path, separate independent origins from derivatives) **co-designed with Z**
+   (`enrichment-reward-gate-control-plane`: watermark + worth-it priority + convergence guard) —
+   they share one lineage/metadata primitive. Route via **`propose`** (code-grounded ADR + spec +
+   cards; the spike WAS the research → **not** a research survey). Everything cognitive rests on it.
+2. **Y — `entity-resolution` soft-match is BLOCKED on X.** A naive dense soft-merge of the 24
+   near-dup pairs before origin accounting *manufactures* the inflation ADR-9 prevents (council's
+   #1 risk). After X. `node-vec-per-type` is **unparked** (a consumer now exists).
+3. **`traverse-relaxation`** stays deferred (traversal flat 0.8–2.6 ms to depth 4); trigger is real
+   enrichment **at scale**, not the spike's 30 sources.
+4. **Guardrail:** no real enrichment worker ships without Z's gate. **Opportunistic:**
+   `key-arm-answerability`, `first-person-false-ownership` (localized answer-path).
