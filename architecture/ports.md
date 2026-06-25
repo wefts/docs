@@ -15,6 +15,28 @@ or third-party integrations.
 > `Swarm.Graph.Store`. See swarm ADR-4
 > (`../../swarm/docs/decisions/0004-graph-integrity-contract.md`).
 
+### Connector evidential-origin contract (ADR-13)
+
+A `connector` event carries two distinct keys, and the distinction is a
+**correctness invariant**, not a convenience:
+
+- **`provenance`** — the *emission instance*: one per event/fetch. It dedups
+  re-delivery (an event must never count twice).
+- **`origin`** — the *evidential source identity*: derived from **source/content
+  identity**, **stable across re-emissions** of the same fact. Reinforcement and
+  corroboration count **distinct origins**
+  ([ADR-13](../decisions/0013-evidential-origin.md)), so re-emitting or
+  re-deriving the same fact MUST reuse the same `origin`, and a genuinely
+  independent source MUST get a new one.
+
+A **derivative-capable** connector (one whose source re-publishes, mirrors, or
+syndicates content — most real sources) MUST set `origin` from the upstream
+source identity. Omitting it defaults `origin := provenance` (every event its own
+origin), which is correct only where each event is genuinely independent; for a
+derivative-capable source that default **re-opens** the correlated-evidence
+hazard ADR-13 closes. The kernel counts and caps by `origin`; determining it is
+the connector's job, at the boundary where source identity is known.
+
 ## Port Kinds
 
 The current top-level kinds are:
