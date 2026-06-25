@@ -345,12 +345,17 @@ The forward cut (review #5 + a 2-family council, 2026-06-25 — journal):
    — cadence-separated, staged + reversible, a top-1-concentration circuit-breaker that halts + rolls
    back on poisoning, a null-run control mode, run on a persistent PUBLIC shadow (`swarm_shadow`).
    Shakedown converges; an injected runaway trips the breaker + rolls back. That is a SHAKEDOWN, not
-   calibration. **NEXT (operator + a small kernel add):** persist enrichment priority decisions (CTC-2
-   prereq), then the operator clones the REAL intranet corpus into the persistent shadow, runs the loop
-   HOT for days, calibrates the heuristics (reward-gate weights, ER vec/lex gates, ADR-8 deflection,
-   relevance floor) from real logged decisions, re-measures fragmentation → 0, and measures
-   answerability lift. Stable honest equilibrium → reviewed go/no-go to prod. **Watch for multi-origin
-   corroboration appearing** → promote the deferred lineage-aware clustering (ADR-13). Report scaffold:
+   calibration. **CTC-2 shipped (apparatus):** enrichment-decision + per-pass audit tables persist the
+   priority decisions a hot run needs (`enrichment_decision`, `enrichment_pass`; swarm), and a read-only
+   analyzer (`hive/scripts/calibrate.exs`) turns the audit trail into an ADR-8 threshold-suggestion
+   table (ids/scores only). Council caveat baked in: the ER suggestion is **UPWARD-only** (recall
+   conditional on the admitted set) — true two-sided calibration needs the **below-gate stratified
+   audit** (card `ctc-2b`, operator's hot run). **NEXT (operator):** clone the REAL intranet corpus into
+   the persistent shadow, run the loop HOT for days, run `calibrate.exs` on the real logs to calibrate
+   the heuristics (reward-gate weights, ER vec/lex gates, ADR-8 deflection, relevance floor),
+   re-measure fragmentation → 0, measure answerability lift (CTC-3, needs operator QA set). Stable
+   honest equilibrium → reviewed go/no-go to prod. **Watch for multi-origin corroboration appearing** →
+   promote the deferred lineage-aware clustering (ADR-13). Report scaffold:
    `board/research/cognitive-turn-on-calibration.md`.
 2. **Opportunistic:** `key-arm-answerability`, `first-person-false-ownership` (localized answer-path).
 
