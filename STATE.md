@@ -345,5 +345,7 @@ The forward cut (after enrichment + entity-resolution landed, 2026-06-25 — jou
    `entity_resolution_audit`) — defaults are heuristic, not yet calibrated. Re-measure the
    fragmentation probe → 0 on the real intranet corpus. Promote **ADR-13 → Accepted** once confirmed.
 2. **`traverse-relaxation`** stays deferred (traversal flat 0.8–2.6 ms to depth 4); trigger is real
-   enrichment **at scale** — now reachable once enrichment is turned on. `node-vec-per-type` unparked.
+   enrichment **at scale** — now reachable once enrichment is turned on. (`node-vec-per-type` is now
+   **done**: per-type vec resolved by construction — entity=identity, prose=aggregate — and the embed
+   path is write-amplification-bounded via `content.embedded_hash`.)
 3. **Opportunistic:** `key-arm-answerability`, `first-person-false-ownership` (localized answer-path).
