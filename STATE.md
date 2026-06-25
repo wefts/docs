@@ -17,8 +17,8 @@ Three names, three jobs. Keep them distinct in all docs and code:
 - **Hive** — the environment: a concrete deployment instance (compose, plugins, env,
   data roots, secrets pointers). Lives in the private `hive/` repo.
 
-This naming was just decided. The shared `docs/` tree now uses this distinction;
-repo-specific docs may still need spot checks.
+This naming is settled. The shared `docs/` tree uses this distinction throughout;
+repo-specific docs may still need occasional spot checks.
 
 ## Repositories (current)
 
@@ -45,8 +45,8 @@ The three repos are split apart and `docs/` is public; the workspace shape is se
   The **swarm-local** sequence ADR-1..14 lives in `swarm/docs/decisions/` (a separate
   numbering; ADR-13 entity resolution, ADR-14 data/memory model are the newest).
 - `reference/` — glossary and bibliography (both substantial, annotated, sourced)
-  and concepts. (The shipped memory vocabulary — *content / chunk / hybrid retrieval /
-  answerability* — is not yet in the glossary; minor follow-up.)
+  and concepts. The glossary now carries the shipped memory vocabulary (§8: content /
+  chunk / hybrid retrieval / RRF / relevance floor / answerability).
 - `guide/` — plain-language guides (memory model, search, the graph).
 - `README.md` (authority map) and this `STATE.md`.
 
@@ -61,16 +61,19 @@ The three repos are split apart and `docs/` is public; the workspace shape is se
 - **Instruction-file migration is mostly done.** Root `AGENTS.md`,
   `swarm/AGENTS.md`, and `hive/AGENTS.md` are canonical. `CLAUDE.md` files
   should remain pointers, not second sources of truth.
-- **Answer-path quality gaps (carded, from the data-impl knowledge-test).** The
-  retrieval/answer layer is validated only on ONE clean source so far. Open in
-  `board/todo/`: key/title arm can false-`found` a content-less stub by exact title
-  (`key-arm-answerability`); `"my"` inside a title misroutes to the identity path
-  (`first-person-false-ownership`); the relevance floor is absolute (a relative gate
-  is the Phase-2 calibration); the dense arm lowers MRR on exact-keyword probes (RRF
-  fusion weighting → `data-impl-vector-recall`). All localized, none structural.
-- **Data-impl Phase 2 is gated on a second, messy real source.** The source-adapted
-  segmenter and per-type aggregate-vs-identity vector measurement need ≥2 source shapes;
-  they wait on `confluence-mediawiki-connectors` (access now unblocked).
+- **The cognitive-swarm thesis is unproven (the load-bearing gap).** What runs
+  end-to-end is a strong private hybrid-retrieval-over-graph with answerability. The
+  differentiator — confidence-traversal, reward-gated **enrichment** (never fired),
+  stigmergic workers (one reactor), `node.vec` (write-only) — is **built but dormant**.
+  The next move (`board/todo/cognitive-activation-spike`) exercises it under guard.
+- **ADR-9 evidential-origin is the standing correctness debt, now live-relevant.**
+  Multi-source ingest surfaced 3 fragmentation groups; N derivatives of one source can
+  over-corroborate as independent. Teed up *behind* the activation spike (the spike
+  produces the real stress data ADR-9 must be designed from).
+- **Answer-path quality gaps (carded, localized).** `key-arm-answerability` (stub-title
+  out-of-scope leak), `first-person-false-ownership` ("my" in a title); the absolute
+  relevance floor's relative-gate calibration + paraphrase-MRR tuning live in
+  `node-vec-per-type`. None structural.
 
 ## Architecture direction (stable)
 
@@ -267,13 +270,17 @@ The full roadmap is `board/roadmap.md`; task cards in `board/todo/`; rationale i
 shipped. The data-foundation memory model (ADR-14) is now built end-to-end and tuned on
 real 2-source data; **no large in-flight epic remains** — the next move is a fresh choice.
 
-Candidate next moves (pick by a fresh council; none gated):
-1. **Correctness debt — D: ADR-9 evidential-origin** is now the biggest open question;
-   multi-source ingest is LIVE so correlated-evidence inflation can start compounding —
-   promote it. **`node-vec-per-type`** unparks only when a node-level dense consumer exists.
-2. **Answer-path polish:** `key-arm-answerability` (stub-title out-of-scope leak),
-   `first-person-false-ownership` — small, localized, opportunistic.
-3. **B — `traverse-relaxation`** stays deferred (traversal measured flat ~2 ms to depth 4);
-   promote only if a denser region exercises the ADR-3 path-enumeration wall.
-4. **Entity-resolution soft-match** (`entity-resolution`): fragmentation surfaced 3 groups
-   on real data; `node.vec` now exists on group nodes so the ANN-candidate step is unblocked.
+The forward cut (architecture review #3 + a 2-family council, 2026-06-25 — journal):
+
+1. **NEXT — a guarded cognitive-activation spike** (`board/todo/cognitive-activation-spike`).
+   The biggest unknown is whether the cognitive thesis is real (enrichment has never fired).
+   Run a **disposable epoch** on the live slice (snapshot + a temporary confidence cap on
+   un-cross-sourced claims), force enrichment + stigmergy to fire, observe — proving the engine
+   AND producing the real stress data the ADR-9 foundation must be designed from. Then wipe.
+2. **Then — D: ADR-9 evidential-origin**, designed from the spike's measured stress (not the
+   abstract). The oldest open correctness question; everything cognitive rests on it.
+3. **B — `traverse-relaxation`** stays deferred (traversal flat ~2 ms to depth 4); the denser
+   enriched graph from the spike is its likely trigger.
+4. **Opportunistic / cross-cutting:** `key-arm-answerability`, `first-person-false-ownership`
+   (localized answer-path); `entity-resolution` soft-match (3 real fragmentation groups;
+   `node.vec` unblocks the ANN-candidate step); `node-vec-per-type` (unparks when a consumer exists).
