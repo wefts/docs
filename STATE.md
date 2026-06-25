@@ -92,6 +92,24 @@ detail in `architecture/overview.md` — not repeated here.
 
 ## Recently shipped
 
+- **data-impl Phase 2 — structure-aware segmentation + weighted-RRF ranking; the
+  data-foundation epic is COMPLETE.** Card 6: a canonical Markdown body profile
+  (`swarm_markdown_v1`) + a structure-aware kernel segmenter (headings → sections; code
+  blocks + pipe tables ATOMIC, never flattened) replaces the prose-only one; connectors
+  emit it (Confluence XHTML→md preserves tables/code that were previously DISCARDED;
+  MediaWiki headings→ATX). Verified on the slice: structure survives into chunks (430
+  table-/719 code-/3907 heading-bearing group chunks), no Wikipedia regression, and an
+  ablation proved the segmenter loses no information. Card 7: measured the arms separately
+  — the **dense arm is essential** (paraphrase NL queries: lexical ~0–3% → hybrid ~72%
+  recall@5 on *both* source shapes), but finer chunks let a dense "magnet" demote exact
+  lexical hits (ablation: 100% of misses were demotions, 0 missing). Fix = **weighted RRF**
+  (`config :swarm, :retrieval, lex_weight: 3.0`): floors exact keyword hits without
+  touching paraphrase ranking (paraphrase has no lexical rows). Result: group verbatim
+  hybrid recall@5 94.7→100% / MRR 0.687→0.878, public MRR 0.966→0.99, paraphrase held.
+  Decorrelated council (gemma + qwen3 convergent; codex host-flaky). `node.vec`
+  aggregate-vs-identity DEFERRED — it is write-only (no consumer reads it → unmeasurable;
+  `board/todo/node-vec-per-type`). swarm `main` carries it (segmenter + weighted-RRF feat
+  branches ff-merged), **not pushed**. Spec §2/§5 `sync-specs`'d to match.
 - **Campaign A — real Confluence + intranet MediaWiki connectors, live-verified; the
   Phase-1 metrics de-risked off clean prose.** Two self-contained `hive/plugins`
   connectors (private repo) implement the ADR-5 `fetch/2` contract and are auto-loaded by
@@ -245,20 +263,17 @@ detail in `architecture/overview.md` — not repeated here.
 
 The full roadmap is `board/roadmap.md`; task cards in `board/todo/`; rationale in
 `board/research/`. The T0–T13 sequence, Phase E, the data-foundation research epic,
-**data-impl Phase 1**, and now **Campaign A (real connectors)** are all shipped.
+**data-impl Phase 1 + 2** (the whole epic), and **Campaign A (real connectors)** are all
+shipped. The data-foundation memory model (ADR-14) is now built end-to-end and tuned on
+real 2-source data; **no large in-flight epic remains** — the next move is a fresh choice.
 
-1. **A — DONE.** Real Confluence + intranet MediaWiki connectors shipped and
-   live-verified (see Recently shipped). Recall held on the messy corpus; the de-risk
-   surfaced two carded gaps (fragmentation soft-match; hybrid MRR on messy data) and
-   measured traversal cost flat (B not promoted).
-2. **data-impl Phase 2** (now UNGATED): `todo/data-impl-segmenter` (source-adapted
-   segmentation, now ≥2 source shapes to tune against) + `todo/data-impl-vector-recall`
-   (per-type vec, RRF/relative-floor tuning) — the latter now informed by
-   `todo/hybrid-rank-on-messy` (dense arm reorders exact hits down on real content).
-3. **B — `todo/traverse-relaxation`** (impl swarm ADR-3): stays deferred — A's
-   re-measurement showed traversal cost flat (~2 ms to depth 4), not climbing; promote
-   only if a deeper/denser region exercises the path-enumeration wall.
-4. **D — ADR-9 evidential-origin** stays the biggest open correctness question; promote
-   when multi-source ingest starts compounding corroboration (now live — watch it).
-   Localized answer-path fixes (`key-arm-answerability`, `first-person-false-ownership`)
-   slot in opportunistically.
+Candidate next moves (pick by a fresh council; none gated):
+1. **Correctness debt — D: ADR-9 evidential-origin** is now the biggest open question;
+   multi-source ingest is LIVE so correlated-evidence inflation can start compounding —
+   promote it. **`node-vec-per-type`** unparks only when a node-level dense consumer exists.
+2. **Answer-path polish:** `key-arm-answerability` (stub-title out-of-scope leak),
+   `first-person-false-ownership` — small, localized, opportunistic.
+3. **B — `traverse-relaxation`** stays deferred (traversal measured flat ~2 ms to depth 4);
+   promote only if a denser region exercises the ADR-3 path-enumeration wall.
+4. **Entity-resolution soft-match** (`entity-resolution`): fragmentation surfaced 3 groups
+   on real data; `node.vec` now exists on group nodes so the ANN-candidate step is unblocked.
