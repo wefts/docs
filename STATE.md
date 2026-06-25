@@ -344,8 +344,10 @@ The forward cut (after enrichment + entity-resolution landed, 2026-06-25 — jou
    the ER vector/lexical thresholds (ADR-8) from the logged decisions (`Priority.explain`,
    `entity_resolution_audit`) — defaults are heuristic, not yet calibrated. Re-measure the
    fragmentation probe → 0 on the real intranet corpus. Promote **ADR-13 → Accepted** once confirmed.
-2. **`traverse-relaxation`** stays deferred (traversal flat 0.8–2.6 ms to depth 4); trigger is real
-   enrichment **at scale** — now reachable once enrichment is turned on. (`node-vec-per-type` is now
-   **done**: per-type vec resolved by construction — entity=identity, prose=aggregate — and the embed
-   path is write-amplification-bounded via `content.embedded_hash`.)
-3. **Opportunistic:** `key-arm-answerability`, `first-person-false-ownership` (localized answer-path).
+2. **Opportunistic:** `key-arm-answerability`, `first-person-false-ownership` (localized answer-path).
+
+(Shipped since: **`node-vec-per-type`** — per-type vec resolved by construction (entity=identity,
+prose=aggregate) + embed path write-amplification-bounded via `content.embedded_hash`. And
+**`traverse-relaxation`** (swarm ADR-3 impl) — the recursive-CTE path enumeration is replaced by
+node-bounded level-synchronous Bellman-Ford; dense graphs that hit `>cap` (f8/d9, f12/d11) now
+traverse in 72–136 ms; `walk/3` carries the best-effort `truncated` flag.)
