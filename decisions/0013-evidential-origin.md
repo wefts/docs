@@ -70,11 +70,17 @@ existing independence defenses onto it. Four parts, one shared lineage primitive
    is actually known.
 
 2. **Reinforcement and corroboration count distinct origins, not distinct
-   events.** `seen_count` (and any future confidence consumer of it) is computed
-   over **distinct origins**, with a **per-origin reinforcement ceiling** — the
-   strength-dimension mirror of ADR-3's "max within a shared-ancestor group". One
-   origin cannot reinforce past the ceiling no matter how many derivative events
-   it emits, closing the immortal-edge hazard.
+   events.** `seen_count` (and any consumer of it) is computed over **distinct
+   origins**. This *is* the **per-origin reinforcement ceiling** — the
+   strength-dimension mirror of ADR-3's "max within a shared-ancestor group": one
+   origin's marginal contribution is exactly **1** (a repeated origin contributes
+   0), so a source cannot reinforce past one witness no matter how many derivative
+   events it emits, closing the immortal-edge hazard. The ceiling is therefore the
+   distinct-origin cardinality rule, **not a separate tunable constant**. (Any
+   future *sub-1 / weighted* per-origin contribution — trust weights, extraction
+   confidence — is source **weighting**, and clustering distinct-but-correlated
+   origin keys is **lineage clustering**; both are deferred (below), neither is a
+   reinforcement ceiling.)
 
 3. **Wire the typed grouping into the read path.** `combine_typed/1` (or its
    successor) is called wherever cross-origin corroboration is computed, so that
