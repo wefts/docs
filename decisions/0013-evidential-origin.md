@@ -2,7 +2,11 @@
 
 ## Status
 
-Proposed
+Accepted (first cut shipped & validated 2026-06-25: origin first-class, `seen_count = count(distinct
+origin)` with a per-origin reinforcement ceiling, and `combine_typed` wired into the read path via
+`Swarm.Graph.Corroboration` — N derivatives of one origin no longer over-corroborate in either
+dimension; full suite green. The lineage-aware clustering of semantically-correlated *distinct*
+origins remains the deferred next cut, per Consequences.)
 
 ## Record Completeness
 
@@ -98,8 +102,8 @@ existing independence defenses onto it. Four parts, one shared lineage primitive
    origin; per-origin convergence guard) and is **co-designed on the same
    metadata substrate** rather than bolted on.
 
-**Scope of the first cut (the tradeoff).** Parts 1–2 are origin-keyed provenance
-+ a per-origin ceiling: structural, cheap, and exact for the *same-origin
+**Scope of the first cut (the tradeoff).** Parts 1–2 are origin-keyed provenance plus
+a per-origin ceiling: structural, cheap, and exact for the *same-origin
 derivative* hazard. Full **lineage-aware clustering** of semantically-correlated
 distinct origins (the principled, NP-hard general solution; region-based BP) is
 **deferred** — it is the expensive step, off the critical path while traversal is

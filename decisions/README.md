@@ -33,7 +33,7 @@ needs transplanting). **All records below are now Complete.**
 - [ADR-12: Operator Sync Boundary](0012-operator-sync-boundary.md) —
   Accepted · Complete
 - [ADR-13: Evidential Origin](0013-evidential-origin.md) —
-  Proposed · Complete
+  Accepted · Complete
 
 > Each record is the full write-up of an already-accepted decision; the
 > decisions themselves are locked and changed only by a superseding ADR.

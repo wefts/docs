@@ -337,13 +337,19 @@ the **entity-resolution soft-match (Y)** are all shipped + verified. The evidenc
 dead code is wired; claims corroborate honestly; duplicate entities fold without inflating. **The
 foundation AND the cognitive layer are feature-complete — off by default.**
 
-The forward cut (after enrichment + entity-resolution landed, 2026-06-25 — journal):
+The forward cut (review #5 + a 2-family council, 2026-06-25 — journal):
 
-1. **Turn it on, deliberately, then calibrate.** A real corpus run on the slice (bounded worth-it
-   enrichment scan + an entity-resolution pass), then **calibrate** the priority weights/threshold and
-   the ER vector/lexical thresholds (ADR-8) from the logged decisions (`Priority.explain`,
-   `entity_resolution_audit`) — defaults are heuristic, not yet calibrated. Re-measure the
-   fragmentation probe → 0 on the real intranet corpus. Promote **ADR-13 → Accepted** once confirmed.
+1. **NEXT — a persistent-shadow integrated turn-on + calibration** (`board/todo/cognitive-turn-on-calibration`).
+   The cognitive layer is feature-complete but the **integrated stigmergic loop** (enrichment → ER →
+   graph mutation → altered retrieval/enrichment) has NEVER run as a whole — pieces were validated on a
+   disposable slice and wiped. Council (both SOUND-WITH-CAVEATS): do NOT run it on the golden/conditional-
+   prod corpus first; **clone the real corpus into an isolated, persistent staging env**, turn the loop
+   ON, run it hot, and watch for **emergent feedback poisoning** (entities collapsing into super-nodes,
+   cascading over-corroboration). Calibrate the heuristic defaults (reward-gate priority weights, ER
+   vector/lexical gates, ADR-8 deflection, relevance floor) from the logged decisions
+   (`Priority.explain`, `entity_resolution_audit`); re-measure fragmentation → 0. **Watch for multi-
+   origin corroboration appearing** — the trigger to promote the deferred lineage-aware clustering
+   (ADR-13). Only after stable, honest equilibrium → production.
 2. **Opportunistic:** `key-arm-answerability`, `first-person-false-ownership` (localized answer-path).
 
 (Shipped since: **`node-vec-per-type`** — per-type vec resolved by construction (entity=identity,
