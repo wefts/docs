@@ -67,21 +67,25 @@ The three repos are split apart and `docs/` is public; the workspace shape is se
   WORKS when forced: reward-gated **enrichment** fires and yields useful typed cognition
   (7.9 triples/node), a second stigmergic reactor coexists and the worker→graph→worker loop
   converges, and `node.vec` got its first real consumer (soft entity-resolution, 24
-  fragmentation pairs). BUT the evidence **accounting** is dead code (`combine_typed` unwired;
-  `seen_count` ⊥ `reliability` in traversal). So Swarm today remains honestly excellent
+  fragmentation pairs). The evidence **accounting** was dead code at spike time
+  (`combine_typed` unwired) — **now wired (ADR-13, below).** Swarm today remains honestly excellent
   private hybrid-retrieval-over-graph with answerability — the cognitive differentiator is
-  now *demonstrated and reachable*, not yet load-bearing. All spike state was **wiped** to the
-  pre-snapshot (verified); no enriched state persists.
-- **ADR-9 evidential-origin is the standing correctness debt — now the NEXT epic, designed
-  from measurement.** The spike profiled the stress: over-corroboration is **semantic, not
-  exact-triple** (0/148 exact corroboration; the risk lives in near-duplicate entities) and is
-  **coupled to entity-resolution** (fragmentation hides corroboration; naive dense soft-merge
-  manufactures it). ADR-9 must make **origin** (not provenance-event) first-class, **wire**
-  `combine_typed` into the read path, and separate independent origins from derivatives before
-  any confidence/merge consumes the count. A council surfaced a coupled second track — a
-  **reward-gating + watermark + priority control plane** for enrichment
-  (`board/todo/enrichment-reward-gate-control-plane`) so it fires rarely on worth-it nodes
-  (the budget fuse is not a scheduler).
+  now *demonstrated and reachable*, not yet load-bearing (no enrichment worker runs yet). All spike
+  state was **wiped** to the pre-snapshot (verified); no enriched state persists.
+- **ADR-13 evidential origin — SHIPPED end-to-end (the standing correctness debt, now paid).**
+  ("ADR-9 evidential-origin" in older notes = the open problem; decided as **workspace ADR-13**,
+  Proposed.) The evidence/metadata substrate is built and verified in swarm
+  (`board/done/evidence-origin-substrate`):
+  **origin** is a first-class reinforcement property; `seen_count = count(distinct origin)` (a
+  same-origin derivative neither reinforces nor refreshes the decay clock — immortal-edge hazard
+  closed); connectors thread a stable origin at the ingest boundary (silent fallback made
+  observable); `combine_typed` is **wired** via node-local `Swarm.Graph.Corroboration` (was
+  zero-caller dead code) — independent origins corroborate (noisy-OR), co-located claims collapse,
+  structural edges excluded; the per-origin reinforcement ceiling **is** distinct-origin counting.
+  The reward-gate control plane is **designed** (`swarm/docs/design/enrichment-control-plane.md`)
+  with its **build deferred** to the `enrichment-worker` epic (no worker exists yet — building the
+  gate's tables now would be dead code). Method: each step got code review + a 2-family decorrelated
+  council (codex + local gemma) before proceeding. **Unblocks** `entity-resolution` soft-match (Y).
 - **Answer-path quality gaps (carded, localized).** `key-arm-answerability` (stub-title
   out-of-scope leak), `first-person-false-ownership` ("my" in a title); the absolute
   relevance floor's relative-gate calibration + paraphrase-MRR tuning live in
@@ -107,6 +111,19 @@ detail in `architecture/overview.md` — not repeated here.
 
 ## Recently shipped
 
+- **ADR-13 evidential origin — the evidence/metadata substrate, shipped end-to-end**
+  (`board/done/evidence-origin-substrate`; workspace ADR-13 Proposed; spec
+  `swarm/docs/design/evidence-origin-substrate.md`). Ran as a `wefts-campaign`, one card at a time,
+  each with code review + a 2-family decorrelated council (codex + local gemma) BEFORE proceeding:
+  **EOS-1** origin first-class + `seen_count = count(distinct origin)` (schema v3→v4); **EOS-1b**
+  connectors thread a stable origin at the ingest boundary, fallback made observable; **EOS-2**
+  `combine_typed` wired via node-local `Swarm.Graph.Corroboration` (was zero-caller dead code;
+  structural edges excluded, origin-dedup before combine); **EOS-3** the per-origin reinforcement
+  ceiling IS distinct-origin counting (verified, canon reframed); **EOS-4** reward-gate control-plane
+  **design** (build deferred — no enrichment worker exists yet, so the gate's code lands with the
+  `enrichment-worker` epic, not before). Defenses actually wired + tested (N derivatives of one
+  source no longer over-corroborate, in both the strength and confidence dimensions). Full suite
+  green throughout (212/0 at peak), format + credo clean. All repos `main`, **not pushed**.
 - **Cognitive-activation spike — the cognitive thesis tested on the live slice (guarded,
   disposable), and ADR-9 profiled from measurement.** A research/spike campaign
   (`board/done/cognitive-activation-spike`, note in `board/research/`) forced the dormant
@@ -294,24 +311,21 @@ detail in `architecture/overview.md` — not repeated here.
 
 The full roadmap is `board/roadmap.md`; task cards in `board/todo/`; rationale in
 `board/research/`. The T0–T13 sequence, Phase E, the data-foundation research epic,
-**data-impl Phase 1 + 2**, **Campaign A (real connectors)**, and the **guarded
-cognitive-activation spike** are all shipped. The cognitive thesis is now *tested* (mechanism-real
-but inert) and ADR-9's stress is *measured* — so the next move is no longer a fresh unknown.
+**data-impl Phase 1 + 2**, **Campaign A (real connectors)**, the **guarded cognitive-activation
+spike**, and now the **evidence-origin substrate (ADR-13, X)** are all shipped. The cognitive
+thesis is *tested* (mechanism-real but inert), and the evidence accounting that was dead code is now
+**wired and verified** — so the foundation under any cognitive layer is sound.
 
-The forward cut (cognitive-activation spike + its 2-family council, 2026-06-25 — journal):
+The forward cut (after the evidence-origin substrate landed, 2026-06-25 — journal):
 
-Review #4 + a 2-family council (gemini-pro-latest + qwen3, 2026-06-25 — journal) refined the cut:
-
-1. **NEXT — the evidence/metadata substrate** (`board/todo/evidence-origin-substrate`), ONE epic
-   covering **X** (workspace ADR-9: origin first-class, **wire** the dead-code `combine_typed` into
-   the read path, separate independent origins from derivatives) **co-designed with Z**
-   (`enrichment-reward-gate-control-plane`: watermark + worth-it priority + convergence guard) —
-   they share one lineage/metadata primitive. Route via **`propose`** (code-grounded ADR + spec +
-   cards; the spike WAS the research → **not** a research survey). Everything cognitive rests on it.
-2. **Y — `entity-resolution` soft-match is BLOCKED on X.** A naive dense soft-merge of the 24
-   near-dup pairs before origin accounting *manufactures* the inflation ADR-9 prevents (council's
-   #1 risk). After X. `node-vec-per-type` is **unparked** (a consumer now exists).
+1. **`enrichment-worker`** (`board/todo/enrichment-worker`) — the deferred BUILD of the reward-gate
+   control plane (EOS-4 design: watermark + worth-it priority + zone/generation guard) **plus** the
+   worker itself (extraction + claim writing). Now buildable on a SOUND base: claims corroborate
+   honestly, derivatives don't inflate. **Guardrail (ADR-13):** the worker must not ship without the
+   gate. Everything cognitive rests on this.
+2. **Y — `entity-resolution` soft-match is now UNBLOCKED** (X shipped): origin accounting exists, so
+   soft-merging the 24 near-dup pairs no longer manufactures inflation. `node-vec-per-type` is
+   **unparked** (a `node.vec` consumer now exists).
 3. **`traverse-relaxation`** stays deferred (traversal flat 0.8–2.6 ms to depth 4); trigger is real
    enrichment **at scale**, not the spike's 30 sources.
-4. **Guardrail:** no real enrichment worker ships without Z's gate. **Opportunistic:**
-   `key-arm-answerability`, `first-person-false-ownership` (localized answer-path).
+4. **Opportunistic:** `key-arm-answerability`, `first-person-false-ownership` (localized answer-path).
