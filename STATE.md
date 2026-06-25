@@ -383,9 +383,10 @@ The forward cut (review #5 + a 2-family council, 2026-06-25 — journal):
    breaker over 20 sources, the real path held (one guard bug found+fixed pre-mutation), and it left the
    operator an empirical loop-physics baseline + two gate-calibration findings (#3 raise ER
    `vec_threshold` toward 0.93; #4 raise the non-selective reward gate). Wiped to seed, verified.
-   **NEXT is now the operator's instrumented real-corpus hot run** (`doing/cognitive-turn-on-calibration`),
-   de-risked at the integration layer (council caveat: public→private de-risks mechanics, not
-   private-corpus semantics). It will: clone the REAL
+   **NEXT is now the operator's instrumented real-corpus hot run** (`doing/cognitive-turn-on-calibration`
+   — its card now LEADS with the CTC-5 priors: pull the guard fix + set `SWARM_DB_NAME`, apply #3/#4 as
+   directional starting points, then re-derive on the real corpus), de-risked at the integration layer
+   (council caveat: public→private de-risks mechanics, not private-corpus semantics). It will: clone the REAL
    intranet corpus into the persistent shadow, run HOT for days, `calibrate.exs` + `answerability_lift.exs`
    on real logs, re-measure fragmentation → 0, fill the 10-gate go/no-go → reviewed promotion. **Watch
    for multi-origin corroboration** → promote the deferred lineage-aware clustering (ADR-13). Lineage
