@@ -114,6 +114,23 @@ detail in `architecture/overview.md` — not repeated here.
 
 ## Recently shipped
 
+- **web_channel P0 + P1 — the operator web console** (`board/done/web-channel-p0`, `…-p1`; epic
+  `board/doing/web-channel-epic`). A hive plugin (`hive/plugins/web_channel/`): FastAPI + HTMX +
+  `grpc.aio`, a gRPC **client** of the Core API that never reads the graph DB (ADR-1 hive). **P0:** one
+  honest answer (deterministic render, verbatim+escaped, honest found/not_found/error), scope
+  hard-locked public pre-auth. **P1:** Keycloak **OIDC login**; viewer+scopes **derived from IdP
+  groups** (default-deny); `groot` invite/admin (allowlisted, audited). Local Keycloak (dhi 26.6.1,
+  realm `swarm-local`) in compose, swap-able to `sso.smile.eu/realms/Smile`. Each phase passed a
+  decorrelated 4-reviewer council (codex + 2 Claude lenses + gemma); P1's hardened session/secret/authz
+  (no committed signing key, bounded staleness, group allowlist). 35 unit/app + 4 live-KC integration
+  tests, `docker build`/run, and the full OIDC browser flow verified on the deployed stack (bob→public,
+  alice→public,group — no-leak holds). **PAUSED on a kernel blocker** (next bullet); resume at P2.
+- **⚠ BLOCKER (instance) — kernel ML/embeddings boundary down** (`board/todo/kernel-ml-boundary-disconnect-crash`).
+  The kernel↔ML gRPC client crashes on `:disconnect` (`GRPC.Client.Connection` `FunctionClauseError`,
+  grpc 0.11.5) → embeddings stuck `pending` → **any retrieval `Ask` fails** (DEADLINE/UNKNOWN); only
+  tier0 greetings answer. This is the same root cause as the earlier "cannot be determined"/FOUND
+  finding. The cognitive value of the swarm is unreachable until fixed (owner swarm/kernel). web_channel
+  is correct — it surfaces the error honestly.
 - **CTC-5 real-LLM public-shadow dry-run — the cognitive loop run under LIVE inference, guarded +
   wiped** (`board/done/ctc-5-public-shadow-dryrun`; note in `board/research/`). The first time the
   integrated loop (LLM S-P-O enrichment → entity-resolution → graph mutation → relaxation) ran with the
@@ -347,6 +364,12 @@ detail in `architecture/overview.md` — not repeated here.
   `swarm/docs/decisions/`, distinct from the workspace `docs/decisions/`.
 
 ## Next
+
+**Immediate (2026-06-28): fix the kernel ML-boundary disconnect crash**
+(`board/todo/kernel-ml-boundary-disconnect-crash`) — it blocks everything that needs retrieval
+(web_channel live use, the cognitive hot run). web_channel P0+P1 are shipped + verified but **PAUSED**
+on this blocker; resume the epic at **P2 (dashboard)** once embeddings answer again. The web_channel
+pivot (2026-06-25) superseded the immediate cognitive-hot-run plan below, which stays paused-but-ready.
 
 The full roadmap is `board/roadmap.md`; task cards in `board/todo/`; rationale in
 `board/research/`. The T0–T13 sequence, Phase E, the data-foundation research epic,
