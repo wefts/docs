@@ -29,8 +29,9 @@ Sync the local `wefts` workspace shape to the remote workspace root as:
 
 `scripts/sync.sh` is local operator tooling and mirrors the workspace only when
 called deliberately. It syncs root/operator entries and worktrees as separate
-targets; it does **not** rsync git metadata. Runtime state and secrets are
-excluded:
+targets; it does **not** rsync git metadata. Claude/MCP config (`.claude/`,
+`.mcp.json`) is **explicit-only** via the `agent-config` target, not part of
+default `all` / `root` sync. Runtime state and secrets are excluded:
 
 - `.git`
 - `.env`
