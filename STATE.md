@@ -125,12 +125,15 @@ detail in `architecture/overview.md` — not repeated here.
   (no committed signing key, bounded staleness, group allowlist). 35 unit/app + 4 live-KC integration
   tests, `docker build`/run, and the full OIDC browser flow verified on the deployed stack (bob→public,
   alice→public,group — no-leak holds). **PAUSED on a kernel blocker** (next bullet); resume at P2.
-- **⚠ BLOCKER (instance) — kernel ML/embeddings boundary down** (`board/todo/kernel-ml-boundary-disconnect-crash`).
-  The kernel↔ML gRPC client crashes on `:disconnect` (`GRPC.Client.Connection` `FunctionClauseError`,
-  grpc 0.11.5) → embeddings stuck `pending` → **any retrieval `Ask` fails** (DEADLINE/UNKNOWN); only
-  tier0 greetings answer. This is the same root cause as the earlier "cannot be determined"/FOUND
-  finding. The cognitive value of the swarm is unreachable until fixed (owner swarm/kernel). web_channel
-  is correct — it surfaces the error honestly.
+- **✅ FIXED — kernel ML/embeddings boundary** (`board/done/kernel-ml-boundary-disconnect-crash`;
+  swarm `bd87f32`, not pushed). The grpc 0.11.5 `:disconnect` crash (`GRPC.Client.Connection`
+  `FunctionClauseError` → `:noproc` → all retrieval down) is resolved by `Swarm.ML.ChannelPool` — a
+  small supervised pool of **long-lived** gRPC channels that never `:disconnect` (independent `ml` DNS
+  per worker → HA; gun `retry:0`+keepalive; evict+retry-on-another; fail-loud `:ml_unavailable`); the
+  ML server now permits the client's keepalive pings. Live-verified on the stack (crash gone; embed +
+  retrieval work for all viewers; long-lived no-churn channels). **Separate, still-open:** prod
+  `swarm_dev` is content-empty (1313 nodes, 0 chunks/vecs — structure-only ingest) so a *grounded*
+  `Ask` answer needs an operator corpus re-ingest. web_channel epic resumes at **P2**.
 - **CTC-5 real-LLM public-shadow dry-run — the cognitive loop run under LIVE inference, guarded +
   wiped** (`board/done/ctc-5-public-shadow-dryrun`; note in `board/research/`). The first time the
   integrated loop (LLM S-P-O enrichment → entity-resolution → graph mutation → relaxation) ran with the
