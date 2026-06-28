@@ -114,6 +114,17 @@ detail in `architecture/overview.md` — not repeated here.
 
 ## Recently shipped
 
+- **web_channel P2 — home dashboard + a working dev chat** (`board/done/web-channel-p2`). Cold-open
+  dashboard: a real **"state of my memory"** tile from `KbStatus` (async HTMX, honest unavailable), a
+  **⌘K palette** over `KbSearch` (scope-respecting — no-leak tested), ask + session history; the
+  not-yet-built Brief tiles shown honestly "not available". 43 tests; live on the stack (login →
+  dashboard → ⌘K hits → grounded cited `Ask`). **Made the dev chat actually answer:** (a) the kernel
+  was repointed at **`swarm_shadow`** (the CTC-5 public Wikipedia slice — 94 articles *with content +
+  embeddings*) because `swarm_dev` is content-empty, via `hive/.env` (reversible); (b) the consilium
+  fleet is now **env-overridable** (swarm `runtime.exs`; prod `config.exs` default intact) and dev runs
+  small GPU-resident models (`lfm2.5:8b,gemma4:e2b` + judge `gemma4:e4b`) so escalated answers return in
+  **~10–19s** instead of timing out on the single GPU. Answers are honest but *thin* (stub shadow
+  corpus) — a richer ingest is the lever, not a code blocker.
 - **web_channel P0 + P1 — the operator web console** (`board/done/web-channel-p0`, `…-p1`; epic
   `board/doing/web-channel-epic`). A hive plugin (`hive/plugins/web_channel/`): FastAPI + HTMX +
   `grpc.aio`, a gRPC **client** of the Core API that never reads the graph DB (ADR-1 hive). **P0:** one
@@ -124,7 +135,7 @@ detail in `architecture/overview.md` — not repeated here.
   decorrelated 4-reviewer council (codex + 2 Claude lenses + gemma); P1's hardened session/secret/authz
   (no committed signing key, bounded staleness, group allowlist). 35 unit/app + 4 live-KC integration
   tests, `docker build`/run, and the full OIDC browser flow verified on the deployed stack (bob→public,
-  alice→public,group — no-leak holds). **PAUSED on a kernel blocker** (next bullet); resume at P2.
+  alice→public,group — no-leak holds). Was paused on a kernel blocker (below, now fixed); **P2 shipped (top).**
 - **✅ FIXED — kernel ML/embeddings boundary** (`board/done/kernel-ml-boundary-disconnect-crash`;
   swarm `bd87f32`, not pushed). The grpc 0.11.5 `:disconnect` crash (`GRPC.Client.Connection`
   `FunctionClauseError` → `:noproc` → all retrieval down) is resolved by `Swarm.ML.ChannelPool` — a
@@ -133,7 +144,8 @@ detail in `architecture/overview.md` — not repeated here.
   ML server now permits the client's keepalive pings. Live-verified on the stack (crash gone; embed +
   retrieval work for all viewers; long-lived no-churn channels). **Separate, still-open:** prod
   `swarm_dev` is content-empty (1313 nodes, 0 chunks/vecs — structure-only ingest) so a *grounded*
-  `Ask` answer needs an operator corpus re-ingest. web_channel epic resumes at **P2**.
+  `Ask` answer needs an operator corpus re-ingest; **dev works around this by pointing the kernel at
+  `swarm_shadow`** (see the P2 bullet). web_channel epic **resumed → P2 shipped**.
 - **CTC-5 real-LLM public-shadow dry-run — the cognitive loop run under LIVE inference, guarded +
   wiped** (`board/done/ctc-5-public-shadow-dryrun`; note in `board/research/`). The first time the
   integrated loop (LLM S-P-O enrichment → entity-resolution → graph mutation → relaxation) ran with the
@@ -368,11 +380,14 @@ detail in `architecture/overview.md` — not repeated here.
 
 ## Next
 
-**Immediate (2026-06-28): fix the kernel ML-boundary disconnect crash**
-(`board/todo/kernel-ml-boundary-disconnect-crash`) — it blocks everything that needs retrieval
-(web_channel live use, the cognitive hot run). web_channel P0+P1 are shipped + verified but **PAUSED**
-on this blocker; resume the epic at **P2 (dashboard)** once embeddings answer again. The web_channel
-pivot (2026-06-25) superseded the immediate cognitive-hot-run plan below, which stays paused-but-ready.
+**Immediate (2026-06-28):** the ML-boundary crash is **fixed** and web_channel **P0+P1+P2 are shipped** —
+chat + dashboard work on dev (kernel on `swarm_shadow`, small dev consilium). The highest-value next
+move for *useful* answers is a **richer corpus**: `swarm_dev` is content-empty and `swarm_shadow` is a
+thin Wikipedia stub-slice, so answers are honest-but-shallow. Options: ingest a real corpus *with
+bodies* (operator) or build the **`Brief`/`Evidence` RPCs** for P3 (evidence drill-down). The
+web_channel pivot (2026-06-25) superseded the immediate cognitive-hot-run plan below, which stays
+paused-but-ready. **Prod note:** unset the dev `SWARM_DB_NAME`/`SWARM_CONSILIUM_*` to restore the
+golden corpus + the heavy decorrelated panel.
 
 The full roadmap is `board/roadmap.md`; task cards in `board/todo/`; rationale in
 `board/research/`. The T0–T13 sequence, Phase E, the data-foundation research epic,
