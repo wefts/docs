@@ -16,10 +16,11 @@ not an automatic agent default.
 
 ## Decision
 
-Sync the whole local `wefts` workspace to the remote workspace root as:
+Sync the local `wefts` workspace shape to the remote workspace root as:
 
 ```text
 <remote workspace>/
+  board/
   docs/
   swarm/
   hive/
@@ -27,11 +28,17 @@ Sync the whole local `wefts` workspace to the remote workspace root as:
 ```
 
 `scripts/sync.sh` is local operator tooling and mirrors the workspace only when
-called deliberately. Runtime state and secrets are excluded:
+called deliberately. It syncs root/operator entries and worktrees as separate
+targets; it does **not** rsync git metadata. Runtime state and secrets are
+excluded:
 
+- `.git`
 - `.env`
 - `secrets.env`
 - `*.local`
+- `*.local.json`
+- `.mcp.local.json`
+- `.claude/settings.local.json`
 - `data`
 - `tmp`
 - dependency/build/cache directories
@@ -39,14 +46,15 @@ called deliberately. Runtime state and secrets are excluded:
 ## Consequences
 
 - Spark receives the same workspace shape as local development.
-- Sync can still use `--delete`, but only under explicit human control.
+- Push mirrors by default. Pull is additive by default; destructive pull requires
+  an explicit `--delete`.
 - Scratch and runtime data do not travel through rsync.
-- Each repo keeps its own git history; the top-level workspace remains not a
-  repo.
+- Each GitHub-backed repo keeps its own remote history; `board/` keeps only local
+  git history. The top-level workspace remains not a repo.
 
 ## Alternatives
 
 - **Sync only `swarm/`** — rejected after the workspace split; it loses `docs/`,
-  `hive/`, and local operator context.
+  `board/`, `hive/`, and local operator context.
 - **Automatic remote sync by agents** — rejected; remote sync is
   production-adjacent and belongs to the operator.

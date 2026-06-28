@@ -27,6 +27,7 @@ The top level is a `wefts` workspace, not a repo. Inside it:
 ```text
 wefts/                 (workspace; org = wefts; top level is NOT a git repo)
   docs/    git, PUBLIC   shared canon — this repo
+  board/   git, LOCAL    planning board / handoff; no GitHub remote
   swarm/   git, public   the product: kernel/control-plane (intended public)
   hive/    git, PRIVATE  the environment: instance/deployment
   scripts/ no git        local operator tooling (sync, env), outside git by design
