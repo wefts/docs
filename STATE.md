@@ -114,6 +114,15 @@ detail in `architecture/overview.md` — not repeated here.
 
 ## Recently shipped
 
+- **web_channel — real corpus + conversation logs + unified SSO/local login + readability**
+  (`board/done/web-channel-prod-data-logs-login`, 2026-06-29). Kernel repointed at **`swarm_slice`**
+  (real Confluence+MediaWiki, mixed scope) → grounded answers on real data; **no-leak verified live**
+  (public viewer 1 hit vs group viewer 18 for "team"). **Durable conversation log** + answer trace
+  (tier/confidence/citations/path) in a private volume. **Unified login** auto-routes SSO vs a
+  channel-owned **local credential store** (pbkdf2, groot-managed, default-deny) — verified live incl.
+  persistence across restart. **Readability pass** (fluid type, 1.6 line-height, 65ch measure). 55
+  tests; council codex+gemma (SOUND-WITH-CAVEATS, fixes applied). Deferred: fresh `swarm_prod` ingest;
+  **full consilium deliberation view** (needs a kernel change + a designed visualization).
 - **web_channel P2 — home dashboard + a working dev chat** (`board/done/web-channel-p2`). Cold-open
   dashboard: a real **"state of my memory"** tile from `KbStatus` (async HTMX, honest unavailable), a
   **⌘K palette** over `KbSearch` (scope-respecting — no-leak tested), ask + session history; the
