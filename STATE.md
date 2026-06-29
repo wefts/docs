@@ -401,14 +401,17 @@ detail in `architecture/overview.md` — not repeated here.
 
 ## Next
 
-**Immediate (2026-06-28):** the ML-boundary crash is **fixed** and web_channel **P0+P1+P2 are shipped** —
-chat + dashboard work on dev (kernel on `swarm_shadow`, small dev consilium). The highest-value next
-move for *useful* answers is a **richer corpus**: `swarm_dev` is content-empty and `swarm_shadow` is a
-thin Wikipedia stub-slice, so answers are honest-but-shallow. Options: ingest a real corpus *with
-bodies* (operator) or build the **`Brief`/`Evidence` RPCs** for P3 (evidence drill-down). The
-web_channel pivot (2026-06-25) superseded the immediate cognitive-hot-run plan below, which stays
-paused-but-ready. **Prod note:** unset the dev `SWARM_DB_NAME`/`SWARM_CONSILIUM_*` to restore the
-golden corpus + the heavy decorrelated panel.
+**Immediate (2026-06-29):** web_channel is on real data (`swarm_prod`: 1241 group docs / 8728 chunks),
+unified SSO/local login, durable conversation logs, and the **Tailwind+Basecoat design system** — all
+shipped. **The next move (operator-directed, architect review 2026-06-29) is the "how the swarm thinks"
+dashboard** — deliberation / graph connections / activity. It is a **swarm/ kernel effort first** (new
+scope-enforcing Core RPCs), then hive views on the Basecoat system. Architect cut: it is **NOT fully
+blocked on the cognitive loop** — `Consilium.deliberate/2` already returns panel+judge on every
+escalated `Ask`, and `Traverse` over the populated graph gives neighborhood; so **`Deliberation` +
+`Neighborhood` ship without the loop**, and only the rich `ActivityFeed` is loop-gated. The dashboard is
+the **observability instrument for the loop the operator hot run turns on** — complementary, not blocked.
+Epic card: `board/todo/web-channel-thinking-dashboard.md`. **Prod note:** unset the dev
+`SWARM_DB_NAME`/`SWARM_CONSILIUM_*` to restore the golden corpus + the heavy decorrelated panel.
 
 The full roadmap is `board/roadmap.md`; task cards in `board/todo/`; rationale in
 `board/research/`. The T0–T13 sequence, Phase E, the data-foundation research epic,
