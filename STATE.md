@@ -114,6 +114,16 @@ detail in `architecture/overview.md` — not repeated here.
 
 ## Recently shipped
 
+- **web_channel — adopted the decided Tailwind+Basecoat design system** (`board/done/web-channel-basecoat-adoption`,
+  hive ADR-2, 2026-06-29). Paid down the bespoke-CSS debt while the surface was tiny: Basecoat is **vendored
+  as one self-contained static file** (basecoat-css 1.0.1, MIT; tailwindcss v4.3.1 compiled in) like
+  htmx/alpine — **no Node, no build step**; `app.css` is now a thin token layer (dark-palette CSS-var
+  overrides + fluid readability + a few layout primitives). Templates use Basecoat components
+  (`.btn/.card/.input/.badge/.table`); ⌘K stays Alpine. **Renders with no external network call**
+  (verified; `VENDORING.md` pins version/sha256/license). Council codex+gemini; code review codex
+  (fixes applied); 58 tests green. **The next structural move is the backend "how the swarm thinks"
+  dashboard** (`board/todo/web-channel-thinking-dashboard-BLOCKED`): blocked on new Core RPCs
+  (ActivityFeed/Neighborhood/deliberation) + a running cognitive loop — a swarm/ effort, not a channel one.
 - **web_channel — real corpus + conversation logs + unified SSO/local login + readability**
   (`board/done/web-channel-prod-data-logs-login`, 2026-06-29). Kernel repointed at **`swarm_slice`**
   (real Confluence+MediaWiki, mixed scope) → grounded answers on real data; **no-leak verified live**
