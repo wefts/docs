@@ -121,8 +121,10 @@ detail in `architecture/overview.md` — not repeated here.
   (tier/confidence/citations/path) in a private volume. **Unified login** auto-routes SSO vs a
   channel-owned **local credential store** (pbkdf2, groot-managed, default-deny) — verified live incl.
   persistence across restart. **Readability pass** (fluid type, 1.6 line-height, 65ch measure). 55
-  tests; council codex+gemma (SOUND-WITH-CAVEATS, fixes applied). Deferred: fresh `swarm_prod` ingest;
-  **full consilium deliberation view** (needs a kernel change + a designed visualization).
+  tests; council codex+gemma (SOUND-WITH-CAVEATS, fixes applied). The kernel now runs on a **fuller
+  `swarm_prod`** (real Confluence+MediaWiki via `hive/scripts/ingest_prod.exs`: **1241 group-scoped
+  docs / 8728 chunks / 919 embedded**; no-leak verified — a public viewer sees 0, a group viewer sees
+  the corpus). Deferred: **full consilium deliberation view** (needs a kernel change + a designed visualization).
 - **web_channel P2 — home dashboard + a working dev chat** (`board/done/web-channel-p2`). Cold-open
   dashboard: a real **"state of my memory"** tile from `KbStatus` (async HTMX, honest unavailable), a
   **⌘K palette** over `KbSearch` (scope-respecting — no-leak tested), ask + session history; the
