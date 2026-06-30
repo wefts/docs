@@ -114,6 +114,22 @@ detail in `architecture/overview.md` — not repeated here.
 
 ## Recently shipped
 
+- **Entity-centric knowledge aggregation — "what is X" synthesis** (`board/done/knowledge-aggregation-layer`,
+  swarm `77c831d`, 2026-06-30). Generalizes the flat claim-aware answering into a dedicated aggregation
+  layer (`Swarm.Graph.Aggregation`): for a "what/who is X" ask, gather the claim graph about X **grouped by
+  canonical predicate** (a window-function CTE bounds a hub entity — top-K objects/predicate with an honest
+  `[+N more]` total), **corroboration-ranked** (distinct origins), scope-enforced exactly like the
+  corroboration query (edge + both endpoint scopes; refuted + structural excluded; counts after the filter;
+  origin strings never emitted), and hand the structured, provenance-tagged profile to the consilium — so
+  the answer synthesizes across the corpus, not one page. Extends `Ask` (no new RPC). Multiple objects are
+  **presented** and the consilium judges enumeration-vs-conflict (no mechanical contradiction label); a
+  `claim_support` signal feeds the calibration cap so a claim-grounded answer isn't crushed. **Bi-temporal
+  supersede is deferred on evidence** (no multi-origin contradictions exist yet; multi-object predicates are
+  enumerations; open predicates lack cardinality; `edge_provenance` already keeps origin+seen_at for a
+  retrofit). Council codex + gemini-3.1-pro (both SOUND-WITH-CAVEATS, both endorsed the defer); codex code
+  review → 3 fixes (window bounding, canonical-in-SQL, nil-vs-zero support). mix 326/0, gates clean.
+  Live-verified on the real preprod corpus: an entity-synthesis question composes across the grouped facts
+  (a many-valued predicate synthesized into a list), confidence calibrated, no-leak holds.
 - **Retrieval precise-value answers — chunk-grounding + calibration + claim-aware** (`board/done/retrieval-chunk-grounding-and-claim-aware`,
   swarm `c3df14b`, 2026-06-30). The escalated answer path fed the consilium bare **titles** and trusted the
   judge's self-reported confidence (1.00 even on non-answers). Now: it grounds on the retrieved **passages**
@@ -458,15 +474,25 @@ that previously returned "not stated" now returns the value from the claim graph
 calibrated (a 0.66–0.97 range) where it was a flat 1.00 on everything. The **calibration lynchpin is in
 place** (live before/after numbers in `board/journal.md`).
 
-**The next move is `board/todo/knowledge-aggregation-layer`** — entity-centric "what is X" synthesis over the plain
-canonical edges (corroboration-aware ranking, contradiction surfacing, bi-temporal supersede). A 6-source
-council (journal 2026-06-30) settled it: synthesis is a **dedicated layer**, NOT emergent from the graph
-and NOT bought by statement-node reification (reserved & deferred — `board/ideas/data-foundation.md`). It
-depends on the calibration fix above. **Sequencing (architect review #9, 2026-06-30):** confidence
-calibration is the **lynchpin** — both this layer and gate-7 depend on it. The cognitive loop's
-*enrichment* may run earlier (it populates the claim graph this layer consumes), but **gate 7 — does
-cognition improve answers? — must not be treated as measured until chunk-grounding + aggregation ship**,
-or the lift is measured on a retrieval stack still feeding titles, not passages.
+**`knowledge-aggregation-layer` is DONE + live-verified** (swarm `77c831d`, 2026-06-30, `board/done/`).
+Entity-centric "what is X" synthesis: `Swarm.Graph.Aggregation` gathers the claim graph about a query's
+entities **grouped by canonical predicate** (window-function CTE; top-K per predicate + honest `[+N more]`),
+**corroboration-ranked**, scope-enforced, and hands the structured profile to the consilium (the legit use
+of cognition — over aggregated facts, not titles); a `claim_support` signal feeds the calibration cap so a
+claim-grounded answer isn't crushed. Multiple objects are **presented** (the consilium judges enumeration
+vs conflict); **bi-temporal supersede is deferred on evidence** (`board/todo/bi-temporal-supersede`).
+Council codex + gemini-3.1-pro (both SOUND-WITH-CAVEATS, both endorsed the defer); codex code review → 3
+fixes. Live-verified: an entity-synthesis question now composes across the grouped facts (a many-valued
+predicate is synthesized into a list), confidence stays calibrated, no-leak holds.
+
+**The next move is `board/doing/cognitive-turn-on-calibration` (STEP 3, operator-gated) — the hot run +
+gate-7.** Both read-path dependencies (honest confidence + entity synthesis) now ship, so **gate 7 — "does
+cognition improve answers?" — can finally be measured on a stack that feeds passages + synthesized facts,
+not titles.** Run the loop HOT on the real corpus for the council's "several days", re-run
+`answerability_lift.exs` + `calibrate.exs`, fill the 10-gate go/no-go, convene the promotion council. As
+the loop densifies the claim graph, STEP 2's corroboration ranking starts to bite (today max claim
+seen_count=1) and the bi-temporal-supersede trigger may fire. This is days of live inference + a reviewed
+prod promotion — operator-gated.
 
 **Operational notes (preprod):** "prod" = preproduction (two-person, real data, read-only against the
 wiki/Confluence — see the docs/standards). The cognitive loop runs from the host
