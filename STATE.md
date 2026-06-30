@@ -438,6 +438,16 @@ right *page* to the consilium but not always the right *passage*. Close it with 
 graph for the value directly), and fix the **confidence-calibration bug** (the consilium reports high
 confidence on non-answers). This is the concrete MVP-blocking gap. A swarm/ kernel effort.
 
+**Then `board/todo/knowledge-aggregation-layer`** — entity-centric "what is X" synthesis over the plain
+canonical edges (corroboration-aware ranking, contradiction surfacing, bi-temporal supersede). A 6-source
+council (journal 2026-06-30) settled it: synthesis is a **dedicated layer**, NOT emergent from the graph
+and NOT bought by statement-node reification (reserved & deferred — `board/ideas/data-foundation.md`). It
+depends on the calibration fix above. **Sequencing (architect review #9, 2026-06-30):** confidence
+calibration is the **lynchpin** — both this layer and gate-7 depend on it. The cognitive loop's
+*enrichment* may run earlier (it populates the claim graph this layer consumes), but **gate 7 — does
+cognition improve answers? — must not be treated as measured until chunk-grounding + aggregation ship**,
+or the lift is measured on a retrieval stack still feeding titles, not passages.
+
 **Operational notes (preprod):** "prod" = preproduction (two-person, real data, read-only against the
 wiki/Confluence — see the docs/standards). The cognitive loop runs from the host
 (`SWARM_DB_NAME=swarm_prod SWARM_ENRICH_THRESHOLD=0.58 mise exec -- mix run --no-start
