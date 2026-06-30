@@ -127,10 +127,15 @@ detail in `architecture/overview.md` — not repeated here.
   tested whether a real-BM25 (Tantivy-in-Postgres) extension beats that baseline: on an isolated sandbox
   seeded read-only with the full real corpus, **BM25 body+title beat it** (recall@10→1.0, MRR→0.732,
   recovered a title-only page the native arm can't reach) with **no-leak filter-before-rank verified
-  in-index**. Council codex+llama **GO-WITH-CONDITIONS** → **swarm ADR-0016 stays Proposed (no rewrite
-  yet)**: the win is the **deferred native title-bypass** (test a *repaired* native baseline first,
-  `board/todo/retrieval-native-title-bypass`), the gold is small-N/title-biased, and a PG16 from-source
-  image + ops gates are pending. The full GO/NO-GO is operator-gated.
+  in-index**. Council codex+llama **GO-WITH-CONDITIONS**. Its #1 condition — a *repaired* native baseline (a
+  coverage-gated title-floor bypass) — was then **built, measured, and resolved FOR pg_search**: the
+  bypass recovers recall (0.857→1.0) but cleanly avoiding generic common-word-title flooding needs
+  **idf-aware scoring = reinventing BM25 in SQL** (council codex FLAWED + qwen3-coder SWC). So the
+  native arm can't cleanly reach BM25 without becoming BM25 → **operator decided to MIGRATE to
+  pg_search** (swarm ADR-0016 **Proposed→MIGRATING**, `f75eeaf`; bypass reverted; Phase-1 title arm
+  stays the native baseline, recall@10 0.857). Active epic `board/doing/retrieval-pg-search-migration`;
+  first step = the PG16 from-source image → local-registry, then a larger frozen holdout + no-leak
+  suite + ops gates + a final council to flip ADR-0016 → Accepted.
 - **Entity-centric knowledge aggregation — "what is X" synthesis** (`board/done/knowledge-aggregation-layer`,
   swarm `77c831d`, 2026-06-30). Generalizes the flat claim-aware answering into a dedicated aggregation
   layer (`Swarm.Graph.Aggregation`): for a "what/who is X" ask, gather the claim graph about X **grouped by
