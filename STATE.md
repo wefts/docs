@@ -485,14 +485,20 @@ Council codex + gemini-3.1-pro (both SOUND-WITH-CAVEATS, both endorsed the defer
 fixes. Live-verified: an entity-synthesis question now composes across the grouped facts (a many-valued
 predicate is synthesized into a list), confidence stays calibrated, no-leak holds.
 
-**The next move is `board/doing/cognitive-turn-on-calibration` (STEP 3, operator-gated) — the hot run +
-gate-7.** Both read-path dependencies (honest confidence + entity synthesis) now ship, so **gate 7 — "does
-cognition improve answers?" — can finally be measured on a stack that feeds passages + synthesized facts,
-not titles.** Run the loop HOT on the real corpus for the council's "several days", re-run
-`answerability_lift.exs` + `calibrate.exs`, fill the 10-gate go/no-go, convene the promotion council. As
-the loop densifies the claim graph, STEP 2's corroboration ranking starts to bite (today max claim
-seen_count=1) and the bi-temporal-supersede trigger may fire. This is days of live inference + a reviewed
-prod promotion — operator-gated.
+**STEP 3 (cognitive-loop hot run + gate-7) — Run 1 measured; full calibration is operator-gated**
+(`board/doing/cognitive-turn-on-calibration` § "Run 1", 2026-06-30). A **bounded** real hot-run increment
+(snapshot-protected) on the real corpus **converged with no breaker** (top-1 concentration decreased, no
+over-corroboration, the entity-resolution batch even reduced fragmentation), and **gate 7 — "does cognition
+improve answers?" — is a DIRECTIONAL PASS**: cognition's claim/entity traversal lifts answer-recall on the
+real corpus (a benchmark answer was reachable *only* via the cognitive graph), on top of the STEP-1/2
+answer-quality gains. **Decorrelated council (codex + gemini-3.1-pro, both SOUND-WITH-CAVEATS): the loop
+operates safely and lifts answers, but full production promotion is NO-GO** — the reward gate is too loose
+(it admits ~0.9 of candidates; only a per-pass cap bounds cost), so the **next move is to recalibrate the
+reward + entity-resolution gates** so the gate (not the cap) limits admission, then run the **multi-day
+equilibrium on an isolated clone** (not shared preprod), measure the full corpus-axis lift (pre/post
+snapshot diff), and fill the remaining promotion gates (faithfulness eyeball, adversarial scope tests).
+Multi-origin corroboration has **not** appeared → the deferred lineage-aware clustering stays deferred.
+Days of live inference + a reviewed promotion — operator-gated. (Live numbers: `board/`.)
 
 **Operational notes (preprod):** "prod" = preproduction (two-person, real data, read-only against the
 wiki/Confluence — see the docs/standards). The cognitive loop runs from the host
