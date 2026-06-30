@@ -114,6 +114,23 @@ detail in `architecture/overview.md` — not repeated here.
 
 ## Recently shipped
 
+- **Retrieval title-arm (ADR-0016 Phase 1) + pg_search spike (Phase 2) — 2026-06-30.** Fixed retrieval
+  **title-blindness**: `node.key` (the page title) was never a ranking signal, so a page whose title IS
+  the query lost to body-heavier pages. The kernel now has a **title arm** (`board/done/retrieval-title-arm`,
+  swarm `070a551`): in-scope nodes ranked by `ts_rank_cd` over `node.key`, LEFT JOINed onto the fused
+  body chunks; a SINGLE per-node RRF boost (never × chunk count) re-orders **survivors only** (no floor
+  bypass → no flooding); scope on the arm (no-leak); a latent unordered-`LIMIT` in the lexical arm fixed
+  too. **Live-verified read-only on `swarm_prod`** (group scope, 7-q gold): at the calibrated
+  `title_weight=30` the title-matched value page went **missing → #1**, recall@10 0.571→0.857, MRR
+  0.251→0.519, every question same-or-better. Council codex+qwen3-coder/llama (FLAWED→fixed→both SWC);
+  mix 325/0, gates clean. Then a **pg_search/ParadeDB sandbox spike** (`board/done/retrieval-pg-search-spike`)
+  tested whether a real-BM25 (Tantivy-in-Postgres) extension beats that baseline: on an isolated sandbox
+  seeded read-only with the full real corpus, **BM25 body+title beat it** (recall@10→1.0, MRR→0.732,
+  recovered a title-only page the native arm can't reach) with **no-leak filter-before-rank verified
+  in-index**. Council codex+llama **GO-WITH-CONDITIONS** → **swarm ADR-0016 stays Proposed (no rewrite
+  yet)**: the win is the **deferred native title-bypass** (test a *repaired* native baseline first,
+  `board/todo/retrieval-native-title-bypass`), the gold is small-N/title-biased, and a PG16 from-source
+  image + ops gates are pending. The full GO/NO-GO is operator-gated.
 - **Entity-centric knowledge aggregation — "what is X" synthesis** (`board/done/knowledge-aggregation-layer`,
   swarm `77c831d`, 2026-06-30). Generalizes the flat claim-aware answering into a dedicated aggregation
   layer (`Swarm.Graph.Aggregation`): for a "what/who is X" ask, gather the claim graph about X **grouped by
@@ -461,8 +478,11 @@ detail in `architecture/overview.md` — not repeated here.
 (`swarm_prod`): SSO/local login, durable conversation logs, Basecoat UI, the **complete "how the swarm
 thinks" dashboard** (deliberation / visual graph / activity), the **cognitive loop operating** (calibrated,
 safe convergence on shadow + prod), and **hybrid-retrieval answerability lift**. Benchmarked against the
-operator's existing agent: Swarm now answers **conceptual / how-questions** comparably; the open gap is
-**precise-value lookups** (a question whose answer is one value on one page).
+operator's existing agent: Swarm now answers **conceptual / how-questions** comparably; the
+**precise-value lookup** gap (a question whose answer is one value on one page) was traced to retrieval
+**title-blindness** and **fixed by the ADR-0016 title arm** (see Recently shipped — the title-matched
+value page now leads on `swarm_prod`). Whether to go further with a BM25 (pg_search) lexical engine is a
+**spiked, council-reviewed, operator-gated** open decision (ADR-0016 GO-WITH-CONDITIONS).
 
 **`retrieval-chunk-grounding-and-claim-aware` is DONE + live-verified** (swarm `c3df14b`, 2026-06-30,
 `board/done/`). The answer path now feeds the consilium the retrieved **passages** (not titles),
