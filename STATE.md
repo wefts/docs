@@ -114,6 +114,31 @@ detail in `architecture/overview.md` — not repeated here.
 
 ## Recently shipped
 
+- **Hybrid-retrieval answerability lift** (`board/done/`… retrieval, swarm `53b69cf`, 2026-06-29). The
+  kernel's lexical arm used `plainto_tsquery` (ANDs *every* query term), so a question with an extra word
+  excluded the very page that answered it. Switched to `to_tsquery` over an OR of the query's content
+  lexemes (`Retrieval.or_tsquery/1`; ts_rank still ranks by coverage). Scope predicate on both arms
+  unchanged (no-leak holds); injection-safe; empty ⇒ dense-only. **Measured on the real corpus:** several
+  conceptual/how questions that were non-answers now answer correctly, and the right page surfaces where it
+  was previously missed. Council codex (SOUND-WITH-CAVEATS — a lexical-only precision gate tracked as a
+  follow-up). 12 retrieval tests + a regression; 305/0. **Next:** precise-value lookups still need
+  **chunk-level grounding + claim-aware answering** (`board/todo/retrieval-chunk-grounding-and-claim-aware`):
+  the OR-fix gets the right *page* to the consilium, but not always the right *passage*.
+- **Cognitive loop now OPERATES (calibrated, on real data)** (`board/done/cognitive-turn-on-…`, 2026-06-29).
+  The reward-gate threshold is now **env-overridable** (`SWARM_ENRICH_THRESHOLD`, swarm `7612a97`; default
+  0.35 kept for tests), calibrated **per corpus** (`calibrate.exs`). Ran the integrated loop (enrichment →
+  entity-resolution) end-to-end on the public shadow **and** on `swarm_prod`: **safe convergence, no
+  breaker** (topK1 strictly decreasing — no super-node collapse; seen_max flat; ER conservative). The prod
+  graph densified (+entities, +claim edges). A real bug was fixed en route: the loop script never started
+  `Swarm.ML.ChannelPool`, so generation silently failed (hive `046c6a4`).
+- **"How the swarm thinks" dashboard — COMPLETE** (`board/done/dashboard-rpc-*`, `dashboard-view-*`,
+  `web-channel-dashboard-page-graph`, 2026-06-29). All three scope-enforcing Core RPCs shipped
+  (**Deliberation / Neighborhood / ActivityFeed**, swarm; ActivityFeed has an opaque, gap-non-inferable
+  cursor) and all three hive views on Basecoat: a **panel-vs-judge deliberation** view (agreement meter),
+  a **bounded connections graph** (now a *visual* node-link graph — Cytoscape vendored offline), and a
+  **polled Activity feed** (opaque cursor). The console split into **Home** (converse) and **/dashboard**
+  (observe). No-leak verified live (group viewer sees hits + neighborhood; public sees 0). 72 channel
+  tests + the kernel RPC suites.
 - **web_channel — adopted the decided Tailwind+Basecoat design system** (`board/done/web-channel-basecoat-adoption`,
   hive ADR-2, 2026-06-29). Paid down the bespoke-CSS debt while the surface was tiny: Basecoat is **vendored
   as one self-contained static file** (basecoat-css 1.0.1, MIT; tailwindcss v4.3.1 compiled in) like
@@ -121,9 +146,8 @@ detail in `architecture/overview.md` — not repeated here.
   overrides + fluid readability + a few layout primitives). Templates use Basecoat components
   (`.btn/.card/.input/.badge/.table`); ⌘K stays Alpine. **Renders with no external network call**
   (verified; `VENDORING.md` pins version/sha256/license). Council codex+gemini; code review codex
-  (fixes applied); 58 tests green. **The next structural move is the backend "how the swarm thinks"
-  dashboard** (`board/todo/web-channel-thinking-dashboard-BLOCKED`): blocked on new Core RPCs
-  (ActivityFeed/Neighborhood/deliberation) + a running cognitive loop — a swarm/ effort, not a channel one.
+  (fixes applied); 58 tests green. (The "how the swarm thinks" dashboard this unblocked is now **shipped** —
+  see the top of this section.)
 - **web_channel — real corpus + conversation logs + unified SSO/local login + readability**
   (`board/done/web-channel-prod-data-logs-login`, 2026-06-29). Kernel repointed at **`swarm_slice`**
   (real Confluence+MediaWiki, mixed scope) → grounded answers on real data; **no-leak verified live**
@@ -401,17 +425,25 @@ detail in `architecture/overview.md` — not repeated here.
 
 ## Next
 
-**Immediate (2026-06-29):** web_channel is on real data (`swarm_prod`: 1241 group docs / 8728 chunks),
-unified SSO/local login, durable conversation logs, and the **Tailwind+Basecoat design system** — all
-shipped. **The next move (operator-directed, architect review 2026-06-29) is the "how the swarm thinks"
-dashboard** — deliberation / graph connections / activity. It is a **swarm/ kernel effort first** (new
-scope-enforcing Core RPCs), then hive views on the Basecoat system. Architect cut: it is **NOT fully
-blocked on the cognitive loop** — `Consilium.deliberate/2` already returns panel+judge on every
-escalated `Ask`, and `Traverse` over the populated graph gives neighborhood; so **`Deliberation` +
-`Neighborhood` ship without the loop**, and only the rich `ActivityFeed` is loop-gated. The dashboard is
-the **observability instrument for the loop the operator hot run turns on** — complementary, not blocked.
-Epic card: `board/todo/web-channel-thinking-dashboard.md`. **Prod note:** unset the dev
-`SWARM_DB_NAME`/`SWARM_CONSILIUM_*` to restore the golden corpus + the heavy decorrelated panel.
+**Immediate (2026-06-30):** the operator console is **usable end-to-end on real preprod data**
+(`swarm_prod`): SSO/local login, durable conversation logs, Basecoat UI, the **complete "how the swarm
+thinks" dashboard** (deliberation / visual graph / activity), the **cognitive loop operating** (calibrated,
+safe convergence on shadow + prod), and **hybrid-retrieval answerability lift**. Benchmarked against the
+operator's existing agent: Swarm now answers **conceptual / how-questions** comparably; the open gap is
+**precise-value lookups** (a question whose answer is one value on one page).
+
+**The next move is `board/todo/retrieval-chunk-grounding-and-claim-aware`** — the OR-recall fix gets the
+right *page* to the consilium but not always the right *passage*. Close it with **chunk-level grounding**
+(rank/feed the answer passage, not just the doc) + **claim-aware answering** (use the enrichment claim
+graph for the value directly), and fix the **confidence-calibration bug** (the consilium reports high
+confidence on non-answers). This is the concrete MVP-blocking gap. A swarm/ kernel effort.
+
+**Operational notes (preprod):** "prod" = preproduction (two-person, real data, read-only against the
+wiki/Confluence — see the docs/standards). The cognitive loop runs from the host
+(`SWARM_DB_NAME=swarm_prod SWARM_ENRICH_THRESHOLD=0.58 mise exec -- mix run --no-start
+hive/scripts/cognitive_loop.exs`); snapshot first. The runbook is `hive/docs/operations.md`
+§"Cognitive turn-on". `docker compose up -d web_channel` silently recreates the kernel from `.env`
+(re-apply any shell `SWARM_DB_NAME` override after).
 
 The full roadmap is `board/roadmap.md`; task cards in `board/todo/`; rationale in
 `board/research/`. The T0–T13 sequence, Phase E, the data-foundation research epic,
@@ -419,7 +451,9 @@ The full roadmap is `board/roadmap.md`; task cards in `board/todo/`; rationale i
 spike**, the **evidence-origin substrate (ADR-13, X)**, the **reward-gated enrichment worker**, and
 the **entity-resolution soft-match (Y)** are all shipped + verified. The evidence accounting that was
 dead code is wired; claims corroborate honestly; duplicate entities fold without inflating. **The
-foundation AND the cognitive layer are feature-complete — off by default.**
+foundation AND the cognitive layer are feature-complete; the integrated loop has now RUN end-to-end
+(calibrated, safe) on real preprod data — it is operated deliberately (a driven script + snapshot), not a
+continuous default.**
 
 The forward cut (review #5 + a 2-family council, 2026-06-25 — journal):
 
