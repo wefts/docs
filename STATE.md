@@ -114,6 +114,22 @@ detail in `architecture/overview.md` — not repeated here.
 
 ## Recently shipped
 
+- **Retrieval precise-value answers — chunk-grounding + calibration + claim-aware** (`board/done/retrieval-chunk-grounding-and-claim-aware`,
+  swarm `c3df14b`, 2026-06-30). The escalated answer path fed the consilium bare **titles** and trusted the
+  judge's self-reported confidence (1.00 even on non-answers). Now: it grounds on the retrieved **passages**
+  (the cited `spans` + `relevance` were discarded at `core.ex:147`); **calibrates confidence honestly** — a
+  judge `supported` self-flag (fail-closed) gates groundedness, an unsupported answer ⇒ `:not_found`/0.0/no
+  citations, and retrieval relevance is a **one-sided cap, not a raw multiply** (≥0.55 ⇒ 1.0, floor 0.6 —
+  so a strong answer ≈ judge×agreement, a marginal one is capped, neither crushed); and surfaces
+  scope-enforced **claim-graph facts** (`Swarm.Graph.Claims`) directly into the grounding, cited. Design
+  council codex SWC + gemini-3.1-pro FLAWED (convergent: raw cosine×confidence is wrong); codex code review
+  → 3 fixes (claim-lookup transport-rescue, claim-only answers cited, facts get their own grounding
+  sub-budget). mix 317/0, credo/dialyzer/format clean. **Live-verified on the real preprod corpus
+  (group viewer): a five-question precise-lookup set went from title-deflections/non-answers to concrete
+  answers; a value lookup that previously returned "not stated" now returns the value from the claim graph;
+  confidence is now calibrated across a 0.66–0.97 range where it was a flat 1.00 on everything (including
+  non-answers).** The operator's benchmark agent answered these from the same corpus, so the gap was
+  grounding/calibration, not the corpus — now matched. (Live before/after numbers in `board/journal.md`.)
 - **Hybrid-retrieval answerability lift** (`board/done/`… retrieval, swarm `53b69cf`, 2026-06-29). The
   kernel's lexical arm used `plainto_tsquery` (ANDs *every* query term), so a question with an extra word
   excluded the very page that answered it. Switched to `to_tsquery` over an OR of the query's content
@@ -432,13 +448,17 @@ safe convergence on shadow + prod), and **hybrid-retrieval answerability lift**.
 operator's existing agent: Swarm now answers **conceptual / how-questions** comparably; the open gap is
 **precise-value lookups** (a question whose answer is one value on one page).
 
-**The next move is `board/todo/retrieval-chunk-grounding-and-claim-aware`** — the OR-recall fix gets the
-right *page* to the consilium but not always the right *passage*. Close it with **chunk-level grounding**
-(rank/feed the answer passage, not just the doc) + **claim-aware answering** (use the enrichment claim
-graph for the value directly), and fix the **confidence-calibration bug** (the consilium reports high
-confidence on non-answers). This is the concrete MVP-blocking gap. A swarm/ kernel effort.
+**`retrieval-chunk-grounding-and-claim-aware` is DONE + live-verified** (swarm `c3df14b`, 2026-06-30,
+`board/done/`). The answer path now feeds the consilium the retrieved **passages** (not titles),
+**calibrates confidence honestly** (judge `supported` flag fail-closed; unsupported ⇒ :not_found/0.0;
+retrieval as a one-sided cap, not a raw multiply — council codex SWC + gemini-3.1-pro FLAWED, convergent),
+and surfaces scope-enforced **claim-graph facts** directly (cited). Live-verified on the real preprod
+corpus (group viewer): a precise-lookup set went title-deflection/non-answer → concrete; a value lookup
+that previously returned "not stated" now returns the value from the claim graph; confidence is now
+calibrated (a 0.66–0.97 range) where it was a flat 1.00 on everything. The **calibration lynchpin is in
+place** (live before/after numbers in `board/journal.md`).
 
-**Then `board/todo/knowledge-aggregation-layer`** — entity-centric "what is X" synthesis over the plain
+**The next move is `board/todo/knowledge-aggregation-layer`** — entity-centric "what is X" synthesis over the plain
 canonical edges (corroboration-aware ranking, contradiction surfacing, bi-temporal supersede). A 6-source
 council (journal 2026-06-30) settled it: synthesis is a **dedicated layer**, NOT emergent from the graph
 and NOT bought by statement-node reification (reserved & deferred — `board/ideas/data-foundation.md`). It
