@@ -492,13 +492,15 @@ over-corroboration, the entity-resolution batch even reduced fragmentation), and
 improve answers?" — is a DIRECTIONAL PASS**: cognition's claim/entity traversal lifts answer-recall on the
 real corpus (a benchmark answer was reachable *only* via the cognitive graph), on top of the STEP-1/2
 answer-quality gains. **Decorrelated council (codex + gemini-3.1-pro, both SOUND-WITH-CAVEATS): the loop
-operates safely and lifts answers, but full production promotion is NO-GO** — the reward gate is too loose
-(it admits ~0.9 of candidates; only a per-pass cap bounds cost), so the **next move is to recalibrate the
-reward + entity-resolution gates** so the gate (not the cap) limits admission, then run the **multi-day
-equilibrium on an isolated clone** (not shared preprod), measure the full corpus-axis lift (pre/post
-snapshot diff), and fill the remaining promotion gates (faithfulness eyeball, adversarial scope tests).
-Multi-origin corroboration has **not** appeared → the deferred lineage-aware clustering stays deferred.
-Days of live inference + a reviewed promotion — operator-gated. (Live numbers: `board/`.)
+operates safely and lifts answers, but full production promotion is NO-GO** — the reward gate was too
+loose (admitting ~0.9 of candidates; only a per-pass cap bounded cost). **That blocker is now resolved:**
+the reward + entity-resolution gates were **recalibrated** (a per-corpus `SWARM_ER_VEC_THRESHOLD` env knob
+added, mirroring the reward one — UPWARD-only) and re-run — the reward gate's worth-it fraction dropped
+~0.89→~0.10 (it now gates, not the cap) and ER over-proposing dropped ~64%, with convergence holding (no
+breaker, concentration still decreasing). **The remaining work is operator-gated:** the multi-day
+equilibrium run **on an isolated clone** (not shared preprod), the full corpus-axis lift (pre/post snapshot
+diff), and the promotion gates (faithfulness eyeball, adversarial scope tests). Multi-origin corroboration
+has **not** appeared → the deferred lineage-aware clustering stays deferred. (Live numbers: `board/`.)
 
 **Operational notes (preprod):** "prod" = preproduction (two-person, real data, read-only against the
 wiki/Confluence — see the docs/standards). The cognitive loop runs from the host
