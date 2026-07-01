@@ -41,7 +41,8 @@ only in gitignored files (`hive/secrets.env`), Docker volumes, and external/oper
 config — never in git. `hive/` holds public deployment *scaffold* (compose, plugin code,
 env *structure*), not private data. (The ADR-0015 docs audit flipped this table to
 PRIVATE on 2026-07-01 — that was **backwards**; corrected here. `hive/` intranet
-specifics belong in config, not hardcoded — see `board/todo/hive-publish-readiness-audit.md`.)
+specifics belong in config, not hardcoded — audit DONE, see
+`board/done/hive-publish-readiness-audit.md`.)
 
 ## What is canonical today
 
@@ -129,16 +130,37 @@ detail in `architecture/overview.md` — not repeated here.
   `hive/` gained layered, committed, non-secret env files (`env/base.env` + `env/{test,staging,prod}.env`)
   composed by a new `scripts/compose` wrapper, and `docker-compose.yml` now defines `postgres` directly on
   the real deployed ParadeDB/pg_search image instead of an `include:` that still pinned plain pgvector
-  (`board/todo/fix-compose-postgres-drift.md`, partially resolved). Code+docs audit across swarm+hive+
-  scripts+docs also caught and fixed a real pre-existing bug (this file's own repo table said `hive/` was
-  PUBLIC — it is PRIVATE, per `hive/AGENTS.md`). Decorrelated council (codex + local llama3.3:70b, both
-  SOUND-WITH-CAVEATS) caught two real Elixir edge cases (blank-string env vars, a test-hermeticity leak)
-  before the live step. **The live rename executed and is verified:** `swarm_prod` → snapshot → `swarm_staging`
-  (exact parity: node/edge/content/chunk counts, scope distribution, `schema_migrations`, the `chunk_bm25`
-  index and a live bm25 query) → kernel repointed → live-verified (no-leak holds: public 0 hits / group 10
-  hits). `swarm_prod` retained untouched pending burn-in, not dropped. swarm `cce43fc`, hive `ceb66d4`,
-  docs `24539f8`, board `83766f9` — all `main`, **not pushed**. **Next in the trio: item 2, users /
-  identity / privacy** (`board/ideas/users-identity-privacy.md`).
+  (`board/todo/fix-compose-postgres-drift.md`, attempted separately — see the tail bullet below).
+  Decorrelated council (codex + local llama3.3:70b, both SOUND-WITH-CAVEATS) caught two real Elixir edge
+  cases (blank-string env vars, a test-hermeticity leak) before the live step. **The live rename executed
+  and is verified:** `swarm_prod` → snapshot → `swarm_staging` (exact parity: node/edge/content/chunk
+  counts, scope distribution, `schema_migrations`, the `chunk_bm25` index and a live bm25 query) → kernel
+  repointed → live-verified (no-leak holds: public 0 hits / group 10 hits). swarm `cce43fc`, hive `ceb66d4`,
+  docs `24539f8`, board `83766f9` — all `main`, **not pushed**.
+- **Epic-1 tail — item 1 is now FULLY closed — 2026-07-01** (`board/done/hive-publish-readiness-audit.md`,
+  `board/done/taskfile-pillar.md`, `board/todo/fix-compose-postgres-drift.md`). Four pieces: (1)
+  **hive-publish-readiness audit** — intranet specifics (a real hostname hardcoded 5 ways, incl. a
+  committed Keycloak realm-import JSON's OAuth redirect URIs) scrubbed; council caught a real
+  command-injection surface in the templating fix (Compose interpolating an operator var directly into a
+  shell `command:` string), fixed by routing it through `environment:` + a `$$`-escaped shell reference +
+  a charset guard, verified with a live throwaway Keycloak boot AND a rejected injection payload. (2)
+  **Postgres compose-reconcile — attempted, failed cleanly, no data lost.** `docker rename` (used months
+  earlier for the pg_search swap) doesn't strip compose labels, so Compose matched a stale renamed
+  `-pgvector-bak` container by label, removed it as an unintended side effect, then hit the real name
+  conflict on the live container and aborted. Verified: live `hive-postgres-1` never touched, `hive_pgdata`
+  fully intact, rollback capability unaffected (image still cached). Decision: don't recreate the bak
+  handle (redundant, its stale label was the actual landmine), don't retry blind — two gotchas banked for
+  a future properly-planned attempt. (3) **Old `swarm_prod` + `swarm_dev` dropped** — fresh 0-connections
+  check + verified snapshot first (`tmp/snapshots/swarm_prod_pre_rename_20260701.dump`); kernel/retrieval
+  confirmed unaffected. (4) **Taskfile pillar shipped** (`hive/Taskfile.yml` + a thin
+  `scripts/Taskfile.yml` root includer; `swarm/Taskfile.yml` already existed) — canonical `staging:up`/
+  `deploy`/`db:backup`/`db:rename`/`sync` flows, guardrails encoded as task `deps:` (not prose). Council
+  (codex) caught unvalidated CLI-var shell interpolation; while fixing it, a real bug was caught in that
+  *same* fix during verification (a `case` glob's trailing `*` doesn't reject unsafe characters) and
+  fixed too — every task functionally verified against the real live stack, including three rejected
+  injection attempts. hive `1fecc1b`/`64ca45a`, board multiple — all `main`, **not pushed**.
+  **Item 1 of the post-migration trio is now fully closed. Next: item 2, users / identity / privacy**
+  (`board/ideas/users-identity-privacy.md`).
 - **Retrieval title-arm (ADR-0016 Phase 1) + pg_search spike (Phase 2) — 2026-06-30.** Fixed retrieval
   **title-blindness**: `node.key` (the page title) was never a ranking signal, so a page whose title IS
   the query lost to body-heavier pages. The kernel now has a **title arm** (`board/done/retrieval-title-arm`,
