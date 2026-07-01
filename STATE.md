@@ -133,9 +133,16 @@ detail in `architecture/overview.md` — not repeated here.
   **idf-aware scoring = reinventing BM25 in SQL** (council codex FLAWED + qwen3-coder SWC). So the
   native arm can't cleanly reach BM25 without becoming BM25 → **operator decided to MIGRATE to
   pg_search** (swarm ADR-0016 **Proposed→MIGRATING**, `f75eeaf`; bypass reverted; Phase-1 title arm
-  stays the native baseline, recall@10 0.857). Active epic `board/doing/retrieval-pg-search-migration`;
-  first step = the PG16 from-source image → local-registry, then a larger frozen holdout + no-leak
-  suite + ops gates + a final council to flip ADR-0016 → Accepted.
+  stays the native baseline, recall@10 0.857). Active epic `board/doing/retrieval-pg-search-migration`.
+  Progress: PG16 pg_search image → local-registry ✅; honest holdout A/B ✅ (BM25 directionally edges
+  native); staging Postgres swapped to ParadeDB ✅ (data intact, reversible); **the BM25 lexical arm is
+  built + merged behind a `lexical_engine` flag (default `:native`, swarm `87c1d2a`, council SWC)** —
+  but a **honest end-to-end A/B through the real `Retrieval.search` pipeline showed BM25 does NOT yet
+  beat native** (worse on title-lookups: the sandbox win didn't survive kernel rank→RRF fusion, which
+  dilutes the title boost). So the arm ships **flag-off**; the `:bm25` flip is **not justified yet** and
+  is gated on `bm25-kernel-integration-tuning` + `bm25-index-hardening` (IDF term-stat channel) + a
+  final council. The whole thing is trivially reversible (flag off; `hive-postgres-1-pgvector-bak` +
+  snapshots). GO/NO-GO on the flip is operator-owned.
 - **Entity-centric knowledge aggregation — "what is X" synthesis** (`board/done/knowledge-aggregation-layer`,
   swarm `77c831d`, 2026-06-30). Generalizes the flat claim-aware answering into a dedicated aggregation
   layer (`Swarm.Graph.Aggregation`): for a "what/who is X" ask, gather the claim graph about X **grouped by
