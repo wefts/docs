@@ -145,11 +145,13 @@ detail in `architecture/overview.md` — not repeated here.
   term-existence side channel is explicitly accepted** for the two-person trusted intranet (RESULT rows
   stay scope-safe via in-index filter + the authoritative node.scope belt; partition per-scope if the
   threat model broadens); observability-gated redeploy; drift-guard + larger holdout before broadening
-  users (`board/todo/bm25-index-hardening`). **Not yet in production:** the running kernel predates this
-  session's retrieval work — title arm → bm25 → flip reach prod only via an operator-gated,
-  observability-gated kernel rebuild+redeploy (everything here was measured via host `mix run` against
-  the live swarm_prod DB). Fully reversible (`SWARM_LEXICAL_ENGINE=native`; `hive-postgres-1-pgvector-bak`
-  + snapshots).
+  users (`board/todo/bm25-index-hardening`). **LIVE IN PRODUCTION (2026-07-01):** the kernel was rebuilt +
+  redeployed (`docker compose up -d --no-deps kernel` — postgres/pg_search untouched), bringing title arm
+  → bm25 → flip into prod at once (the prior running kernel predated all of it). Observability gate:
+  kernel healthy on the fresh image, bm25 retrieval executes cleanly (1 query, 0 errors), no-leak holds
+  (public→0). Pre-existing unrelated note: a full `ask` escalation is slow (heavy consilium fleet on one
+  GPU). Fully reversible (`SWARM_LEXICAL_ENGINE=native` rebuild-free flip; image tag
+  `swarm-kernel:0.1.0-pre-bm25`; `hive-postgres-1-pgvector-bak` + snapshots).
 - **Entity-centric knowledge aggregation — "what is X" synthesis** (`board/done/knowledge-aggregation-layer`,
   swarm `77c831d`, 2026-06-30). Generalizes the flat claim-aware answering into a dedicated aggregation
   layer (`Swarm.Graph.Aggregation`): for a "what/who is X" ask, gather the claim graph about X **grouped by
