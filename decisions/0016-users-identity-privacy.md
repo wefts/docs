@@ -27,8 +27,15 @@ mechanisms are pending council.
 
 ## Decision (settled)
 
-1. **Identity anchor = surrogate `UUIDv7`.** `login`, `emails[]` (multiple, verifiable),
-   `alias`, `nickname` are **mutable attributes — never the key**.
+1. **Identity anchor = surrogate `UUIDv7`.** Attributes (mutable, never the key): `login`
+   (= the IdP **uid** — Smile `penta`, 3–8 chars — the login handle *and* the match key;
+   maps to OIDC `uid`/`preferred_username`), `emails[]` (verifiable), `first_name`/`last_name`
+   (OIDC `given_name`/`family_name`), `nickname` (alias dropped — same thing). The
+   **SSO claim→field mapping is explicit and config-driven** (login/email/names/groups mirror
+   SSO fields so local + SSO users are one shape; configurable because IdPs vary). A **rich
+   profile** — freeform bio + structured facts (`based_in` / `interested_in` / `works_on` /
+   projects) — lives on the **person-node** (graph, P5; human-entered or enrichment-learned →
+   item 3), **not** the auth record. Roles beyond `is_admin` are deferred (Smile barely uses them).
 2. **Login by `login`** (like Smile SSO), not email. **Local auth** (pbkdf2) + **create
    users without SSO**.
 3. **SSO = JIT provision**, matched on the IdP **stable `sub`** (not email); **account-
