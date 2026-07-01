@@ -21,7 +21,8 @@ separate:
 
 - **`wefts`** — the workspace/namespace that ties the repos together.
 - **Swarm** — the product and public kernel/control-plane repo.
-- **Hive** — a concrete private deployment environment.
+- **Hive** — a concrete deployment environment. (Corrected 2026-07-01: the `hive/` repo
+  is **public**, like `docs/`+`swarm/`; it holds deployment scaffold, not private data.)
 
 The top-level workspace is not a git repo. The owned units are:
 
@@ -29,7 +30,7 @@ The top-level workspace is not a git repo. The owned units are:
 wefts/
   docs/      public shared canon
   swarm/     public product kernel
-  hive/      private deployment instance
+  hive/      public deployment instance
   scripts/   local operator tooling, outside git
 ```
 

@@ -18,7 +18,7 @@ workspace split is [ADR-10](../decisions/0010-wefts-workspace-split.md):
 wefts/
   docs/       shared architecture, standards, vocabulary
   swarm/      public kernel/control-plane repo
-  hive/       private instance/deployment repo
+  hive/       public instance/deployment repo (scaffold, not private data)
   scripts/    local operator scripts, outside git
   .mcp.json   local agent/tool wiring
 ```
@@ -37,10 +37,11 @@ machine or private integration.
 contracts, storage substrate, and implementation docs. It must not contain real
 plugins, private corpora, secrets, or environment-specific orchestration.
 
-`hive/` is a private instance repo. It owns `docker-compose.yml`, `.env.example`,
-plugin source while plugins are still instance-local, data roots, and pointers to
-secrets. A hive may become public later, but it should be designed as private by
-default.
+`hive/` is a **public** instance repo. It owns `docker-compose.yml`, the layered `env/`
+config (ADR-0015), plugin source while plugins are still instance-local, data roots, and
+pointers to secrets. Because it is public, no secrets or intranet specifics live in its
+committed files — those stay in gitignored `secrets.env`, Docker volumes, and config;
+intranet values are parameterized, never hardcoded (`board/todo/hive-publish-readiness-audit.md`).
 
 `scripts/` contains local synchronization and operator tooling. These scripts are
 for this workspace and should not be treated as part of the public product.
@@ -98,4 +99,4 @@ moved to its own repo without changing the kernel contract.
   are checked.
 - `swarm/docs/system_architecture.md` contains kernel-specific implementation
   detail.
-- `hive/README.md` contains private instance conventions.
+- `hive/README.md` contains (public) instance conventions.

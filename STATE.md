@@ -15,7 +15,8 @@ Three names, three jobs. Keep them distinct in all docs and code:
 - **Swarm** — the product: the local-first heterogeneous cognitive system. Lives in
   the public `swarm/` kernel repo.
 - **Hive** — the environment: a concrete deployment instance (compose, plugins, env,
-  data roots, secrets pointers). Lives in the private `hive/` repo.
+  data roots, secrets pointers). Lives in the **public** `hive/` repo — it holds
+  deployment scaffold, not private data.
 
 This naming is settled. The shared `docs/` tree uses this distinction throughout;
 repo-specific docs may still need occasional spot checks.
@@ -29,16 +30,18 @@ wefts/                 (workspace; org = wefts; top level is NOT a git repo)
   board/   git, LOCAL    planning board / handoff; no GitHub remote
   docs/    git, PUBLIC   shared canon — this repo
   swarm/   git, PUBLIC   the product: kernel/control-plane (intended public)
-  hive/    git, PRIVATE  the environment: instance/deployment
+  hive/    git, PUBLIC   the environment: instance/deployment (scaffold, not private data)
   scripts/ no git        local operator tooling (sync, env), outside git by design
 ```
 
-The three repos are split apart, `docs/` and `swarm/` are (intended) public, and
-`hive/` is private — secrets and private deployment state live only there,
-never in `docs/` or `swarm/` (AGENTS.md); the workspace shape is settled. (This
-table previously and incorrectly listed `hive/` as PUBLIC — fixed 2026-07-01,
-ADR-0015 docs audit; it contradicted `hive/AGENTS.md` and this file's own prose
-elsewhere, e.g. "private repo" in the Campaign A entry below.)
+**All three remoted repos (`docs/`, `swarm/`, `hive/`) are public** (operator-created
+that way). So the boundary is stricter, not looser: secrets, intranet hostnames/IPs, and
+private corpus content never enter a committed file in **any** repo; private state lives
+only in gitignored files (`hive/secrets.env`), Docker volumes, and external/operator
+config — never in git. `hive/` holds public deployment *scaffold* (compose, plugin code,
+env *structure*), not private data. (The ADR-0015 docs audit flipped this table to
+PRIVATE on 2026-07-01 — that was **backwards**; corrected here. `hive/` intranet
+specifics belong in config, not hardcoded — see `board/todo/hive-publish-readiness-audit.md`.)
 
 ## What is canonical today
 
