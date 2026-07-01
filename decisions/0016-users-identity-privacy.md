@@ -55,8 +55,19 @@ Complete — direction + both forks resolved by council; mechanism detail goes t
    request-id, decision). Never by default; never an `admin=true` flag on a normal read
    (that *is* the backdoor failure mode). (Operator: support-reading is legitimate for a
    work assistant — but break-glass + audited.)
-7. **`groot` → role-based admin** (`owner`/`admin` role — already role-based in code); the
-   concrete admin username is **hive-private config**, not hardcoded in `swarm/` + docs.
+7. **Roles = capabilities, source-agnostic, default-deny** (replaces the coarse `is_admin`
+   bool — the council flagged that too). Two tiers:
+   - **admin** — `manage_access` (grant/revoke access to **shared resources**: the corp
+     wiki / Confluence today, user-created KBs later) + `invite_users` (create local users).
+     **Admins do NOT read others' conversations.**
+   - **superadmin** — **all** capabilities, incl. `read_any_conversation` (the break-glass
+     audited path of Decision 6). A **local** account whose id is a **normal `UUIDv7` (same
+     scheme as everyone) but a recognizable / vanity value** — the *root / uid-0* feel
+     (memorable, not a special sentinel type), seeded at bootstrap. `groot` is just our name
+     — the **role** is what matters; rename freely, and keep the literal name out of
+     `swarm/` + public docs.
+   A role is conferred by **group→role mapping** (SSO or local group) **or** a **direct
+   grant** — local / SSO / group confer roles identically.
 8. **Build the full model at once** (operator: surfaces the real advantages + problems),
    not phased.
 9. **The kernel VERIFIES the forwarded actor identity — it does not trust it** (council,
@@ -67,6 +78,12 @@ Complete — direction + both forks resolved by council; mechanism detail goes t
    `viewer`: today the kernel trusts channel-asserted scopes — a *nominal* boundary a
    channel bug / stale session / confused-deputy can spoof. On the single box this is a
    cheap shared-secret HMAC/JWT; it is what makes the kernel the **real** sole authority.
+10. **Access grants are kernel-owned, admin-mutable, and audited.** Group memberships +
+    scope grants live in the kernel (the authz authority) and change only via audited admin
+    RPCs (gated by `manage_access`), not only static config (config may seed defaults). Every
+    grant / revoke / invite writes an audit row; default-deny throughout. This makes the
+    group→scope map **runtime-manageable** (admins add/revoke access to shared resources),
+    not just deployment config.
 
 ## Forks — resolved by council (2026-07-01)
 
