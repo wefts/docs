@@ -58,8 +58,9 @@ Complete — direction + both forks resolved by council; mechanism detail goes t
 7. **Roles = capabilities, source-agnostic, default-deny** (replaces the coarse `is_admin`
    bool — the council flagged that too). Two tiers:
    - **admin** — `manage_access` (grant/revoke access to **shared resources**: the corp
-     wiki / Confluence today, user-created KBs later) + `invite_users` (create local users).
-     **Admins do NOT read others' conversations.**
+     wiki / Confluence today, shared KBs later) + `invite_users` (create local users) +
+     `manage_users` (deactivate / delete accounts). **Admins do NOT read others'
+     conversations, and do NOT manage another user's *own* KB** (a user's private KB is theirs).
    - **superadmin** — **all** capabilities, incl. `read_any_conversation` (the break-glass
      audited path of Decision 6). A **local** account whose id is a **normal `UUIDv7` (same
      scheme as everyone) but a recognizable / vanity value** — the *root / uid-0* feel
@@ -84,6 +85,17 @@ Complete — direction + both forks resolved by council; mechanism detail goes t
     grant / revoke / invite writes an audit row; default-deny throughout. This makes the
     group→scope map **runtime-manageable** (admins add/revoke access to shared resources),
     not just deployment config.
+11. **Account lifecycle + data stance (self-hosted, non-public).** Deactivate / delete an
+    account → its **credentials, sessions, role grants, and access die with it immediately**
+    (the login is dead — a hard, clear boundary). But **content that fed the app's learning
+    persists**: derived graph facts / person-node knowledge / contributions to shared
+    resources are decoupled from the auth record and remain (scope-governed) — this is a
+    **personal / self-hosted instance, not a public service**, so learning from contributed
+    content is the intended model, **not** a right-to-erasure. ("What happens in Vegas…" — a
+    **formal data-lifecycle / retention policy is DEFERRED** to a later `board/todo/` card.)
+    Consequence: the person-node must handle an **orphaned owner gracefully** (anonymize /
+    detach, never dangle); whether *raw* private conversations are purged on delete is part
+    of the deferred policy (derived learning is what persists regardless).
 
 ## Forks — resolved by council (2026-07-01)
 
