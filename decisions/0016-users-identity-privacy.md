@@ -2,9 +2,8 @@
 
 ## Status
 
-**Proposed.** The settled decisions below are firm (operator + architect). The two
-load-bearing forks (§ Open forks) go to a **decorrelated council** before this flips to
-Accepted; the spec + board cards follow the council. Item 2 of the post-migration trio;
+**Proposed — both forks now RESOLVED by a 5-source council (2026-07-01); pending operator
+sign-off to flip to Accepted, then spec + cards.** Item 2 of the post-migration trio;
 graduates `board/ideas/users-identity-privacy.md`.
 
 > NB numbering: this is a **workspace** ADR (cross-cutting invariant, spans kernel +
@@ -12,8 +11,7 @@ graduates `board/ideas/users-identity-privacy.md`.
 
 ## Record Completeness
 
-Draft — decision direction complete; the identity-ownership + conversation-enforcement
-mechanisms are pending council.
+Complete — direction + both forks resolved by council; mechanism detail goes to the spec.
 
 ## Context
 
@@ -49,34 +47,72 @@ mechanisms are pending council.
    conversations are private to them by default; **enforced**, not merely UI-hidden;
    adversarially tested with the same rigor as scope no-leak (list / search / cursor /
    neighborhood / activity / error — no path leaks another user's conversation).
-6. **Admin may read others' conversations — NEVER by default; only via a separate,
-   explicit, audited view, for support / diagnosing problems.** (Operator: Swarm is a
-   work assistant, so support-reading is legitimate — but deliberate + audited, never
-   ambient.)
+6. **Admin support-read = impersonation through the SAME filtered path + break-glass —
+   NOT a separate all-rows query** (council correction). Admin *assumes the target user's
+   view* via the normal owner predicate (sees exactly what the user sees, no bypass),
+   gated by an **explicit, time-boxed, reason-required** elevation, with an **immutable
+   audit row written BEFORE data is returned** (actor, target, ids/scope, reason,
+   request-id, decision). Never by default; never an `admin=true` flag on a normal read
+   (that *is* the backdoor failure mode). (Operator: support-reading is legitimate for a
+   work assistant — but break-glass + audited.)
 7. **`groot` → role-based admin** (`owner`/`admin` role — already role-based in code); the
    concrete admin username is **hive-private config**, not hardcoded in `swarm/` + docs.
 8. **Build the full model at once** (operator: surfaces the real advantages + problems),
    not phased.
+9. **The kernel VERIFIES the forwarded actor identity — it does not trust it** (council,
+   load-bearing). The channel forwards a **signed** actor assertion (a JWT the kernel
+   verifies, or mTLS), and the kernel derives the effective `{uuid, scopes, owner}` from
+   it. Security-bearing paths (the conversation owner-check; ideally scope grants) never
+   trust a plaintext `viewer`/`scopes` field. This revisits ADR-7's opaque-*trusted*
+   `viewer`: today the kernel trusts channel-asserted scopes — a *nominal* boundary a
+   channel bug / stale session / confused-deputy can spoof. On the single box this is a
+   cheap shared-secret HMAC/JWT; it is what makes the kernel the **real** sole authority.
 
-## Open forks (→ decorrelated council before Accepted)
+## Forks — resolved by council (2026-07-01)
 
-**A. Where identity lives — kernel vs channel vs hybrid.** Today auth is channel-side.
-Tension: *microkernel stays small* vs *the kernel is the sole visibility authority* (if
-conversations are kernel-owned + owner-enforced, the kernel must know the uuid identity).
-→ **Architect lean (pending council):** **split** — the **uuid + user record** (login,
-emails, scope/group grants) is **kernel-owned** (the authority for owner + scope);
-**credential verification + session + SSO token exchange** stay **channel-side** (hive),
-passing the authenticated `uuid + scopes` to the kernel; the person is **also projected as
-a graph node** on the same uuid for facts-about-people (feeds item 3). **Do NOT** put
-password hashes / SSO subjects into graph claim-edges.
+**A → hybrid A1, MINIMAL.** The **kernel** owns the minimal *authorization* record —
+`uuid` + login + emails + group/scope grants + `is_admin` + identity-links + **conversation
+ownership** — provisioned **JIT** from token claims (claims are the source of truth;
+idempotent upsert on login). The **channel** owns **authentication only** (password, OIDC,
+session, cookies). It is **not** a full identity service in the kernel — "an authz-enforcer
+that happens to persist ownership" (web). The person is **also** projected as a graph node
+on the same uuid for facts (item 3); password hashes / SSO subjects **never** enter graph
+edges. (Repo: ~500–700 LOC, Core proto unchanged — `viewer` is already opaque.)
 
-**B. Where conversations live + how owner-only is enforced.** Today convlog is channel-side
-(private volume).
-→ **Architect lean (pending council):** make **owned-by-uuid a first-class kernel
-visibility predicate** (enforce where every other visibility decision is made — no
-split-brain); admin cross-user read = a separate, explicit, audited Core RPC. *Alternative:*
-the channel keeps convlog with a strict owner check (leaner kernel, but splits the privacy
-boundary across channel + kernel).
+**B → B1, STRUCTURAL.** Conversations are a **kernel-owned aux entity** — reuse the proven
+`Swarm.Deliberation` pattern (already a kernel aux table with owner + scope-re-auth + an
+opaque handle). Enforce owner-only at **one data-access choke point** that injects
+`owner = verified-subject` (never a caller-supplied owner), backed by **Postgres RLS** as
+the belt-and-suspenders net so a future new path / export / search cannot escape the DB
+policy. Deny-by-default, UUID ids, **404-not-403** (no existence oracle). Complies with hive
+ADR-1 (aux table + RPC; channel never reads the DB). (Repo: ~800–1200 LOC + 2 RPCs.)
+
+## Council (2026-07-01)
+
+5-source blackboard (`tmp/notes/blackboard-users-identity.md`): KS-A architect · KS-B
+repo-Explore · KS-C web prior-art · KS-D codex (gpt-5.5) · KS-E llama3.3:70b. **Convergent:**
+A = hybrid-minimal, B = B1. It **corrected the architect's first pass in three places
+(adopted):**
+
+1. The "kernel *enforces* but *trusts* channel-supplied `{viewer, scopes}`" middle is
+   **unsound** — it makes the channel the authority again; **verify cryptographically**
+   (Decision 9), don't trust a plaintext field. (This is the crux — where no-leak "lives or
+   dies", web.)
+2. Admin cross-user read is **impersonation-through-the-same-path + break-glass**, not a
+   separate all-rows RPC (that *is* the backdoor). (Decision 6.)
+3. Make isolation **structural** — single choke-point + RLS — not per-handler discipline
+   ("airtight as a property of the architecture, not of remembering to check").
+
+**Model gaps to carry into the spec:** `conversation.owner_id NOT NULL`;
+`message.author_user_id` (author ≠ owner); `user.status` + `last_login_at`;
+`identity_link.verified_at` + uniqueness; `email.verified_at`/primary; group-membership
+provenance; `conversation.visibility` (private default; shared/team later) + `deleted_at`/
+retention; full `admin_access_audit` fields; a **service/agent identity** model (background
+jobs / the enrichment loop / indexers / backups / MCP must be authorized too — enrichment
+must respect conversation ownership); the **search + export/backup paths** must apply the
+owner predicate ("cannot read by any path" fails there first); a **person-node leak rule**
+(chat-derived facts projected to the graph must not surface to scoped corpus reads); a
+session/token entity.
 
 ## Consequences
 
@@ -92,8 +128,12 @@ boundary across channel + kernel).
 
 ## Alternatives
 
-- **Channel-owned identity (status quo extended)** — leaner kernel, but splits the privacy
-  boundary across channel + kernel (the split-brain fork B warns of). Council to weigh.
+- **Channel-owned identity (A2, status quo extended)** — REJECTED by council: a channel
+  that asserts `{viewer, scopes}` the kernel merely trusts is not a real authority boundary
+  (spoofable by a channel bug / stale session), and it splits the privacy boundary.
+- **Channel-side conversations (B2)** — REJECTED by council: the channel has direct storage
+  access, so owner-only is not airtight "by any path"; two visibility systems (corpus in
+  kernel, chats in channel) is the split-brain the invariant forbids.
 - **Person as a pure graph node (no auth table)** — clean "all users-as-data", but
   conflates security-sensitive auth with public-ish graph knowledge. Rejected for the auth
   layer; kept for the facts layer.
