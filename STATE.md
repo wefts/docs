@@ -133,7 +133,8 @@ detail in `architecture/overview.md` — not repeated here.
   before the live step. **The live rename executed and is verified:** `swarm_prod` → snapshot → `swarm_staging`
   (exact parity: node/edge/content/chunk counts, scope distribution, `schema_migrations`, the `chunk_bm25`
   index and a live bm25 query) → kernel repointed → live-verified (no-leak holds: public 0 hits / group 10
-  hits). `swarm_prod` retained untouched pending burn-in, not dropped. **Next in the trio: item 2, users /
+  hits). `swarm_prod` retained untouched pending burn-in, not dropped. swarm `cce43fc`, hive `ceb66d4`,
+  docs `24539f8`, board `83766f9` — all `main`, **not pushed**. **Next in the trio: item 2, users /
   identity / privacy** (`board/ideas/users-identity-privacy.md`).
 - **Retrieval title-arm (ADR-0016 Phase 1) + pg_search spike (Phase 2) — 2026-06-30.** Fixed retrieval
   **title-blindness**: `node.key` (the page title) was never a ranking signal, so a page whose title IS
