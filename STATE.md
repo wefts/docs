@@ -51,9 +51,10 @@ specifics belong in config, not hardcoded — audit DONE, see
 - `standards/` — guardrails, verification, workflow, conventions, code-style,
   how-to-write-adr. All present and current.
 - `architecture/` — overview, ports, confidence-calculus.
-- `decisions/` — **workspace** ADR-0..12, indexed, anchored, all records `Complete`.
-  The **swarm-local** sequence ADR-1..14 lives in `swarm/docs/decisions/` (a separate
-  numbering; ADR-13 entity resolution, ADR-14 data/memory model are the newest).
+- `decisions/` — **workspace** ADR-0..15 (newest: 13 evidential-origin, 14
+  environment-stage-model, 15 environment-configuration-architecture). The **swarm-local**
+  sequence ADR-1..16 lives in `swarm/docs/decisions/` (a separate numbering; newest: 13
+  entity resolution, 14 data/memory model, 15 dashboard-projection-RPCs, 16 retrieval-engine/pg_search).
 - `reference/` — glossary and bibliography (both substantial, annotated, sourced)
   and concepts. The glossary now carries the shipped memory vocabulary (§8: content /
   chunk / hybrid retrieval / RRF / relevance floor / answerability).
@@ -113,8 +114,10 @@ detail in `architecture/overview.md` — not repeated here.
 
 ## Boundaries (stable)
 
-- Secrets never live in `docs/` or `swarm/`, nor in committed `hive/` files.
-- Private data lives only in `hive/`.
+- All three repos are public → secrets, intranet hostnames/IPs, and private corpus
+  content never enter a committed file in **any** of them (not `docs/`, `swarm/`, or `hive/`).
+- Private state lives only in gitignored files (`hive/secrets.env`), Docker volumes,
+  and external/operator config — never in git. `hive/` holds public deployment scaffold.
 - The kernel never imports plugin source as a hidden dependency.
 - Remote sync is a human/operator action, never an agent default.
 - Each repo owns its own `tmp/`. Planning lives in the workspace-root `board/`
