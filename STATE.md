@@ -29,11 +29,16 @@ wefts/                 (workspace; org = wefts; top level is NOT a git repo)
   board/   git, LOCAL    planning board / handoff; no GitHub remote
   docs/    git, PUBLIC   shared canon — this repo
   swarm/   git, PUBLIC   the product: kernel/control-plane (intended public)
-  hive/    git, PUBLIC   the environment: instance/deployment
+  hive/    git, PRIVATE  the environment: instance/deployment
   scripts/ no git        local operator tooling (sync, env), outside git by design
 ```
 
-The three repos are split apart and `docs/` is public; the workspace shape is settled.
+The three repos are split apart, `docs/` and `swarm/` are (intended) public, and
+`hive/` is private — secrets and private deployment state live only there,
+never in `docs/` or `swarm/` (AGENTS.md); the workspace shape is settled. (This
+table previously and incorrectly listed `hive/` as PUBLIC — fixed 2026-07-01,
+ADR-0015 docs audit; it contradicted `hive/AGENTS.md` and this file's own prose
+elsewhere, e.g. "private repo" in the Campaign A entry below.)
 
 ## What is canonical today
 
@@ -114,6 +119,22 @@ detail in `architecture/overview.md` — not repeated here.
 
 ## Recently shipped
 
+- **Environment configuration architecture + the thorough rename — 2026-07-01** (`board/done/environment-config`,
+  ADR-0015 Accepted; item 1 of the post-migration trio). `SWARM_ENV ∈ {test,staging,prod}` now derives the
+  Postgres DB name end-to-end (`swarm_${SWARM_ENV}`; explicit `SWARM_DB_NAME` still wins for sandbox
+  clones), killing the `swarm_dev` silent default and the "conditional-prod" guard concept it required;
+  `hive/` gained layered, committed, non-secret env files (`env/base.env` + `env/{test,staging,prod}.env`)
+  composed by a new `scripts/compose` wrapper, and `docker-compose.yml` now defines `postgres` directly on
+  the real deployed ParadeDB/pg_search image instead of an `include:` that still pinned plain pgvector
+  (`board/todo/fix-compose-postgres-drift.md`, partially resolved). Code+docs audit across swarm+hive+
+  scripts+docs also caught and fixed a real pre-existing bug (this file's own repo table said `hive/` was
+  PUBLIC — it is PRIVATE, per `hive/AGENTS.md`). Decorrelated council (codex + local llama3.3:70b, both
+  SOUND-WITH-CAVEATS) caught two real Elixir edge cases (blank-string env vars, a test-hermeticity leak)
+  before the live step. **The live rename executed and is verified:** `swarm_prod` → snapshot → `swarm_staging`
+  (exact parity: node/edge/content/chunk counts, scope distribution, `schema_migrations`, the `chunk_bm25`
+  index and a live bm25 query) → kernel repointed → live-verified (no-leak holds: public 0 hits / group 10
+  hits). `swarm_prod` retained untouched pending burn-in, not dropped. **Next in the trio: item 2, users /
+  identity / privacy** (`board/ideas/users-identity-privacy.md`).
 - **Retrieval title-arm (ADR-0016 Phase 1) + pg_search spike (Phase 2) — 2026-06-30.** Fixed retrieval
   **title-blindness**: `node.key` (the page title) was never a ranking signal, so a page whose title IS
   the query lost to body-heavier pages. The kernel now has a **title arm** (`board/done/retrieval-title-arm`,
@@ -145,9 +166,10 @@ detail in `architecture/overview.md` — not repeated here.
   term-existence side channel is explicitly accepted** for the two-person trusted intranet (RESULT rows
   stay scope-safe via in-index filter + the authoritative node.scope belt; partition per-scope if the
   threat model broadens); observability-gated redeploy; drift-guard + larger holdout before broadening
-  users (`board/todo/bm25-index-hardening`). **LIVE IN PRODUCTION (2026-07-01):** the kernel was rebuilt +
+  users (`board/todo/bm25-index-hardening`). **LIVE ON STAGING (2026-07-01)** (ADR-14: the internal
+  instance is staging, not prod — see `board/done/environment-config`): the kernel was rebuilt +
   redeployed (`docker compose up -d --no-deps kernel` — postgres/pg_search untouched), bringing title arm
-  → bm25 → flip into prod at once (the prior running kernel predated all of it). Observability gate:
+  → bm25 → flip into staging at once (the prior running kernel predated all of it). Observability gate:
   kernel healthy on the fresh image, bm25 retrieval executes cleanly (1 query, 0 errors), no-leak holds
   (public→0). Pre-existing unrelated note: a full `ask` escalation is slow (heavy consilium fleet on one
   GPU). Fully reversible (`SWARM_LEXICAL_ENGINE=native` rebuild-free flip; image tag
@@ -223,7 +245,7 @@ detail in `architecture/overview.md` — not repeated here.
   (real Confluence+MediaWiki, mixed scope) → grounded answers on real data; **no-leak verified live**
   (public viewer 1 hit vs group viewer 18 for "team"). **Durable conversation log** + answer trace
   (tier/confidence/citations/path) in a private volume. **Unified login** auto-routes SSO vs a
-  channel-owned **local credential store** (pbkdf2, groot-managed, default-deny) — verified live incl.
+  channel-owned **local credential store** (pbkdf2, admin-role-managed, default-deny) — verified live incl.
   persistence across restart. **Readability pass** (fluid type, 1.6 line-height, 65ch measure). 55
   tests; council codex+gemma (SOUND-WITH-CAVEATS, fixes applied). The kernel now runs on a **fuller
   `swarm_prod`** (real Confluence+MediaWiki via `hive/scripts/ingest_prod.exs`: **1241 group-scoped
@@ -245,7 +267,8 @@ detail in `architecture/overview.md` — not repeated here.
   `grpc.aio`, a gRPC **client** of the Core API that never reads the graph DB (ADR-1 hive). **P0:** one
   honest answer (deterministic render, verbatim+escaped, honest found/not_found/error), scope
   hard-locked public pre-auth. **P1:** Keycloak **OIDC login**; viewer+scopes **derived from IdP
-  groups** (default-deny); `groot` invite/admin (allowlisted, audited). Local Keycloak (dhi 26.6.1,
+  groups** (default-deny); a role-based admin invite/grant path (allowlisted, audited; the
+  hive-private role name and username are deployment config, not documented here). Local Keycloak (dhi 26.6.1,
   realm `swarm-local`) in compose, swap-able to `sso.smile.eu/realms/Smile`. Each phase passed a
   decorrelated 4-reviewer council (codex + 2 Claude lenses + gemma); P1's hardened session/secret/authz
   (no committed signing key, bounded staleness, group allowlist). 35 unit/app + 4 live-KC integration
@@ -419,10 +442,11 @@ detail in `architecture/overview.md` — not repeated here.
   and an honest "contract-vs-proven-on-real-data" §12 (codex-reviewed). E2 built a
   public **Wikipedia/MediaWiki connector** (`fetch/2`, allpages + `continue`, wikitext
   strip, link graph) — 9 tests — and ran a real ingest→graph→ask loop. **The entire
-  T0–T13 marathon was deployed to the conditional hive prod for the first time** (the
+  T0–T13 marathon was deployed to the hive deployment for the first time** (the
   running image was pre-marathon MVP); a live run put 1313 article nodes / 1379 edges
-  into prod `swarm_dev` and answered via the deployed Core API (self-model + graph
-  retrieval). The predicted failure modes are now **confirmed on real data**: entity
+  into the (then-default) `swarm_dev` DB — since retired, ADR-0015 — and answered via
+  the deployed Core API (self-model + graph retrieval). The predicted failure modes
+  are now **confirmed on real data**: entity
   fragmentation (**now fixed**, swarm ADR-13 Accepted: layer 1 URL-decode +
   layer 2 kernel `merge_nodes/3` provenance-preserving merge + MediaWiki redirect
   resolution at ingest — the live fragmentation probe dropped 4→0 on real data),
@@ -495,7 +519,16 @@ detail in `architecture/overview.md` — not repeated here.
 
 ## Next
 
-**Immediate (2026-06-30):** the operator console is **usable end-to-end on real preprod data**
+**Immediate (2026-07-01):** item 1 of the post-migration trio (environment configuration + the
+rename) is **DONE** — see Recently shipped above. **Next is item 2: users / identity / privacy**
+(`board/ideas/users-identity-privacy.md`) — UUIDv7 anchor, login-by-login, SSO JIT + account-link,
+group→scope, a new per-user conversation-namespace no-leak-class invariant, and the `groot` role-based
+admin de-secret this item shares with item 1's narrow slice (already done: the authz check is
+role-based, not username-based; the full username-as-hive-config parameterization is item 2's build).
+Item 2 is the **critical path to inviting anyone** and gates `board/todo/bm25-index-hardening`. Item 3
+(world-map pre-answering) follows. Full trio in `board/HANDOFF.md`.
+
+**(prior) Immediate (2026-06-30):** the operator console is **usable end-to-end on real preprod data**
 (`swarm_prod`): SSO/local login, durable conversation logs, Basecoat UI, the **complete "how the swarm
 thinks" dashboard** (deliberation / visual graph / activity), the **cognitive loop operating** (calibrated,
 safe convergence on shadow + prod), and **hybrid-retrieval answerability lift**. Benchmarked against the
@@ -543,12 +576,16 @@ equilibrium run **on an isolated clone** (not shared preprod), the full corpus-a
 diff), and the promotion gates (faithfulness eyeball, adversarial scope tests). Multi-origin corroboration
 has **not** appeared → the deferred lineage-aware clustering stays deferred. (Live numbers: `board/`.)
 
-**Operational notes (preprod):** "prod" = preproduction (two-person, real data, read-only against the
-wiki/Confluence — see the docs/standards). The cognitive loop runs from the host
-(`SWARM_DB_NAME=swarm_prod SWARM_ENRICH_THRESHOLD=0.58 mise exec -- mix run --no-start
+**Operational notes (staging, ADR-14/ADR-0015):** the internal instance is **staging**, not prod
+(two-person, real data, read-only against the wiki/Confluence — see the docs/standards). **The DB is
+now `swarm_staging`** (renamed from `swarm_prod` 2026-07-01, `board/done/environment-config`; the old
+`swarm_prod` is retained, untouched, pending burn-in — not yet dropped). Config is driven by
+`SWARM_ENV` end-to-end (unset raises outside `:test`); bring the stack up via
+`SWARM_ENV=staging hive/scripts/compose up -d`, never bare `docker compose`. The cognitive loop runs
+from the host (`SWARM_DB_NAME=swarm_staging SWARM_ENRICH_THRESHOLD=0.58 mise exec -- mix run --no-start
 hive/scripts/cognitive_loop.exs`); snapshot first. The runbook is `hive/docs/operations.md`
-§"Cognitive turn-on". `docker compose up -d web_channel` silently recreates the kernel from `.env`
-(re-apply any shell `SWARM_DB_NAME` override after).
+§"Cognitive turn-on". `SWARM_ENV=staging hive/scripts/compose up -d web_channel` recreates the kernel
+from the layered `env/` files (re-apply any shell `SWARM_DB_NAME` override after, same as before).
 
 The full roadmap is `board/roadmap.md`; task cards in `board/todo/`; rationale in
 `board/research/`. The T0–T13 sequence, Phase E, the data-foundation research epic,
