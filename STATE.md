@@ -134,15 +134,22 @@ detail in `architecture/overview.md` — not repeated here.
   native arm can't cleanly reach BM25 without becoming BM25 → **operator decided to MIGRATE to
   pg_search** (swarm ADR-0016 **Proposed→MIGRATING**, `f75eeaf`; bypass reverted; Phase-1 title arm
   stays the native baseline, recall@10 0.857). Active epic `board/doing/retrieval-pg-search-migration`.
-  Progress: PG16 pg_search image → local-registry ✅; honest holdout A/B ✅ (BM25 directionally edges
-  native); staging Postgres swapped to ParadeDB ✅ (data intact, reversible); **the BM25 lexical arm is
-  built + merged behind a `lexical_engine` flag (default `:native`, swarm `87c1d2a`, council SWC)** —
-  but a **honest end-to-end A/B through the real `Retrieval.search` pipeline showed BM25 does NOT yet
-  beat native** (worse on title-lookups: the sandbox win didn't survive kernel rank→RRF fusion, which
-  dilutes the title boost). So the arm ships **flag-off**; the `:bm25` flip is **not justified yet** and
-  is gated on `bm25-kernel-integration-tuning` + `bm25-index-hardening` (IDF term-stat channel) + a
-  final council. The whole thing is trivially reversible (flag off; `hive-postgres-1-pgvector-bak` +
-  snapshots). GO/NO-GO on the flip is operator-owned.
+  **DONE — swarm ADR-0016 ACCEPTED, pg_search BM25 is the DEFAULT lexical arm (2026-07-01, swarm
+  `0f0dc10`).** Path: PG16 pg_search image → local-registry; honest holdout A/B; staging Postgres
+  swapped to ParadeDB (data intact, reversible); the BM25 arm built behind `lexical_engine` + a
+  title-arm-fusion tuning fix so **end-to-end BM25 ≥ native** (7-q title recall tie 0.857; honest 12-q
+  holdout bm25-wins all three: recall 0.545 vs 0.455, MRR 0.271 vs 0.206, leads 2 vs 1); final
+  decorrelated council (codex + llama) **GO-WITH-CONDITIONS**. Default flipped `:native→:bm25`; the
+  native arm is **retained** as the fallback, runtime-selectable via `SWARM_LEXICAL_ENGINE` (verified
+  live: flips native↔bm25 without a rebuild). **Accepted-with-conditions:** the shared-index **IDF
+  term-existence side channel is explicitly accepted** for the two-person trusted intranet (RESULT rows
+  stay scope-safe via in-index filter + the authoritative node.scope belt; partition per-scope if the
+  threat model broadens); observability-gated redeploy; drift-guard + larger holdout before broadening
+  users (`board/todo/bm25-index-hardening`). **Not yet in production:** the running kernel predates this
+  session's retrieval work — title arm → bm25 → flip reach prod only via an operator-gated,
+  observability-gated kernel rebuild+redeploy (everything here was measured via host `mix run` against
+  the live swarm_prod DB). Fully reversible (`SWARM_LEXICAL_ENGINE=native`; `hive-postgres-1-pgvector-bak`
+  + snapshots).
 - **Entity-centric knowledge aggregation — "what is X" synthesis** (`board/done/knowledge-aggregation-layer`,
   swarm `77c831d`, 2026-06-30). Generalizes the flat claim-aware answering into a dedicated aggregation
   layer (`Swarm.Graph.Aggregation`): for a "what/who is X" ask, gather the claim graph about X **grouped by
