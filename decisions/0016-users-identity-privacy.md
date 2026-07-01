@@ -2,9 +2,10 @@
 
 ## Status
 
-**Proposed — both forks now RESOLVED by a 5-source council (2026-07-01); pending operator
-sign-off to flip to Accepted, then spec + cards.** Item 2 of the post-migration trio;
-graduates `board/ideas/users-identity-privacy.md`.
+**Accepted (2026-07-01).** Both forks resolved by a 5-source council; operator signed off
+("normal MVP model"). Design spec → `swarm/docs/design/users-identity-privacy.md`;
+execution epic → `board/doing/users-identity-privacy-epic.md`. Item 2 of the
+post-migration trio; graduates `board/ideas/users-identity-privacy.md`.
 
 > NB numbering: this is a **workspace** ADR (cross-cutting invariant, spans kernel +
 > channel), distinct from the swarm-local sequence (whose 0016 is pg_search).
