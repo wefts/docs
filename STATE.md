@@ -159,10 +159,17 @@ detail in `architecture/overview.md` — not repeated here.
   cleanly post-flip (no lockout), scope derivation is still correct under `:strict` (alice
   `public,group` / bob `public`, from the same kernel-side derivation every RPC uses), the
   shadow-log stayed clean under real traffic (no undiscovered plaintext caller — this stack has no
-  Core API client besides web_channel). Epic card moved `board/done/`; full narrative + both
-  council transcripts in `board/journal.md` (2026-07-02, several entries). Residuals from the
-  2026-07-02 architect review below are explicitly deferred — they gate *cohort broadening*, not
-  this epic (the existing known accounts are all migrated and working).
+  Core API client besides web_channel). **A real gap the smoke checks missed**: `groot` had always
+  been a Keycloak SSO account here, distinct from the kernel vanity superadmin the migration seeded
+  locally under the same login; a login-uniqueness collision made the migration silently skip
+  provisioning the real one, which then locked out the moment `:strict` shipped — caught by the
+  operator asking where `groot` actually lived, not by any automated check. Fixed (staging, so
+  simplified rather than reconciled): deleted the Keycloak account, created a local credential
+  matching the already-seeded kernel identity. Lesson banked in `migrate_identity.exs`. Epic card
+  moved `board/done/`; full narrative + both council transcripts in `board/journal.md` (2026-07-02,
+  several entries). Residuals from the 2026-07-02 architect review below are explicitly deferred —
+  they gate *cohort broadening*, not this epic (the existing known accounts are all migrated and
+  working).
 - **Users / identity / per-user privacy (workspace ADR-16, item 2) — BACKEND COMPLETE, 2026-07-02.**
   ADR-16 **Accepted 2026-07-01** (5-source council resolved both forks); spec
   `swarm/docs/design/users-identity-privacy.md`; epic `board/doing/users-identity-privacy-epic.md`.
