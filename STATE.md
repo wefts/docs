@@ -64,6 +64,14 @@ specifics belong in config, not hardcoded — audit DONE, see
 
 ## In flight / known gaps
 
+- **Item 2 (ADR-16) is backend-complete; the front (6b) is the open half.** Until 6b lands,
+  the D9 "verify, don't trust" invariant is dormant on the live channel (legacy RPCs run
+  dual-accept and still trust plaintext `viewer`/`scopes`), and no cohort can be invited.
+  The 2026-07-02 architect review confirmed the backend (all council fixes present, no
+  bypass found, suite independently re-run 425/0) but found real residuals — the sharpest:
+  the `private` scope is grantable with zero validation (one `ManageAccess` fat-finger
+  exposes every user's private facts to a group) — carded as
+  `board/todo/person-scope-leak-guard.md` (fix before any cohort).
 - **Naming propagation is mostly done.** The shared `docs/` tree uses
   `wefts` / Swarm / Hive consistently. Remaining spot checks belong to
   repo-specific docs in `swarm/` and `hive/`.
@@ -126,6 +134,21 @@ detail in `architecture/overview.md` — not repeated here.
 
 ## Recently shipped
 
+- **Users / identity / per-user privacy (workspace ADR-16, item 2) — BACKEND COMPLETE, 2026-07-02.**
+  ADR-16 **Accepted 2026-07-01** (5-source council resolved both forks); spec
+  `swarm/docs/design/users-identity-privacy.md`; epic `board/doing/users-identity-privacy-epic.md`.
+  All kernel-side steps shipped on swarm `main` (not pushed), suite 425/0, credo/dialyzer/format
+  clean: `Swarm.Identity` (UUIDv7 anchor, JIT upsert, derived scopes/caps, superadmin seed) →
+  `Swarm.Actor` (D9: verify a signed HS256 assertion, DERIVE `{uuid,scopes,caps}`, never trust
+  plaintext) → `Swarm.Conversations` (kernel-owned, owner choke-point + Postgres RLS belt,
+  404-not-403) → break-glass admin read (impersonate-same-predicate, audit-before-return) →
+  `Swarm.Admin` (cap-gated, audited grants/invite/lifecycle) → Core gRPC surface (new RPCs
+  born-strict; legacy RPCs **dual-accept** under `SWARM_AUTH_MODE=dual`) → `Swarm.Person`
+  projection + chat-fact leak rule → an 18-test adversarial no-leak ship gate. **Remaining: 6b
+  (hive front)** — channel signs the assertion, admin UI, no-lockout migration, then the
+  `:strict` cutover; only then is D9 live end-to-end. Cohort-broadening gates (carded):
+  `rls-app-role`, `no-leak-shipgate-residuals`, `person-scope-leak-guard`,
+  `actor-assertion-hardening`, `bm25-index-hardening`.
 - **Environment configuration architecture + the thorough rename — 2026-07-01** (`board/done/environment-config`,
   ADR-0015 Accepted; item 1 of the post-migration trio). `SWARM_ENV ∈ {test,staging,prod}` now derives the
   Postgres DB name end-to-end (`swarm_${SWARM_ENV}`; explicit `SWARM_DB_NAME` still wins for sandbox
@@ -548,14 +571,14 @@ detail in `architecture/overview.md` — not repeated here.
 
 ## Next
 
-**Immediate (2026-07-01):** item 1 of the post-migration trio (environment configuration + the
-rename) is **DONE** — see Recently shipped above. **Next is item 2: users / identity / privacy**
-(`board/ideas/users-identity-privacy.md`) — UUIDv7 anchor, login-by-login, SSO JIT + account-link,
-group→scope, a new per-user conversation-namespace no-leak-class invariant, and the `groot` role-based
-admin de-secret this item shares with item 1's narrow slice (already done: the authz check is
-role-based, not username-based; the full username-as-hive-config parameterization is item 2's build).
-Item 2 is the **critical path to inviting anyone** and gates `board/todo/bm25-index-hardening`. Item 3
-(world-map pre-answering) follows. Full trio in `board/HANDOFF.md`.
+**Immediate (2026-07-02):** item 2 (users / identity / privacy, workspace ADR-16 Accepted) is
+**backend-complete** — see Recently shipped above. **Next is 6b, the hive front phase**: the channel
+signs the HS256 actor assertion, admin UI + conversation history over the new Core RPCs, no-lockout
+migration of existing users/`groot`, then the `SWARM_AUTH_MODE=strict` cutover (rejects plaintext —
+only flip once the channel signs). 6b is the **critical path to inviting anyone**; cohort broadening
+additionally gates on `rls-app-role`, `person-scope-leak-guard`, `no-leak-shipgate-residuals`,
+`actor-assertion-hardening`, `bm25-index-hardening` (all `board/todo/`). Item 3 (world-map
+pre-answering) follows. Full state in `board/HANDOFF.md`.
 
 **(prior) Immediate (2026-06-30):** the operator console is **usable end-to-end on real preprod data**
 (`swarm_prod`): SSO/local login, durable conversation logs, Basecoat UI, the **complete "how the swarm
