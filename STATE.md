@@ -64,14 +64,16 @@ specifics belong in config, not hardcoded — audit DONE, see
 
 ## In flight / known gaps
 
-- **Item 2 (ADR-16) is backend-complete; the front (6b) is the open half.** Until 6b lands,
-  the D9 "verify, don't trust" invariant is dormant on the live channel (legacy RPCs run
-  dual-accept and still trust plaintext `viewer`/`scopes`), and no cohort can be invited.
-  The 2026-07-02 architect review confirmed the backend (all council fixes present, no
-  bypass found, suite independently re-run 425/0) but found real residuals — the sharpest:
-  the `private` scope is grantable with zero validation (one `ManageAccess` fat-finger
-  exposes every user's private facts to a group) — carded as
-  `board/todo/person-scope-leak-guard.md` (fix before any cohort).
+- **Item 2 (ADR-16) is FULLY DONE — the D9 "verify, don't trust" invariant is now LIVE
+  end-to-end.** 6b (the front) shipped 2026-07-02: web_channel signs the HS256 actor
+  assertion, admin UI over ManageUser/ManageAccess/AdminReadConversation, existing
+  users + groot migrated into the kernel identity store (no lockout, live-verified), and
+  `SWARM_AUTH_MODE=strict` is flipped on staging (2-source council: codex+gemini) — legacy
+  RPCs no longer trust a plaintext `viewer`. Real residuals from the 2026-07-02 architect
+  review are explicitly deferred (they gate *cohort broadening*, not this epic): the
+  sharpest, `private` scope grantable with zero validation, is carded as
+  `board/todo/person-scope-leak-guard.md` (fix before inviting anyone NEW — existing
+  known accounts are unaffected).
 - **Naming propagation is mostly done.** The shared `docs/` tree uses
   `wefts` / Swarm / Hive consistently. Remaining spot checks belong to
   repo-specific docs in `swarm/` and `hive/`.
@@ -134,6 +136,33 @@ detail in `architecture/overview.md` — not repeated here.
 
 ## Recently shipped
 
+- **Users / identity / per-user privacy (workspace ADR-16, item 2) — EPIC COMPLETE, cutover LIVE,
+  2026-07-02.** The front (6b) shipped as its own `wefts-campaign` on top of the backend below:
+  web_channel signs the HS256 actor assertion per `Swarm.Actor`'s wire contract (real interop
+  verified against the actual kernel verifier, not just format-inspected); `ResolveActor` gates
+  login (a clean not-provisioned verdict blocks with an honest page, a transport outage fails open,
+  any other rejection fails closed — 2-source council codex+gemini, same fix independently found:
+  narrow the fail-open catch); conversation history dual-writes to the kernel's owner-enforced store
+  (`LogConversation`/`List`/`Get`) while the local convlog stays the richer trace for self-serve
+  reading; admin UI over `ManageUser`/`ManageAccess`/`AdminReadConversation` (break-glass reads
+  require a reason, audited, rendered visibly); a readability + fluid-width pass (live-verified,
+  computed WCAG contrast ratios — `--primary` as text failed AA 4.5:1, added a separate `--link`);
+  `hive/scripts/migrate_identity.exs` ran against the real `swarm_staging` DB (idempotent — verified
+  by double-running) and provisioned every known account (groot vanity superadmin, 2 local users, 4
+  SSO users) — a real incident during this step (enabling the shared secret before an SSO account
+  was migrated briefly locked that account out; fixed within minutes) is the concrete proof the
+  no-lockout discipline matters, not just a checklist item. **Then the cutover**: 2-source council
+  (codex+gemini) on readiness caught a real observability gap (`:dual` never logged an *accepted*
+  plaintext viewer, only a failed-verification one) — fixed with a shadow-log (`swarm`
+  `4234dd3`) — then `SWARM_AUTH_MODE=strict` flipped on staging. **D9 ("verify, don't trust") is no
+  longer dormant — it is enforced on every RPC, live.** Live-verified: alice/bob still log in
+  cleanly post-flip (no lockout), scope derivation is still correct under `:strict` (alice
+  `public,group` / bob `public`, from the same kernel-side derivation every RPC uses), the
+  shadow-log stayed clean under real traffic (no undiscovered plaintext caller — this stack has no
+  Core API client besides web_channel). Epic card moved `board/done/`; full narrative + both
+  council transcripts in `board/journal.md` (2026-07-02, several entries). Residuals from the
+  2026-07-02 architect review below are explicitly deferred — they gate *cohort broadening*, not
+  this epic (the existing known accounts are all migrated and working).
 - **Users / identity / per-user privacy (workspace ADR-16, item 2) — BACKEND COMPLETE, 2026-07-02.**
   ADR-16 **Accepted 2026-07-01** (5-source council resolved both forks); spec
   `swarm/docs/design/users-identity-privacy.md`; epic `board/doing/users-identity-privacy-epic.md`.
@@ -571,14 +600,14 @@ detail in `architecture/overview.md` — not repeated here.
 
 ## Next
 
-**Immediate (2026-07-02):** item 2 (users / identity / privacy, workspace ADR-16 Accepted) is
-**backend-complete** — see Recently shipped above. **Next is 6b, the hive front phase**: the channel
-signs the HS256 actor assertion, admin UI + conversation history over the new Core RPCs, no-lockout
-migration of existing users/`groot`, then the `SWARM_AUTH_MODE=strict` cutover (rejects plaintext —
-only flip once the channel signs). 6b is the **critical path to inviting anyone**; cohort broadening
-additionally gates on `rls-app-role`, `person-scope-leak-guard`, `no-leak-shipgate-residuals`,
-`actor-assertion-hardening`, `bm25-index-hardening` (all `board/todo/`). Item 3 (world-map
-pre-answering) follows. Full state in `board/HANDOFF.md`.
+**Immediate (2026-07-02):** item 2 (users / identity / privacy, workspace ADR-16) is **fully DONE —
+the D9 invariant is live** (`SWARM_AUTH_MODE=strict` on staging) — see Recently shipped above.
+**Next is item 3, world-map pre-answering** (`board/ideas/world-map-pre-answering.md`) — the
+operator's post-migration trio (① env-config → ② users → ③ world-map) is now two-thirds done.
+Before broadening the cohort beyond the existing known accounts, still gate on: `rls-app-role`,
+`person-scope-leak-guard`, `no-leak-shipgate-residuals`, `actor-assertion-hardening`,
+`bm25-index-hardening`, `jit-provision-rpc` (blocks NEW SSO invites specifically) — all
+`board/todo/`. Full state in `board/HANDOFF.md`.
 
 **(prior) Immediate (2026-06-30):** the operator console is **usable end-to-end on real preprod data**
 (`swarm_prod`): SSO/local login, durable conversation logs, Basecoat UI, the **complete "how the swarm
