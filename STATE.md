@@ -64,16 +64,33 @@ specifics belong in config, not hardcoded — audit DONE, see
 
 ## In flight / known gaps
 
-- **Item 2 (ADR-16) is FULLY DONE — the D9 "verify, don't trust" invariant is now LIVE
-  end-to-end.** 6b (the front) shipped 2026-07-02: web_channel signs the HS256 actor
-  assertion, admin UI over ManageUser/ManageAccess/AdminReadConversation, existing
-  users + groot migrated into the kernel identity store (no lockout, live-verified), and
-  `SWARM_AUTH_MODE=strict` is flipped on staging (2-source council: codex+gemini) — legacy
-  RPCs no longer trust a plaintext `viewer`. Real residuals from the 2026-07-02 architect
-  review are explicitly deferred (they gate *cohort broadening*, not this epic): the
-  sharpest, `private` scope grantable with zero validation, is carded as
-  `board/todo/person-scope-leak-guard.md` (fix before inviting anyone NEW — existing
-  known accounts are unaffected).
+- **Item 2 (ADR-16) is FULLY DONE and the cohort-hardening pass is DEPLOYED live.** The
+  D9 "verify, don't trust" invariant shipped end-to-end 2026-07-02 (`SWARM_AUTH_MODE=strict`).
+  Then a six-card hardening pass (2026-07-03) closed the architect-review gates and is now
+  **live-verified on staging**: (1) `private` is ungrantable + `user` person-nodes pinned
+  private (grant boundary + read clamps + DB CHECK); (2) per-form CSRF on admin POSTs +
+  stale-session re-auth; (3) the adversarial no-leak ship gate de-vacuoused (positive
+  controls, audit-before-return proven, KbSearch wire-tested); (4) a `ProvisionActor` RPC
+  (JIT-provision an SSO subject over the wire — whole claim set bound inside a signed
+  provision token, audience-split, resurrect/collision/TOCTOU-guarded; council codex+gemini);
+  (5) the kernel now runs as a **non-superuser DB role so Postgres RLS is LIVE** (raw reads
+  filter to 0 without the txn GUC, audit is append-only at the DB, break-glass survives via
+  a hardened SECURITY DEFINER lookup); (6) compose lint green on a clean checkout. Two
+  post-deploy fixes the live smoke surfaced: an **RP-initiated-logout bug** (channel-only
+  logout left the IdP SSO session alive → the next login silently re-authenticated the
+  previous user — a session bug, not a data leak) and a **scope-derivation regression** (an
+  unseeded group→scope map plus the D9 move dropped the "authenticated ⇒ public" baseline,
+  so every signed actor derived no scopes and the whole corpus went invisible; fixed by
+  restoring the public baseline in the kernel derivation). Both fixed + deployed; the KB now
+  answers at full quality. Remaining cohort gates (carded): actor-assertion sid-replay/
+  rotation, bm25-index-hardening, chat-origin-write-protection.
+- **The cognitive loop is now OPERATING on a schedule (not just demonstrated).** After the
+  first real enrichment run densified the staging graph (converged: concentration down, no
+  breaker, entity-resolution conservative), a **nightly bounded run** is scheduled by
+  operator tooling — dosed increments (ADR-13 cost-asymmetry), snapshot-protected, with a
+  circuit-breaker — rather than a continuous daemon. A labelled question set is in place as
+  the before/after accuracy gauge; the equilibrium evidence (a week of stable nightly gauges)
+  is what gates any always-on promotion. This is exactly the substrate item 3 builds on.
 - **Naming propagation is mostly done.** The shared `docs/` tree uses
   `wefts` / Swarm / Hive consistently. Remaining spot checks belong to
   repo-specific docs in `swarm/` and `hive/`.
@@ -136,6 +153,23 @@ detail in `architecture/overview.md` — not repeated here.
 
 ## Recently shipped
 
+- **ADR-16 cohort-hardening pass — DEPLOYED + live-verified on staging, 2026-07-03.** Six
+  carded gates from the 2026-07-02 architect review, each branch→ff-merge (councils of two
+  model families on the load-bearing three): person-scope leak guard, web-channel auth
+  hardening (CSRF + re-auth), no-leak ship-gate de-vacuous, `ProvisionActor` JIT-provisioning
+  RPC, the non-superuser DB role that turns Postgres RLS live, and clean-checkout compose
+  lint. Then deployed (kernel + channel, `--no-deps`, backup image tags, both migrations
+  applied) and the RLS role flipped on. The live smoke caught and fixed two real issues an
+  offline review could not: RP-initiated logout (the IdP SSO session must end with ours) and
+  a scope-derivation regression that had made the whole knowledge base invisible under strict
+  auth (restored the authenticated-`public` baseline in the kernel derivation). Suites green
+  throughout (kernel + channel); full narrative + numbers in `board/journal.md`. Follow-on UX
+  and retrieval findings from the first multi-user smoke are carded, not lost.
+- **Cognitive loop turned on, on a schedule — 2026-07-03.** First real enrichment run
+  converged on the live staging graph (concentration down, entity-resolution conservative, no
+  circuit-breaker); a nightly bounded, snapshot-protected run is now scheduled by operator
+  tooling, with a labelled question set as the accuracy gauge and a week of stable gauges as
+  the gate before any always-on promotion.
 - **Users / identity / per-user privacy (workspace ADR-16, item 2) — EPIC COMPLETE, cutover LIVE,
   2026-07-02.** The front (6b) shipped as its own `wefts-campaign` on top of the backend below:
   web_channel signs the HS256 actor assertion per `Swarm.Actor`'s wire contract (real interop
