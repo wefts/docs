@@ -180,9 +180,9 @@ detail in `architecture/overview.md` — not repeated here.
   404-not-403) → break-glass admin read (impersonate-same-predicate, audit-before-return) →
   `Swarm.Admin` (cap-gated, audited grants/invite/lifecycle) → Core gRPC surface (new RPCs
   born-strict; legacy RPCs **dual-accept** under `SWARM_AUTH_MODE=dual`) → `Swarm.Person`
-  projection + chat-fact leak rule → an 18-test adversarial no-leak ship gate. **Remaining: 6b
-  (hive front)** — channel signs the assertion, admin UI, no-lockout migration, then the
-  `:strict` cutover; only then is D9 live end-to-end. Cohort-broadening gates (carded):
+  projection + chat-fact leak rule → an 18-test adversarial no-leak ship gate. **6b (hive
+  front) shipped 2026-07-02 — see the newer entry above; D9 is live end-to-end** (this
+  entry predates it). Cohort-broadening gates (carded):
   `rls-app-role`, `no-leak-shipgate-residuals`, `person-scope-leak-guard`,
   `actor-assertion-hardening`, `bm25-index-hardening`.
 - **Environment configuration architecture + the thorough rename — 2026-07-01** (`board/done/environment-config`,
