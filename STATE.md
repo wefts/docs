@@ -641,14 +641,17 @@ detail in `architecture/overview.md` — not repeated here.
 
 ## Next
 
-**Immediate (2026-07-02):** item 2 (users / identity / privacy, workspace ADR-16) is **fully DONE —
-the D9 invariant is live** (`SWARM_AUTH_MODE=strict` on staging) — see Recently shipped above.
-**Next is item 3, world-map pre-answering** (`board/ideas/world-map-pre-answering.md`) — the
-operator's post-migration trio (① env-config → ② users → ③ world-map) is now two-thirds done.
-Before broadening the cohort beyond the existing known accounts, still gate on: `rls-app-role`,
-`person-scope-leak-guard`, `no-leak-shipgate-residuals`, `actor-assertion-hardening`,
-`bm25-index-hardening`, `jit-provision-rpc` (blocks NEW SSO invites specifically) — all
-`board/todo/`. Full state in `board/HANDOFF.md`.
+**Immediate (2026-07-03):** the ADR-16 **cohort-hardening pass is DEPLOYED and live** (RLS belt
+active — the kernel runs as the non-superuser `swarm_app`; JIT provisioning proven with a real SSO
+login; CSRF on all admin POSTs; `private` structurally ungrantable) and the **cognitive loop runs
+nightly** (cron 00:30, bounded, snapshot-first; baseline to beat: memory recall@10 0.563 on the
+32-q gold set — `board/todo/nightly-cognition-watch.md`). **Next is item 3, world-map
+pre-answering** (`board/ideas/world-map-pre-answering.md`, design-first via the decision-center):
+the trio (① env-config → ② users → ③ world-map) is two-thirds done and the nightly claim graph is
+item 3's substrate. Remaining cohort gates (`board/todo/`): `provision-actor-hardening` (2026-07-03
+review: deleted-account resurrect bypass, no cap-gate on ProvisionActor, email_verified),
+`actor-assertion-hardening` (sid-replay/rotation), `bm25-index-hardening`;
+`chat-origin-write-protection` gates item-3 chat-fact wiring only. Full state in `board/HANDOFF.md`.
 
 **(prior) Immediate (2026-06-30):** the operator console is **usable end-to-end on real preprod data**
 (`swarm_prod`): SSO/local login, durable conversation logs, Basecoat UI, the **complete "how the swarm
