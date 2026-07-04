@@ -2,8 +2,10 @@
 
 ## Status
 
-**Proposed (2026-07-04).** Five forks resolved by a decorrelated 2-family blackboard
-(codex + gemini); synthesis in `board/research/world-map-blackboard.md`. Design spec →
+**Accepted (2026-07-04).** Operator signed off the direction; five forks resolved by a
+decorrelated 2-family blackboard (codex + gemini), synthesis in
+`board/research/world-map-blackboard.md`. Execution is running as a wefts-campaign
+(Jarvis) — build order per the spec §6. Design spec →
 `swarm/docs/design/world-map-pre-answering.md`; execution epic →
 `board/doing/world-map-pre-answering-epic.md`. Item 3 of the post-migration trio;
 graduates `board/ideas/world-map-pre-answering.md` (+ its horizon
