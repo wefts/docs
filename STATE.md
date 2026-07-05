@@ -51,10 +51,11 @@ specifics belong in config, not hardcoded — audit DONE, see
 - `standards/` — guardrails, verification, workflow, conventions, code-style,
   how-to-write-adr. All present and current.
 - `architecture/` — overview, ports, confidence-calculus.
-- `decisions/` — **workspace** ADR-0..15 (newest: 13 evidential-origin, 14
-  environment-stage-model, 15 environment-configuration-architecture). The **swarm-local**
-  sequence ADR-1..16 lives in `swarm/docs/decisions/` (a separate numbering; newest: 13
-  entity resolution, 14 data/memory model, 15 dashboard-projection-RPCs, 16 retrieval-engine/pg_search).
+- `decisions/` — **workspace** ADR-0..17 (newest: 15 environment-configuration-architecture,
+  16 users-identity-privacy, 17 world-map pre-answering — **Accepted 2026-07-04**). The
+  **swarm-local** sequence ADR-1..16 lives in `swarm/docs/decisions/` (a separate numbering;
+  newest: 13 entity resolution, 14 data/memory model, 15 dashboard-projection-RPCs,
+  16 retrieval-engine/pg_search).
 - `reference/` — glossary and bibliography (both substantial, annotated, sourced)
   and concepts. The glossary now carries the shipped memory vocabulary (§8: content /
   chunk / hybrid retrieval / RRF / relevance floor / answerability).
@@ -64,6 +65,22 @@ specifics belong in config, not hardcoded — audit DONE, see
 
 ## In flight / known gaps
 
+- **Item 3 (workspace ADR-17, world-map pre-answering) is IN BUILD — substrate done,
+  tier-gate next.** ADR-17 Accepted 2026-07-04 (5 forks resolved by a 2-family blackboard);
+  spec `swarm/docs/design/world-map-pre-answering.md`; epic
+  `board/doing/world-map-pre-answering-epic.md`. Shipped on swarm `main` (2026-07-04/05,
+  TDD + code review each): **concept-synonymy** (reversible `synonym_of` edges — acronym
+  detector, scope-guarded transitive resolver, query-time expansion in retrieval, automated
+  proposer with polysemy/sibling/scope guards + LLM confirm; live-QA'd precision) and
+  **procedure representation** (`has_step` + `step_ordinal`, schema v6;
+  `Swarm.Graph.Procedure.steps/3` groups by origin then orders, scope-enforced on all
+  three surfaces). **Deploy gap:** the running kernel predates all of it — synonymy + the
+  v6 migration are inert on staging until an operator-gated kernel redeploy + a seeding
+  `run_acronym_pass`. **Next: the tier-routing gate (ADR-17 §3) — THE sink fork, gets its
+  own blackboard council before any code.** The 2026-07-05 architect review confirmed
+  no-leak holds through both new read paths; residuals carded
+  (`board/todo/world-map-substrate-residuals.md`: procedure origin-string emission,
+  two-generation interleave until watermark/GC, LLM-confirm prompt-injection poisoning).
 - **Item 2 (ADR-16) is FULLY DONE and the cohort-hardening pass is DEPLOYED live.** The
   D9 "verify, don't trust" invariant shipped end-to-end 2026-07-02 (`SWARM_AUTH_MODE=strict`).
   Then a six-card hardening pass (2026-07-03) closed the architect-review gates and is now
