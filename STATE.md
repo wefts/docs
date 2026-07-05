@@ -74,13 +74,20 @@ specifics belong in config, not hardcoded — audit DONE, see
   proposer with polysemy/sibling/scope guards + LLM confirm; live-QA'd precision) and
   **procedure representation** (`has_step` + `step_ordinal`, schema v6;
   `Swarm.Graph.Procedure.steps/3` groups by origin then orders, scope-enforced on all
-  three surfaces). **Deploy gap:** the running kernel predates all of it — synonymy + the
-  v6 migration are inert on staging until an operator-gated kernel redeploy + a seeding
-  `run_acronym_pass`. **Next: the tier-routing gate (ADR-17 §3) — THE sink fork, gets its
-  own blackboard council before any code.** The 2026-07-05 architect review confirmed
-  no-leak holds through both new read paths; residuals carded
-  (`board/todo/world-map-substrate-residuals.md`: procedure origin-string emission,
-  two-generation interleave until watermark/GC, LLM-confirm prompt-injection poisoning).
+  three surfaces) plus its **generation-collision belt** and the **source-node ghost-purge**
+  (schema v7 `edge_provenance.source_node_id`; `merge_nodes`/GC purge derived edges when a
+  source dies; `add_edge` FOR SHARE race guard). The **tier-routing gate (ADR-17 §3, Fork B)
+  is DESIGNED** — its own 2-family blackboard (`board/research/tier-gate-blackboard.md`)
+  corrected the lean on three points (Stage-2 entailment veto ships day 1; gate returns a
+  struct with an evidence-closed renderer; collision guarded at the aggregation layer). The
+  substrate residuals are now fully cleared (`board/todo/world-map-substrate-residuals.md`).
+  **Deploy gap CLOSED 2026-07-05:** the kernel was rebuilt + redeployed `--no-deps` — `migrate`
+  applied v6+v7 to `swarm_staging`, schema **v7 live** (stamped=code=7), synonymy seeded
+  (`run_acronym_pass`: K8s⇔KUBERNETES, VPN⇔Virtual Private Network), query-time expansion
+  verified live. Procedure/ghost-purge deployed but inert until extraction emits `has_step`.
+  **Next: BUILD the tier-gate per spec §6.4-8** (coverage descriptor → typed fail-closed
+  machine → Stage-2 veto → wire into `Core.ask` → measure false-serve/needless-escalation on
+  the curated `qa.json`, council go/no-go). A live measurement is now possible.
 - **Item 2 (ADR-16) is FULLY DONE and the cohort-hardening pass is DEPLOYED live.** The
   D9 "verify, don't trust" invariant shipped end-to-end 2026-07-02 (`SWARM_AUTH_MODE=strict`).
   Then a six-card hardening pass (2026-07-03) closed the architect-review gates and is now
