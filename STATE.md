@@ -85,9 +85,15 @@ specifics belong in config, not hardcoded — audit DONE, see
   applied v6+v7 to `swarm_staging`, schema **v7 live** (stamped=code=7), synonymy seeded
   (`run_acronym_pass`: K8s⇔KUBERNETES, VPN⇔Virtual Private Network), query-time expansion
   verified live. Procedure/ghost-purge deployed but inert until extraction emits `has_step`.
-  **Next: BUILD the tier-gate per spec §6.4-8** (coverage descriptor → typed fail-closed
-  machine → Stage-2 veto → wire into `Core.ask` → measure false-serve/needless-escalation on
-  the curated `qa.json`, council go/no-go). A live measurement is now possible.
+  **The tier-routing gate (Fork B) is now BUILT** (`Swarm.WorldMap.Coverage`/`Gate`, wired
+  into `Core.ask` OFF-by-default, swarm `af3eee0`): Stage-1 structural fail-closed machine
+  (a servable `%Validated{}` mintable only blocker-free) + a Stage-2 cheap-LLM entailment
+  veto (veto-only) + evidence-closed renderer + a 1500ms NOLINK circuit-breaker; codex
+  review's 4 findings fixed; suite 523/0, dialyzer clean. **Next: curate `qa.json` +
+  adversarial suite → measure false-serve (~0 hard gate)/needless-escalation/latency → go/no-go
+  council → flip `:swarm, :tier_gate, enabled: true`.** The entity path is measurable now; the
+  procedure path is inert until enrichment emits ordered `has_step` edges (procedure extraction
+  — the next build after the gate is enabled).
 - **Item 2 (ADR-16) is FULLY DONE and the cohort-hardening pass is DEPLOYED live.** The
   D9 "verify, don't trust" invariant shipped end-to-end 2026-07-02 (`SWARM_AUTH_MODE=strict`).
   Then a six-card hardening pass (2026-07-03) closed the architect-review gates and is now
