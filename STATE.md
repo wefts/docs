@@ -114,7 +114,15 @@ specifics belong in config, not hardcoded — audit DONE, see
   ghost-infrastructure carded (TTL on the hypothesis band). policy_version→2; kernel recreated on
   staging. The first skeleton is being populated from the topology-richest corpus sources; then
   the operator reviews it and read-only SSH verification follows (`network-map-verification-access`).
-  Phase-2 (authoritative from cloned IaC repos) is later. MCP/LDAP → backlog. Then the currency
+  **Phase-2 (IaC) is now LIVE too (2026-07-06):** a deterministic local parser distills topology
+  from the cloned IaC repos (ansible inventories, ipsec tunnels, kubespray CIDRs) → written with a
+  distinct `iac:<repo>` origin at high reliability so it corroborates/supersedes the wiki
+  hypotheses (ADR-13) — the operator's "described-vs-actual" check. Map now ~373 entities / ~387
+  relations (hosts, subnets, clusters, gateways, tunnels), 68 cross-repo corroborated edges;
+  doc-vs-reality flagged ~91 IaC hosts + 3 tunnels undocumented in the wiki. All local/no-leak
+  (deterministic parse, no external model on repo content; names/IPs only in the graph, never
+  committed or in an Artifact). Edge-level wiki∩repo corroboration awaits the `alias_of`/read-time
+  canonicalization (deferred). MCP/LDAP → backlog. Then the currency
   ceiling: **MCP (functional area) + LDAP (connector)** live-data — the eval showed staleness in
   the ingested wiki is the real cap (both Swarm and Cass wrong on the same facts vs the
   operator's DSI map); deferred, recommended next
