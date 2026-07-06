@@ -103,8 +103,18 @@ specifics belong in config, not hardcoded — audit DONE, see
   (2026-07-06):** the PROCEDURE path is safe (6/8 matching served the right procedure, 0
   false-serve; near-miss/absent escalate); the ENTITY serve path FALSE-SERVED and is now OFF by
   default (`entity_serve: false` — entity queries escalate; its own calibration before opt-in).
-  **Next major direction: the NETWORK MAP** (`board/ideas/network-map.md` — skeleton from the
-  corpus, then read-only SSH verification). MCP/LDAP → backlog. Then the currency
+  **NETWORK MAP Phase-1 BUILT + DEPLOYED (2026-07-06):** `Swarm.Enrichment.NetworkMap` (a gated
+  sibling of the procedure pass) extracts MACRO topology from prose into the world-map substrate
+  — namespaced `net:<kind>:<name>` entity nodes + `is_a` type markers + a governed relation vocab
+  (contains/hosted_on/routes_via/egresses_via/connects_site/terminates_at/protected_by/alias_of),
+  as low-reliability `hypothesis`-kind claim-edges; `Swarm.Graph.Network` reads it back
+  (scope-enforced, provisional). Blackboard `board/research/network-map-blackboard.md`
+  (codex+gemini): Option-C typing (no node-vocab bump), macro-only + refuse exact IPs/CIDRs
+  (Phase-2/IaC authoritative), lazy canonicalization, scope clamped to `group` (no-leak);
+  ghost-infrastructure carded (TTL on the hypothesis band). policy_version→2; kernel recreated on
+  staging. The first skeleton is being populated from the topology-richest corpus sources; then
+  the operator reviews it and read-only SSH verification follows (`network-map-verification-access`).
+  Phase-2 (authoritative from cloned IaC repos) is later. MCP/LDAP → backlog. Then the currency
   ceiling: **MCP (functional area) + LDAP (connector)** live-data — the eval showed staleness in
   the ingested wiki is the real cap (both Swarm and Cass wrong on the same facts vs the
   operator's DSI map); deferred, recommended next
