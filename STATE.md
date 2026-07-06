@@ -94,9 +94,14 @@ specifics belong in config, not hardcoded — audit DONE, see
   ≈65s); procedure extraction **#2** (`Swarm.Enrichment.Procedures` emits ordered `has_step` →
   `step`-typed nodes; live: 5 procedures / 21 has_step edges; `Procedure.candidates` + best-match
   selection let the gate find + describe + entail them end-to-end). Suites 540/0, credo+dialyzer
-  clean. **Next: the tier-gate go/no-go** (`board/todo/tier-gate-gonogo.md`) — the gate RUNS but
-  the Stage-2 entail is over-conservative → serve rate 0; tune it (false-serve~0 vs
-  needless-escalation) on a curated qa+adversarial set → council → enable. Then the currency
+  clean. **The tier-gate is ENABLED on staging (go/no-go passed 2026-07-06):** a synthetic
+  calibration eval (`Swarm.WorldMap.Gate.Calibration`) drove the Stage-2 entail to
+  **false_serve_rate 0.0 / recall 1.0** (gemma4:31b, the resident judge, + an
+  opposites-aware prompt); live, valid "how do I X" procedures SERVE from structure in
+  ~3-4s (vs ~55s consilium), near-miss + absent queries correctly escalate.
+  `SWARM_TIER_GATE_ENABLED=true` (env/staging.env). Fuller validation on the operator's real
+  qa-gold + watching live false-serves remains (`board/todo/tier-gate-gonogo.md`); the
+  entity_profile serve path still escalates (separate). Then the currency
   ceiling: **MCP (functional area) + LDAP (connector)** live-data — the eval showed staleness in
   the ingested wiki is the real cap (both Swarm and Cass wrong on the same facts vs the
   operator's DSI map); deferred, recommended next
