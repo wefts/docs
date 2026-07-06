@@ -121,8 +121,13 @@ specifics belong in config, not hardcoded — audit DONE, see
   relations (hosts, subnets, clusters, gateways, tunnels), 68 cross-repo corroborated edges;
   doc-vs-reality flagged ~91 IaC hosts + 3 tunnels undocumented in the wiki. All local/no-leak
   (deterministic parse, no external model on repo content; names/IPs only in the graph, never
-  committed or in an Artifact). Edge-level wiki∩repo corroboration awaits the `alias_of`/read-time
-  canonicalization (deferred). MCP/LDAP → backlog. Then the currency
+  committed or in an Artifact). Edge-level wiki∩repo corroboration achieved via exact-CIDR
+  co-occurrence (125 both-attested edges). **The tier-gate now SERVES network topology
+  (2026-07-06):** a `:network` intent answers "what does X carry / what's behind Y / which cluster
+  contains Z" from the corroborated map in ~2.5s instead of escalating to the ~55s consilium —
+  fail-closed (serves only ≥2-origin corroborated facts + a Stage-2 network entail veto;
+  `NetworkCalibration` fsr 0.0/recall 1.0, live-verified), ENABLED on staging
+  (`SWARM_TIER_GATE_NETWORK_SERVE`). MCP/LDAP → backlog. Then the currency
   ceiling: **MCP (functional area) + LDAP (connector)** live-data — the eval showed staleness in
   the ingested wiki is the real cap (both Swarm and Cass wrong on the same facts vs the
   operator's DSI map); deferred, recommended next
