@@ -99,9 +99,12 @@ specifics belong in config, not hardcoded — audit DONE, see
   **false_serve_rate 0.0 / recall 1.0** (gemma4:31b, the resident judge, + an
   opposites-aware prompt); live, valid "how do I X" procedures SERVE from structure in
   ~3-4s (vs ~55s consilium), near-miss + absent queries correctly escalate.
-  `SWARM_TIER_GATE_ENABLED=true` (env/staging.env). Fuller validation on the operator's real
-  qa-gold + watching live false-serves remains (`board/todo/tier-gate-gonogo.md`); the
-  entity_profile serve path still escalates (separate). Then the currency
+  `SWARM_TIER_GATE_ENABLED=true` (env/staging.env). **Fuller real-question validation
+  (2026-07-06):** the PROCEDURE path is safe (6/8 matching served the right procedure, 0
+  false-serve; near-miss/absent escalate); the ENTITY serve path FALSE-SERVED and is now OFF by
+  default (`entity_serve: false` — entity queries escalate; its own calibration before opt-in).
+  **Next major direction: the NETWORK MAP** (`board/ideas/network-map.md` — skeleton from the
+  corpus, then read-only SSH verification). MCP/LDAP → backlog. Then the currency
   ceiling: **MCP (functional area) + LDAP (connector)** live-data — the eval showed staleness in
   the ingested wiki is the real cap (both Swarm and Cass wrong on the same facts vs the
   operator's DSI map); deferred, recommended next
