@@ -65,8 +65,10 @@ specifics belong in config, not hardcoded — audit DONE, see
 
 ## In flight / known gaps
 
-- **Item 3 (workspace ADR-17, world-map pre-answering) is IN BUILD — substrate done,
-  tier-gate next.** ADR-17 Accepted 2026-07-04 (5 forks resolved by a 2-family blackboard);
+- **Item 3 (workspace ADR-17, world-map pre-answering) — tier-gate LIVE + serving; extended
+  to a WHO/SERVICE/LOCATION domain family on a generalized `:neighborhood` registry (see the
+  world-map domain-family entry below, 2026-07-07).** ADR-17 Accepted 2026-07-04 (5 forks resolved
+  by a 2-family blackboard);
   spec `swarm/docs/design/world-map-pre-answering.md`; epic
   `board/doing/world-map-pre-answering-epic.md`. Shipped on swarm `main` (2026-07-04/05,
   TDD + code review each): **concept-synonymy** (reversible `synonym_of` edges — acronym
@@ -132,6 +134,36 @@ specifics belong in config, not hardcoded — audit DONE, see
   the ingested wiki is the real cap (both Swarm and Cass wrong on the same facts vs the
   operator's DSI map); deferred, recommended next
   (`board/ideas/live-data-connectors-mcp-ldap.md`).
+- **WORLD-MAP now has a WHO / SERVICE / LOCATION domain family + a generalized serve
+  registry — all LIVE + serving on staging (2026-07-07).** The evidence-governance spine
+  (S1 lineage, S2 freshness/decay, S3 serve-contract + answer-time privacy filter, S4 identity
+  do-not-merge) landed first, then the domains on top of it:
+  - **E1 who-is-who** — an org-directory connector (LDAP, anonymous in-network read, strict ADR-16
+    field allowlist — people are `entity`/group-scope reference data, never the private `user`
+    type; auth/system attrs never fetched; distilled facts only into the graph) builds people /
+    orgs (subsidiary) / teams (department) / roles / sites / employment(employee|contractor) /
+    role-families (clustered from messy free-text titles). Kept current by **full-state
+    reconciliation** (each nightly refresh purges + rebuilds the origin — so a departed/moved person
+    can't be served stale; that is why a single authoritative source serves at min_corroboration 1).
+    "who is X / who manages X / who's in team Y" answer from structure in ~2s (tier=structured) vs
+    the ~55s consilium; fail-closed + a Stage-2 entail veto; `WhoCalibration` fsr 0.0 / recall 1.0
+    (real judge). Nightly cron reconciles the directory.
+  - **Curated group/role + service overlays** — human-authored, gitignored per-stage YAML specs
+    (rules over the axes + explicit include/exclude): `who:group` cohorts ("AlterWay ops", "DSI sys
+    eng") and `who:service` → `managed_by_team` (service ownership, team-level = the default answer).
+    A KNOWLEDGE/reference layer, explicitly NOT access control (distinct from LDAP groups / Keycloak
+    roles / Swarm authz). Truth ranking for role/function: curation > Wiki > the official title.
+  - **E2b domain registry** — `:network` + `:who` (+ service riding who) collapsed into ONE generic
+    `:neighborhood` serve intent driven by `Swarm.WorldMap.Domain` (a new serve domain = one registry
+    entry; no Coverage/Gate edits). Council Option A (codex + gemini), byte-for-behavior-identical
+    (a characterization oracle proved it); cross-domain 2-hop traversal + wiring `policy_filter` into
+    the generic pipeline is the deferred E2b-P2. **E-location** canonicalizes coded site values into
+    clean agency (city) nodes. Suites **646/0**, dialyzer clean. Real serve verified via `Core.ask`
+    with the real entail (a stub entail once masked a Stage-2 veto — verify the real path). Design +
+    plans in `board/doing/{ldap-who-is-who,who-groups-overlay,e-service,e2b-domain-registry,e2b-p2-
+    crossdomain}-*.md`. Deferred: E2b-P2 (cross-domain), Wiki role-correction (uid-join, coverage
+    ~sparse), E-service P2 (person-owner + ticket-assignment), E-expertise (signal too sparse), S5
+    (eval+audit).
 - **Item 2 (ADR-16) is FULLY DONE and the cohort-hardening pass is DEPLOYED live.** The
   D9 "verify, don't trust" invariant shipped end-to-end 2026-07-02 (`SWARM_AUTH_MODE=strict`).
   Then a six-card hardening pass (2026-07-03) closed the architect-review gates and is now
