@@ -65,6 +65,19 @@ specifics belong in config, not hardcoded — audit DONE, see
 
 ## In flight / known gaps
 
+- **Architect review 2026-07-08 (full, `board/journal.md`):** system is COHERENT + HEALTHY —
+  ADR-17 delivered far past design (tier-gate serves procedures/network/who at ~2-4s vs
+  ~55-65s consilium, governance spine first, all on staging), gates green (kernel 658/0 +
+  dialyzer 0; web_channel 146/0), stack healthy, nightly crons firing. Open items (all carded
+  in `board/todo/`, none block the running system): **HIGH** `public-leak-scrub` — 4 leak-scan
+  hits gate the next push (H3 real name/uid + H4 LDAP schema unpushed → rebase; H1/H2 already
+  on origin → operator call); **MED** `dual-mode-history-leak` — the default `:dual` auth mode
+  lets a plaintext-uuid impersonation reach chat history (staging is safe: strict is live; fix
+  = flip the default to `:strict`); **MED** `world-map-serve-governance` — S3 `policy_filter`
+  dormant + `Domain.relations` unenforced (code doesn't match its written contract; no leak
+  today); plus `web-channel-hardening-0708`, `world-map-credo-hygiene`,
+  `who-refresh-cron-observability`. Still-unproven bet: **GATE-7** (does nightly cognition
+  improve answers on the real corpus — never measured end-to-end).
 - **Item 3 (workspace ADR-17, world-map pre-answering) — tier-gate LIVE + serving; extended
   to a WHO/SERVICE/LOCATION domain family on a generalized `:neighborhood` registry (see the
   world-map domain-family entry below, 2026-07-07).** ADR-17 Accepted 2026-07-04 (5 forks resolved

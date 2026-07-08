@@ -68,6 +68,21 @@ The kernel should know *what kind* of capability it is calling. It should not
 know the private deployment details of a specific Confluence, Kubernetes cluster,
 mailbox, or ticket system.
 
+## Answer routing: the world-map tier-gate (ADR-17)
+
+`Core.ask` routes through a cost-asymmetry tier chain: cheap **structured serve** from a
+continuously-maintained world-map before the expensive consilium. A deterministic
+Stage-1 coverage gate (`Swarm.WorldMap.Coverage`) plus a Stage-2 cheap-LLM entailment veto
+(`Swarm.WorldMap.Gate`) answer covered asks from graph structure in ~2–4 s instead of the
+~55–65 s consilium; anything not clearly covered **escalates** (fail-closed:
+`supported=false ⇒ escalate`). A generic `:neighborhood` serve registry
+(`Swarm.WorldMap.Domain`) hosts the domains — procedures, `:network` topology, and the
+`:who` who-is-who / service / location family — so a new served domain is one registry
+entry, not a pipeline edit. The map is built offline (nightly enrichment + connectors) and
+served cheap online; served facts stay provenance-carried and re-derivable, never a stale
+answer cache. Evidence governance (lineage-aware corroboration, freshness/decay, a serve
+contract, identity do-not-merge) sits under it so cheap ≠ dishonest.
+
 ## Shipping Model
 
 The default development model is a small `wefts` polyrepo workspace:
