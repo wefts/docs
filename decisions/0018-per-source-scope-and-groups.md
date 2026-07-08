@@ -2,11 +2,12 @@
 
 ## Status
 
-**Proposed (2026-07-08).** Evolves **ADR-16** (users / identity / privacy) — it does NOT
+**Accepted (2026-07-08).** Evolves **ADR-16** (users / identity / privacy) — it does NOT
 reopen the identity anchor or the per-user-conversation privacy decisions; it evolves ADR-16's
 **access mechanism** (the coarse `public`/`group`/`private` scope) into per-source scopes and
-makes groups first-class. **Council-gated before execution** — the forks in "Open forks" below
-must be closed by a 2-family blackboard (codex + gemini) before any migration. Spec →
+makes groups first-class. The mechanism forks F1-F4 (+ SSO-store, group-id) were closed by a
+2-family blackboard (codex gpt-5.5 + gemini 3.1-pro, strong convergence) — see
+`board/research/per-source-scope-blackboard.md` and "Forks — RESOLVED" below. Spec →
 `swarm/docs/design/per-source-scope-authz.md`; cards → `board/todo/` (`ps-*`); planning pass
 recorded in `board/journal.md`. Operator model decision: memory
 `authz-model-roles-admin-groups-access`.
@@ -57,22 +58,42 @@ and resolved by the execution council — this is the planning pass, not the fin
 5. **Initial config:** Superuser → all `src:*` + superadmin; Admins → all `src:*` + admin;
    Everyone → `src:wiki` + `src:ldap` + user (NOT confluence / network / IaC).
 
-## Open forks (the execution council MUST close these before code)
+## Forks — RESOLVED (council 2026-07-08; full record + census in the blackboard)
 
-- **F1 — scope ordering.** `@scope_rank` assumes a total order (`private<group<public`) and the
-  ingest path clamps `min(source, group)`. `src:*` scopes are a **set, not a rank**. Proposal:
-  a node carries exactly one `src` scope (its origin) + `public` is the floor; the "clamp"
-  becomes set-membership ("is the viewer granted this src?"), and `private`/`public` keep their
-  rank extremes. Council confirms this collapses cleanly across all ~10 predicate sites.
-- **F2 — single column vs ACL.** Keep the single `visibility_scope` string (open namespace,
-  least migration) vs a separate node↔scope ACL table (multi-scope, heavier). Recommend the
-  single column unless a node legitimately needs to belong to >1 source.
-- **F3 — multi-origin nodes.** A node corroborated by wiki AND iac: which `src`? (union of the
-  contributing sources → visible to anyone granted ANY of them, vs most-restrictive.) Ties to
-  the corroboration/ghost-purge path — must not let corroboration silently widen visibility.
-- **F4 — public-baseline + regression guard.** Re-prove the authenticated⇒public baseline and
-  the group→scope derivation survive (both broke on the ADR-16 cutover — positive controls
-  required, not just "0 hits").
+- **F1 — scope ordering → RESOLVED: lattice, incomparable `src:*`.** `private`=⊥, `public`=⊤,
+  each `src:*` an orthogonal mid-band tag. Census fact: all ~11 READ sites are ALREADY pure
+  set-membership; rank is used only at write. The write clamp is unified to ONE rule — the lattice
+  **greatest-lower-bound** of an edge's endpoints (replaces both duplicate `@scope_rank` maps,
+  `Ingest.narrowest/2`, and `Contract.check_visibility`): `GLB(public,public)=public`,
+  `GLB(src:X,public)=src:X`, `GLB(src:X,src:X)=src:X`, `GLB(src:A,src:B|A≠B)=private`,
+  `GLB(private,_)=private`. Degrades to today's behavior on the `{private,public}` subset.
+- **F2 — single column vs ACL → RESOLVED: single `visibility_scope` column.** Shape
+  `^(private|public|src:[a-z0-9_-]+)$` (alter the DB CHECK from the fixed list). Forcing condition
+  to upgrade to a `text[]`/ACL model = when UNION visibility is a real need (an ldap-only viewer
+  must see an ldap entity that wiki ingested first) — NOT now.
+- **F3 — multi-origin nodes → RESOLVED: first-writer-wins node scope (never widened).**
+  Corroboration/lineage is orthogonal to scope — a later origin NEVER rewrites a node's scope
+  (`upsert_node ON CONFLICT` already doesn't; make it an intentional, tested security invariant).
+  Cross-scope merge stays REFUSED. A cross-src EDGE → GLB = `private` (safe; the "invisible
+  cross-source edge" is the accepted cost, see below). **ps-2 must first MEASURE the existing
+  cross-src edge count** (synonymy/ER edges spanning sources) — a nonzero count is a regression to
+  weigh before the migration flips them to `private`.
+- **F4 — public-baseline + regression guard → RESOLVED: positive-control matrix.** Baseline is
+  structurally guaranteed by `scopes = ["public" | group_scopes] |> Enum.uniq()`. ps-5 ship gate =
+  exact set-equality persona tests (no-group ⇒ `["public"]`; wiki+ldap persona sees `public∪wiki∪
+  ldap` and EXACTLY 0 confluence/iac/network; unmapped SSO group grants nothing), on the REAL serve
+  path with real entail (not stub — memory `verify-real-serve-path-not-stub-entail`).
+- **Sub-A SSO mapper store → RESOLVED: kernel table** (`sso_group_map`; authz is kernel-authoritative,
+  migratable, audited — not channel config). **Sub-B group id → RESOLVED: UUID pk + mutable `name`
+  (+ optional unique slug)**; SSO/grant keys reference the uuid, so an upstream rename is a metadata
+  update, never a cascading grant delete.
+
+**Accepted cost (the #1 risk, consciously bounded):** cross-source edges clamp to `private` →
+invisible even to a viewer holding BOTH srcs (the graph fractures at src boundaries for shared
+traversal). Acceptable because the current cohort need (`Everyone` = wiki+ldap NODE visibility)
+needs no cross-src EDGE traversal; the E4 wiki↔ldap uid-join knowledge-links are the deferred
+trigger to upgrade to a `text[]` scope. ps-2 also audits the `activity` predicate (node.scope OR
+edge.scope) so an edge-scope-alone path can't surface a cross-endpoint relationship.
 
 ## Consequences
 
