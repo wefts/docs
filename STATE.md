@@ -65,6 +65,28 @@ specifics belong in config, not hardcoded — audit DONE, see
 
 ## In flight / known gaps
 
+- **ADR-18 (per-source scope + first-class groups) FULLY SHIPPED + LIVE; both pre-rollout
+  gates CLOSED; swarm PUSHED (first public push) — 2026-07-09.** The admin-panel-as-product
+  work landed: E2 (ListUsers search/pagination + GetUser + emails), E3-read (ListGroups/
+  ListRoles), and the whole per-source-scope chain ps-2..4 (coarse `group` → `src:<name>`
+  lattice/GLB; groups first-class + group→role via `ManageGroup`; SSO claim mappers,
+  default-deny) — all live on staging, verified with real `Core.ask`. **`Everyone` = a
+  configurable authenticated baseline** (`SWARM_AUTH_BASELINE_GROUP`, default `everyone` =
+  {public,src:wiki,src:ldap}+user) is built + live-verified (no-group actor → those scopes,
+  caps []). **Both rollout gates closed** (architect-verified 2026-07-09): (1) dual-mode —
+  `auth_mode` default `:dual`→`:strict` (config + compose) + `history_block` gated on a
+  VERIFIED identity, so a foreign conversation is unreachable except superadmin break-glass
+  (dual-impersonation test proves it); (2) leak-scrub — H3 (real name/uid) + H4 (LDAP schema →
+  gitignored `hive/env/ldap_schema.staging.yaml` + synthetic committed example) squashed out of
+  pushable history; H1/H2 (galaxy stem) force-push-rewritten. **swarm `origin/main` reachable
+  history is CLEAN** (`git log -i -S` galaxy/sboremchuk → 0), kernel **699/0** + dialyzer 0.
+  **swarm PUSHED (ahead 0); hive/docs not yet (ahead 1/5).** Residuals (carded, non-blocking):
+  GitHub still holds dangling pre-rewrite commits fetchable by direct SHA until a **GitHub
+  Support GC** request clears them (prior public exposure of galaxy/tunnel names already
+  happened — unrotatable); the local backup tag `pre-squash-swarm-20260709` holds the old data
+  (local-only — never `push --tags`). **Everyone-rollout is now UNBLOCKED** — remaining is the
+  operator act (apply cohort config + a real Keycloak login + push hive/docs). Lesson banked:
+  memory `pre-push-leak-scan` (case-insensitive + stem-wide scan; force-push ≠ GitHub-erased).
 - **Architect review 2026-07-08 (full, `board/journal.md`):** system is COHERENT + HEALTHY —
   ADR-17 delivered far past design (tier-gate serves procedures/network/who at ~2-4s vs
   ~55-65s consilium, governance spine first, all on staging), gates green (kernel 658/0 +
