@@ -38,6 +38,14 @@ see.
 - 📝 Adding a new ADR or editing an accepted decision in any repo. Locked
   decisions are changed deliberately, with a human in the loop, never silently.
 - 📝 Pushing branches, opening PRs, anything that leaves the local machine.
+- 📝 **Before ANY first push of a repo (or a range not yet on origin): leak-scan
+  the committed diff**, not just the working tree. Grep the pushable history
+  (`git log -S <token>` / `git log -p origin/main..HEAD`) for real names/uids,
+  internal hostnames/FQDNs/IPs, and directory-schema/decoder strings — fixtures
+  must be SYNTHETIC (sibling `who_calibration.ex` policy). A follow-up commit is
+  NOT enough for an unpushed range: rewrite/squash so the secret never reaches
+  GitHub history. Per-commit review has missed this (the operator's own name+uid
+  and the LDAP schema reached local HEAD — 2026-07-08 scrub).
 
 These are 📝 today because "ask first" needs an interactive prompt, which inline
 hooks can't do cleanly. They're enforced either by Claude Code's normal
