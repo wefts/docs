@@ -2,8 +2,8 @@
 
 ## Status
 
-Proposed (2026-07-10). Evolves ADR-0016 (users/identity/privacy) and ADR-0018
-(per-source scope + first-class groups). Council-gated; no kernel change until accepted.
+Accepted (2026-07-10, operator-approved after council). Evolves ADR-0016
+(users/identity/privacy) and ADR-0018 (per-source scope + first-class groups).
 
 ## Context
 
