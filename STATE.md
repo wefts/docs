@@ -65,19 +65,26 @@ specifics belong in config, not hardcoded — audit DONE, see
 
 ## In flight / known gaps
 
-- **Access model intentionally replaced — ADR-20 accepted 2026-08-27; implementation/docs migration
-  is pending.** The new target is Project-centered access with fixed groups
-  `Wheel` / `Admins` / `Staff`. ADR-16 remains the substrate (`scope × owner`, signed actor
-  assertion, kernel-derived scopes/caps, single gate). ADR-18 remains the per-source scope
-  substrate, but its direct `group -> src:*` grant path is superseded by
-  `Project membership -> Project Source -> effective source scopes`. ADR-19's
-  `Superuser` / `Everyone` names and standing group-derived `superadmin` are superseded by
-  `Wheel` and time-boxed elevation. Canon: `architecture/access-model.md`; council:
-  `board/research/project-access-blackboard.md`. Concrete migration still needed in `swarm/`,
-  `hive/`, and older board/spec docs that mention `Superuser`, `Everyone`, or direct group-scope
-  grants.
+- **Access model replaced — ADR-20 accepted AND implemented 2026-08-27 (feature branches, merge
+  gated on the final review; staging cutover is a separate operator act).** Project-centered
+  access with the fixed groups `wheel` / `admins` / `staff`: a Project owns Sources whose stable
+  scope is `src:<source_uuid>`; effective scopes derive from Project membership (a user, or one
+  of the fixed groups — groups grant no visibility of their own; `staff` is the default internal
+  cohort, guests are `external`); no standing `superadmin` — a local Wheel member ELEVATES per
+  session (re-auth proof, reason, ttl, audit-first, session-bound). ADR-16 remains the substrate
+  (`scope × owner`, signed actor assertion, kernel-derived scopes/caps, single gate, RLS). ADR-18's
+  lattice stands but its direct `group -> src:*` grants, label scopes (`src:wiki`) and the
+  `everyone` baseline are gone; ADR-19's `Superuser`/`Everyone`/standing `superadmin` are
+  superseded. Kernel: `Swarm.Projects`, `Swarm.Elevation`, migration `project_access` (census-first
+  reconstruction, exact-equivalence + lockout assertions, reversible); channel: Projects pages,
+  `/admin/elevate`, elevation-only routes, no channel-side scope map. Canon:
+  `architecture/access-model.md`; spec: `swarm/docs/design/project-access.md`; council + review
+  record: `board/research/project-access-blackboard.md`, `board/journal.md`; operator follow-ups:
+  `board/todo/adr20-followups.md`, `board/todo/connector-service-identity.md`.
 - **ADR-18 (per-source scope + first-class groups) FULLY SHIPPED + LIVE; both pre-rollout
-  gates CLOSED; swarm PUSHED (first public push) — 2026-07-09.** The admin-panel-as-product
+  gates CLOSED; swarm PUSHED (first public push) — 2026-07-09.** *(Historical record — the
+  group→scope grants, `Everyone` baseline and `superadmin` break-glass below are superseded by
+  ADR-20, previous bullet.)* The admin-panel-as-product
   work landed: E2 (ListUsers search/pagination + GetUser + emails), E3-read (ListGroups/
   ListRoles), and the whole per-source-scope chain ps-2..4 (coarse `group` → `src:<name>`
   lattice/GLB; groups first-class + group→role via `ManageGroup`; SSO claim mappers,
