@@ -36,8 +36,9 @@ Put a document in `docs/` when it applies across repos.
 Put a document in `swarm/docs/` when it is about the public kernel
 implementation, kernel toolchain, or kernel runtime.
 
-Put a document in `hive/` when it is about a concrete private instance,
-deployment wiring, local plugins, secrets pointers, or data roots.
+Put a document in `hive/` when it is about public deployment scaffold, local
+plugins, env structure, secrets pointers, or data roots. Private values stay in
+gitignored files, volumes, or operator config.
 
 ## Environment Variables
 

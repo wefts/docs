@@ -2,7 +2,8 @@
 
 ## Status
 
-**Accepted (2026-07-08).** Evolves **ADR-16** (users / identity / privacy) — it does NOT
+**Accepted (2026-07-08). Partly superseded by
+[ADR-20](0020-project-access-and-wheel-elevation.md) (2026-08-27).** Evolves **ADR-16** (users / identity / privacy) — it does NOT
 reopen the identity anchor or the per-user-conversation privacy decisions; it evolves ADR-16's
 **access mechanism** (the coarse `public`/`group`/`private` scope) into per-source scopes and
 makes groups first-class. The mechanism forks F1-F4 (+ SSO-store, group-id) were closed by a
@@ -12,8 +13,13 @@ makes groups first-class. The mechanism forks F1-F4 (+ SSO-store, group-id) were
 recorded in `board/journal.md`. Operator model decision: memory
 `authz-model-roles-admin-groups-access`.
 
-> NB numbering: a **workspace** ADR (spans kernel scope substrate + channel login + hive env),
-> distinct from the swarm-local sequence.
+**NB numbering:** a **workspace** ADR (spans kernel scope substrate + channel login + hive env),
+distinct from the swarm-local sequence.
+
+**Supersession note:** ADR-20 preserves this ADR's per-source scope substrate,
+source-derived graph row visibility, default-deny, and scope lattice. It supersedes this
+ADR's direct `group -> src:*` grant mechanism with
+`Project membership -> Project Source -> effective source scopes`.
 
 ## Record Completeness
 

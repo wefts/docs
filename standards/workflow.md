@@ -15,7 +15,7 @@ Use this routing rule:
 
 - cross-repo rule or vocabulary change: `docs/`;
 - kernel/runtime/protocol change: `swarm/`;
-- private deployment/plugin/env change: `hive/`;
+- public deployment scaffold, plugin, or env-structure change: `hive/`;
 - local sync or operator helper: `scripts/`.
 
 ## Change Shape

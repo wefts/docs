@@ -2,8 +2,14 @@
 
 ## Status
 
-Accepted (2026-07-10, operator-approved after council). Evolves ADR-0016
+Accepted (2026-07-10, operator-approved after council). Partly superseded by
+[ADR-20](0020-project-access-and-wheel-elevation.md) (2026-08-27). Evolves ADR-0016
 (users/identity/privacy) and ADR-0018 (per-source scope + first-class groups).
+
+Supersession note: ADR-20 replaces this ADR's `Superuser` / `Admins` / `Everyone` group
+shape with `Wheel` / `Admins` / `Staff`, and replaces standing group-derived
+`superadmin` with time-boxed elevation. This ADR remains useful history for the
+group-derived-authority problem and migration hazards.
 
 ## Context
 

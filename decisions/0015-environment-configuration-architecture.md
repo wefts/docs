@@ -96,11 +96,11 @@ gated per action-class (see Consequences), not bundled into the code change.
 
 **5. `groot` wording.** The admin-role check in `hive/plugins/web_channel` is
 **already** role-based (`GROOT_ROLE` / `is_groot` test realm-role membership, not
-a username match) and lives entirely inside the private `hive/` repo — grep
+a username match) and lives entirely inside `hive/` scaffold/config — grep
 confirms zero references in `swarm/`. The one leak is vocabulary: `docs/STATE.md`
 (public) names the role literally. This ADR scrubs that wording to describe it
 generically ("a role-based admin account"); parameterizing *which* username
-holds the role via `hive/`-private config is real design work and stays with
+holds the role via gitignored/private config is real design work and stays with
 `board/ideas/users-identity-privacy.md` (item 2) rather than being half-done
 twice.
 
@@ -126,10 +126,9 @@ twice.
   overlay-per-env) is explicitly **not** decided here — deferred to the
   go-public ADR (`board/ideas/go-public-deployment.md`), per
   `board/ideas/environment-config.md`.
-- `docs/STATE.md`'s repository table currently lists `hive/ git, PUBLIC`, which
-  contradicts both root `AGENTS.md` (`hive/ PRIVATE`) and `hive/AGENTS.md`
-  itself, and contradicts STATE's own prose elsewhere ("hive/plugins ... private
-  repo"). Corrected as part of this ADR's docs audit — `hive/` is private.
+- Historical correction: this ADR originally treated `hive/` as private during the
+  docs audit. That was later corrected in STATE: `hive/` is a public scaffold repo;
+  private values live only in gitignored files, volumes, or operator config.
 
 ## Verification
 

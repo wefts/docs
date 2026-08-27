@@ -34,6 +34,20 @@ needs transplanting). **All records below are now Complete.**
   Accepted · Complete
 - [ADR-13: Evidential Origin](0013-evidential-origin.md) —
   Accepted · Complete
+- [ADR-14: Environment Stage Model](0014-environment-stage-model.md) —
+  Accepted · Complete
+- [ADR-15: Environment Configuration Architecture](0015-environment-configuration-architecture.md) —
+  Accepted · Complete
+- [ADR-16: Users — Identity, Access, and Per-User Privacy](0016-users-identity-privacy.md) —
+  Accepted · Complete
+- [ADR-17: World-Map Pre-Answering](0017-world-map-pre-answering.md) —
+  Accepted · Complete
+- [ADR-18: Per-source Scope + First-class Groups](0018-per-source-scope-and-groups.md) —
+  Accepted · Complete · Partly superseded by ADR-20
+- [ADR-19: Admin Authority Is Group-derived](0019-admin-authority-group-derived.md) —
+  Accepted · Complete · Partly superseded by ADR-20
+- [ADR-20: Project Access And Wheel Elevation](0020-project-access-and-wheel-elevation.md) —
+  Accepted · Complete
 
 > Each record is the full write-up of an already-accepted decision; the
 > decisions themselves are locked and changed only by a superseding ADR.

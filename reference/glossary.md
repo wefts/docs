@@ -44,6 +44,27 @@
 **→ у проєкті:** порти Connector, Worker, Channel, Model, Capability/Skill, Tool;
 контракт — Protobuf.
 
+**Проєкт / контейнер доступу** / `Project, access container`
+Користувацький об'єкт для спільної роботи й доступу: люди діляться проєктами, а
+не сирими scope-рядками. Проєкт тримає джерела/конектори; членство в проєкті
+деривує source scopes для актора.
+**→ у проєкті:** ADR-20 робить Project єдиним data-access container поверх
+одного графа.
+
+**Source scope** / `source scope`
+Стабільна security-координата конкретного джерела, наприклад
+`src:<source_uuid>`. Людські назви на кшталт `wiki` чи `confluence` — labels, не
+ключі авторизації.
+**→ у проєкті:** graph rows несуть source scope; доступ до нього деривується з
+Project membership.
+
+**Wheel** / `wheel group`
+Локальна група користувачів, які можуть виконати контрольовану елевацію після
+fresh re-auth. Назва взята з Unix-традиції `wheel`, але в нас це не standing
+root.
+**→ у проєкті:** ADR-20 замінює `Superuser` на `Wheel`; `superadmin` існує лише
+як time-boxed elevation session.
+
 **Event sourcing** / `event sourcing`
 Стан системи зберігається як незмінний (append-only) журнал подій; поточний стан
 виводиться відтворенням журналу. Минуле ніколи не мутується [Fowler 2005].

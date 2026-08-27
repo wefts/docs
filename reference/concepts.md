@@ -21,14 +21,16 @@ When names are ambiguous, use:
 - `Swarm` for the product/system;
 - `swarm/` for the public kernel repo;
 - `Hive` for a deployment environment;
-- `hive/` for a private deployment instance repo.
+- `hive/` for a public deployment scaffold repo.
 
 ## Hive
 
 A hive is a concrete Swarm instance. It contains deployment wiring, env examples,
-enabled plugins, data roots, and private integration choices.
+enabled plugins, data roots, and integration choices.
 
-The hive is allowed to know about real systems. The public kernel is not.
+Committed hive files are public scaffold. Private values stay in gitignored files,
+volumes, or operator config. The public kernel is not allowed to know concrete
+deployment details.
 
 ## Kernel
 
@@ -60,6 +62,28 @@ The kernel is the control plane. Plugins are the data plane.
 
 The control plane coordinates and enforces rules. The data plane talks to real
 systems, ingests data, performs bounded actions, and runs specialized work.
+
+## Project
+
+A Project is the user-facing data-access and sharing container. Projects own
+Sources/Connectors; membership in a Project gives an actor the source scopes produced by
+that Project.
+
+Project access is defined in [../architecture/access-model.md](../architecture/access-model.md).
+
+## Source Scope
+
+A Source scope is the graph visibility coordinate behind one concrete source instance, for
+example `src:<source_uuid>`. Human labels such as `wiki` or `confluence` are labels, not
+security keys.
+
+## Groups
+
+The fixed workspace groups are `Wheel`, `Admins`, and `Staff`.
+
+Groups do not grant source visibility directly. They can be Project members, and that
+Project membership gives their users access to the Project's source scopes. Roles confer
+capabilities, not data visibility.
 
 ## Local-First
 

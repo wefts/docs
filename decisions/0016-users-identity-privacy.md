@@ -7,8 +7,13 @@
 execution epic → `board/doing/users-identity-privacy-epic.md`. Item 2 of the
 post-migration trio; graduates `board/ideas/users-identity-privacy.md`.
 
-> NB numbering: this is a **workspace** ADR (cross-cutting invariant, spans kernel +
-> channel), distinct from the swarm-local sequence (whose 0016 is pg_search).
+**NB numbering:** this is a **workspace** ADR (cross-cutting invariant, spans kernel +
+channel), distinct from the swarm-local sequence (whose 0016 is pg_search).
+
+**Supersession note:** [ADR-20](0020-project-access-and-wheel-elevation.md) preserves this
+ADR's substrate (`scope × owner`, signed actor assertion, kernel-derived scopes/caps,
+default-deny, RLS/backstop, audited break-glass). It supersedes the direct group-to-scope
+mapping detail with Project-derived source scopes.
 
 ## Record Completeness
 

@@ -2,14 +2,14 @@
 
 This repository is the shared documentation layer for the `wefts` namespace /
 workspace. It describes the architecture, standards, and vocabulary that apply
-across the public Swarm kernel repo, the private Hive repo, and the local
+across the public Swarm kernel repo, the public Hive scaffold repo, and the local
 operator scripts.
 
 Repo-specific instructions stay in the repo they belong to:
 
 - `swarm/` documents the public kernel, ports, infra substrate, and runtime code.
-- `hive/` documents the private deployment instance, enabled plugins, env files,
-  secrets pointers, and data roots.
+- `hive/` documents the public deployment scaffold, enabled plugins, env examples,
+  secrets pointers, and data roots. Private values stay outside committed files.
 - `scripts/` is local operator tooling and is intentionally outside git.
 
 ## Start Here
@@ -20,6 +20,8 @@ Repo-specific instructions stay in the repo they belong to:
   considered canonical today.
 - [architecture/overview.md](architecture/overview.md) — workspace shape,
   ownership boundaries, and the shipping model.
+- [architecture/access-model.md](architecture/access-model.md) — Projects, groups,
+  elevation, and the kernel visibility gate.
 - [architecture/ports.md](architecture/ports.md) — typed extension points and
   plugin naming rules.
 - [reference/concepts.md](reference/concepts.md) — the short conceptual model.
@@ -44,5 +46,6 @@ When in doubt:
 
 - Put cross-repo architecture and standards here.
 - Put kernel implementation details in `swarm/docs/`.
-- Put private instance/deployment details in `hive/`.
+- Put public instance/deployment scaffold in `hive/`; keep private values in
+  gitignored files, volumes, or operator config.
 - Put temporary notes in each repo's own `tmp/`.

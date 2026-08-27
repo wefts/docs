@@ -50,9 +50,9 @@ specifics belong in config, not hardcoded — audit DONE, see
 
 - `standards/` — guardrails, verification, workflow, conventions, code-style,
   how-to-write-adr. All present and current.
-- `architecture/` — overview, ports, confidence-calculus.
-- `decisions/` — **workspace** ADR-0..17 (newest: 15 environment-configuration-architecture,
-  16 users-identity-privacy, 17 world-map pre-answering — **Accepted 2026-07-04**). The
+- `architecture/` — overview, ports, confidence-calculus, access-model.
+- `decisions/` — **workspace** ADR-0..20 (newest: 20 project access and wheel elevation —
+  **Accepted 2026-08-27**). The
   **swarm-local** sequence ADR-1..16 lives in `swarm/docs/decisions/` (a separate numbering;
   newest: 13 entity resolution, 14 data/memory model, 15 dashboard-projection-RPCs,
   16 retrieval-engine/pg_search).
@@ -65,6 +65,17 @@ specifics belong in config, not hardcoded — audit DONE, see
 
 ## In flight / known gaps
 
+- **Access model intentionally replaced — ADR-20 accepted 2026-08-27; implementation/docs migration
+  is pending.** The new target is Project-centered access with fixed groups
+  `Wheel` / `Admins` / `Staff`. ADR-16 remains the substrate (`scope × owner`, signed actor
+  assertion, kernel-derived scopes/caps, single gate). ADR-18 remains the per-source scope
+  substrate, but its direct `group -> src:*` grant path is superseded by
+  `Project membership -> Project Source -> effective source scopes`. ADR-19's
+  `Superuser` / `Everyone` names and standing group-derived `superadmin` are superseded by
+  `Wheel` and time-boxed elevation. Canon: `architecture/access-model.md`; council:
+  `board/research/project-access-blackboard.md`. Concrete migration still needed in `swarm/`,
+  `hive/`, and older board/spec docs that mention `Superuser`, `Everyone`, or direct group-scope
+  grants.
 - **ADR-18 (per-source scope + first-class groups) FULLY SHIPPED + LIVE; both pre-rollout
   gates CLOSED; swarm PUSHED (first public push) — 2026-07-09.** The admin-panel-as-product
   work landed: E2 (ListUsers search/pagination + GetUser + emails), E3-read (ListGroups/

@@ -11,8 +11,8 @@ Complete
 ## Context
 
 The project outgrew a single-repo mental model. The public product kernel,
-private deployment state, shared docs, and local operator scripts have different
-audiences and different publication rules.
+public deployment scaffold, shared docs, private runtime state, and local operator
+scripts have different audiences and different publication rules.
 
 ## Decision
 
@@ -38,7 +38,7 @@ wefts/
 
 - Cross-repo architecture and standards live in `docs/`.
 - Kernel-specific implementation detail lives in `swarm/`.
-- Private deployment detail lives in `hive/`.
+- Public deployment scaffold lives in `hive/`; private deployment values stay out of git.
 - Local sync/operator scripts stay outside product repos.
 - Shared docs use `wefts` / Swarm / Hive as distinct terms; repo-specific docs
   may still need spot checks.

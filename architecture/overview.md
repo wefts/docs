@@ -68,6 +68,22 @@ The kernel should know *what kind* of capability it is calling. It should not
 know the private deployment details of a specific Confluence, Kubernetes cluster,
 mailbox, or ticket system.
 
+## Access Model
+
+Access is project-centered, but enforcement stays in the kernel. A Project owns
+Sources/Connectors; Project membership derives the actor's effective source scopes. The
+graph gate then applies the stable ADR-16 predicate:
+
+```text
+visible ⇔ scope ∈ actor.effective_scopes
+       AND (owner IS NULL OR owner = actor.id)
+```
+
+The fixed admin groups are `Wheel`, `Admins`, and `Staff`. Groups do not grant source
+visibility directly; they may be Project members. `superadmin` is a time-boxed elevation
+session for local `Wheel` members, not a standing group role. Full detail:
+[access-model.md](access-model.md).
+
 ## Answer routing: the world-map tier-gate (ADR-17)
 
 `Core.ask` routes through a cost-asymmetry tier chain: cheap **structured serve** from a
@@ -109,6 +125,7 @@ moved to its own repo without changing the kernel contract.
 ## Related Docs
 
 - [ports.md](ports.md) defines the extension-point model.
+- [access-model.md](access-model.md) defines Projects, groups, elevation, and visibility.
 - [../standards/guardrails.md](../standards/guardrails.md) defines safe operating
   boundaries.
 - [../standards/verification.md](../standards/verification.md) defines how changes
