@@ -65,8 +65,11 @@ specifics belong in config, not hardcoded — audit DONE, see
 
 ## In flight / known gaps
 
-- **Access model replaced — ADR-20 accepted AND implemented 2026-08-27 (feature branches, merge
-  gated on the final review; staging cutover is a separate operator act).** Project-centered
+- **Access model replaced — ADR-20 accepted, implemented 2026-08-27 and CUT OVER on staging
+  2026-08-28** (snapshot → `migrate` compose service: `project_access` reconstructed 3 Projects
+  Internal/Operations/Unassigned, 5 Sources, lockout + equivalence checks ok; then
+  `chunk_bm25_scope_keyword` — the bm25 index tokenized `src:<uuid>` so the lexical arm returned
+  nothing for Project scopes; fixed, kernel 731/0; browser proof as `groot` still owed). Project-centered
   access with the fixed groups `wheel` / `admins` / `staff`: a Project owns Sources whose stable
   scope is `src:<source_uuid>`; effective scopes derive from Project membership (a user, or one
   of the fixed groups — groups grant no visibility of their own; `staff` is the default internal
@@ -98,7 +101,8 @@ specifics belong in config, not hardcoded — audit DONE, see
   gitignored `hive/env/ldap_schema.staging.yaml` + synthetic committed example) squashed out of
   pushable history; H1/H2 (galaxy stem) force-push-rewritten. **swarm `origin/main` reachable
   history is CLEAN** (`git log -i -S` galaxy/sboremchuk → 0), kernel **699/0** + dialyzer 0.
-  **swarm PUSHED (ahead 0); hive/docs not yet (ahead 1/5).** Residuals (carded, non-blocking):
+  **swarm/hive/docs all PUSHED** (hive `origin/main` = `dfacbad`, 2026-08-28, after a clean
+  pre-push leak-scan of the unpushed diff). Residuals (carded, non-blocking):
   GitHub still holds dangling pre-rewrite commits fetchable by direct SHA until a **GitHub
   Support GC** request clears them (prior public exposure of galaxy/tunnel names already
   happened — unrotatable); the local backup tag `pre-squash-swarm-20260709` holds the old data
@@ -306,6 +310,20 @@ detail in `architecture/overview.md` — not repeated here.
 
 ## Recently shipped
 
+- **web_channel — admin CONSOLE + Memory Map dashboard, 2026-08-28 (hive `main` = `dfacbad`, pushed).**
+  The admin UI was rebuilt twice in one day: a first Basecoat-grammar pass was **rejected** from browser
+  screenshots (pill-button nav, tall card stacks, stretched forms, tables still too wide); the second pass
+  adopted the operational-console pattern (Keycloak/Rancher) — a fixed left rail with grouped vertical nav
+  (*Manage* Overview/Projects · *Access* Users/Groups/Roles · *Configuration* Auth/Connectors/Tools; app-owned
+  `.admin-shell`, Basecoat supplies components only), page header + actions + **one bounded panel** per page,
+  Basecoat `.table` without scroll containers (cells wrap; fixed num/status/date columns; low-priority
+  columns drop below 64rem), bounded `form-grid` fields with labels above, ruled `dl.kv` key/value rows and
+  Alpine-driven Basecoat **tabs** on user/group/project/auth detail pages, whole-row navigation on every
+  object list (Roles rows stay static — no per-role object). Verified by a Playwright harness over a faked
+  kernel (16 pages × 1440/820px × admin/elevated → 0 horizontal overflow, screenshots inspected) and live
+  smoke on staging; hive pytest **194 passed**. Same day: header **Profile menu**, `/profile`, `/projects`
+  (member view) and the **/dashboard → Memory Map** redesign (graph-size-adaptive rail, telemetry below the
+  map). Handoff + screenshots: `board/HANDOFF.md`, workspace `tmp/ui-basecoat-shots/{pass1,pass2}`.
 - **ADR-16 cohort-hardening pass — DEPLOYED + live-verified on staging, 2026-07-03.** Six
   carded gates from the 2026-07-02 architect review, each branch→ff-merge (councils of two
   model families on the load-bearing three): person-scope leak guard, web-channel auth
