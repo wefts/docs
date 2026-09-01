@@ -84,6 +84,10 @@ specifics belong in config, not hardcoded — audit DONE, see
   `architecture/access-model.md`; spec: `swarm/docs/design/project-access.md`; council + review
   record: `board/research/project-access-blackboard.md`, `board/journal.md`; operator follow-ups:
   `board/todo/adr20-followups.md`, `board/todo/connector-service-identity.md`.
+  **Correction 2026-09-01:** the cutover was *not* clean. Beyond the bm25 tokenizer fix, the
+  migration stranded an unattributable source in a project with no membership rows, making
+  those scopes underivable by every account and hiding a whole subsystem for four days (see
+  Recently shipped). Fixed, but the missing migration invariant is still unwritten.
 - **ADR-18 (per-source scope + first-class groups) FULLY SHIPPED + LIVE; both pre-rollout
   gates CLOSED; swarm PUSHED (first public push) — 2026-07-09.** *(Historical record — the
   group→scope grants, `Everyone` baseline and `superadmin` break-glass below are superseded by
@@ -309,6 +313,64 @@ detail in `architecture/overview.md` — not repeated here.
   **local git repo with no remote** (a backup, never pushed → never leaks).
 
 ## Recently shipped
+
+- **The fast tier was dark for real traffic; it is not any more — kernel v0.3.0, 2026-09-01.**
+  A campaign that set out to reduce answer latency found the latency was a symptom. Three
+  hypotheses (serve from entity profiles, one model over the full grounding, enrichment
+  densification) were each **rejected on measurement**, and the real causes turned out to be
+  access, routing and data shape:
+  - **An ADR-20 migration regression hid a whole source.** The migration swept everything it
+    could not attribute into a project with **no membership rows**, so those scopes were in
+    nobody's derived set — not even a wheel/admins/staff account. That silently included the
+    entire world-map network topology, which had served network asks at 2.5–4.7 s since July.
+    Same family as the bm25 tokenizer fix; this one went unnoticed for four days. Fixed by
+    re-attributing the source. **Test gap:** nothing asserts that every source belongs to a
+    project some cohort can actually see — that invariant belongs with the migration's
+    existing lockout/equivalence assertions.
+  - **Stage-1 cues were English-only**, so Ukrainian asks never classified at all
+    (`intent=unknown`) and always escalated.
+  - **Routing and candidate lookup were hand-written lexical lists**, so phrasing and script
+    decided whether a question could be answered — "private IP" missed while "private
+    address" matched, and a Cyrillic place name could never match a Latin node key. Both now
+    have a semantic arm (`bge-m3` similarity for intent, vector candidates for entities) with
+    the regex/LIKE path kept in front as the cheap fast path, scope-enforced on every arm.
+
+  Measured on the live path after deploy: representative factual asks serve **structured in
+  ~4.1–4.7 s** where they previously escalated at 30–52 s, including held-out paraphrases
+  nobody tuned against. `docs/` cannot carry the probe text; see `board/` for the numbers.
+
+- **Two freshness-frontier bugs — both live, one in an enabled serve domain.** The network and
+  who read paths computed fact age against a **global** `max(edge.last_seen)`, so *any* batch
+  write anywhere in the graph aged out older facts. The who path both downranked **and
+  dropped** them, and the LDAP directory does full-state reconciliation nightly — so who
+  answers were plausibly degrading on a nightly cycle. Both now use a class-scoped frontier.
+  This also explains the earlier "force re-enrichment reduced coverage" anomaly, which had
+  been blamed on the extractor.
+
+- **A quantifier defect in derived topology.** Cluster-level routing was inferred from a
+  single member host (1 of 84). Corrected to host-scoped facts with an honest read-time
+  quantifier — which *increased* coverage from 3 dubious cluster edges to 275 correct host
+  edges. Generalising lost data here; it did not add any.
+
+- **Release tooling.** `swarm/cliff.toml` + `swarm/scripts/release.sh` (git-cliff,
+  Conventional Commits, mirroring the infra-core setup), generated `CHANGELOG.md`, tags
+  `v0.1.0`…`v0.3.0`, and hive image tags parameterised by `SWARM_KERNEL_VERSION` /
+  `SWARM_ML_VERSION` so a bump or rollback is one line in `env/base.env`.
+
+- **Known footgun, carded not fixed:** the kernel's *compiled* default consilium fleet is
+  larger than this machine (a four-model panel plus a 70B judge, ~131 GB on 121 GB). Compose
+  overrides it via `runtime.exs`, so the deployed stack is fine — but any host `mix` session
+  that reaches `Core.ask` loads the default, and `keep_alive=-1` then pins it. That is the
+  mechanism behind several memory-pressure stalls. Fix candidates: a modest committed
+  default, and a fail-loud check when the configured fleet cannot fit.
+
+- **Disposable-graph work started.** A guarded, resumable rebuild entrypoint
+  (`hive/scripts/rebuild_graph.sh`) rebuilds a *named* database from sources; a smoke run
+  proved per-source attribution is **correct by construction** (the migration-artifact source
+  comes out empty, and IaC attribution improves by two orders of magnitude). It is **not yet
+  full fidelity** — a coverage gap plus two carded blockers (title-keyed page identity
+  collapsing duplicates, and connector-side page drops with no skip ledger) stand between it
+  and any wipe. `swarm_staging` remains the reference; no wipe is approved.
 
 - **web_channel — admin CONSOLE + Memory Map dashboard, 2026-08-28 (hive `main` = `dfacbad`, pushed).**
   The admin UI was rebuilt twice in one day: a first Basecoat-grammar pass was **rejected** from browser
