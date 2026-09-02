@@ -47,3 +47,26 @@ consume. Instance-specific values live in `hive/.env` and examples live in
 `hive/.env.example`.
 
 Secrets are not stored in `.env.example`.
+
+## Commit Messages
+
+**Every commit uses [Conventional Commits](https://www.conventionalcommits.org/):
+`type(scope): summary`.** This is not style — the release tooling reads it.
+
+`swarm/scripts/release.sh` runs `git cliff --bump`, which derives the next version from
+commit types: a `feat` is a minor bump, a `fix` is a patch, and anything unrecognised is
+neither. A non-conventional message therefore **understates the release**. This has already
+happened: two commits adding deterministic network semantics and the whole calibration loop
+were written as `Add …`, `--bump` computed `v0.3.1` instead of `v0.4.0`, and both features
+were filed under "Other" in the changelog. The messages had to be rewritten before tagging.
+
+Types in use: `feat`, `fix`, `docs`, `perf`, `refactor`, `style`, `test`, `chore`, `revert`.
+Scope is the subsystem — `core`, `graph`, `enrichment`, `world-map`, `calibration`,
+`deploy`, `scripts`, `board`. Breaking changes take `!` before the colon.
+
+`swarm/cliff.toml` keeps `filter_unconventional = false` and a catch-all parser, so a
+non-conventional commit is *visible* rather than silently dropped — that is a safety net for
+old history, not permission to skip the convention.
+
+Applies to agents and humans alike, in every repo. Rewriting a message is cheap while a
+branch is unpushed and expensive afterwards, so get it right at commit time.
