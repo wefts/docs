@@ -314,6 +314,22 @@ detail in `architecture/overview.md` — not repeated here.
 
 ## Recently shipped
 
+- **The graph can now tell current from stale — temporal fact model BUILT, 2026-09-03 (ADR-21
+  slice 3, swarm schema v13, not yet deployed to staging).** Validity intervals live in a separate
+  `edge_validity` table (per asserting source; the edge stays the timeless fact identity), the
+  governed relation registry declares a temporal kind + supersession key for every relation, and
+  `Swarm.Graph.Temporal` answers "what is X now?" vs "what happened to X?" and whether a documented
+  claim is still true (`check/4`, alias-aware). Gemini reviewed the storage shape (accept with
+  changes; adopted). First timed source: the **Proxmox connector** (`wefts/conn-proxmox`, nodes + VMs,
+  one scheduled job per site, `valid_time` = API observation instant, closure-by-absence only after
+  a complete run). Five proofs ran on a disposable DB against the **forge** cluster (580 guests /
+  12 nodes; condition hash `3a50bc71…`, `board/journal.md`); 12 IaC node-membership claims
+  confirmed current by the live source, 4 documented members it does not list read as unconfirmed.
+  **Live blockers, all operator-owned:** forge reachable only via its :443 proxy (the :8006 API
+  presents an expired self-signed PVE cert), galaxy's token has no ACL (the connector correctly
+  refuses an "empty" datacenter), idf/casa unreachable from Spark. Spec:
+  `swarm/docs/design/temporal-fact-model.md`; not done: history through `Core.ask`, prose
+  `valid_time`, coverage-based refutation.
 - **The fast tier was dark for real traffic; it is not any more — kernel v0.3.0, 2026-09-01.**
   A campaign that set out to reduce answer latency found the latency was a symptom. Three
   hypotheses (serve from entity profiles, one model over the full grounding, enrichment
