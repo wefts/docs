@@ -2,7 +2,10 @@
 
 ## Status
 
-Accepted (2026-09-03).
+Proposed (2026-09-03). **Not accepted** — the campaign card
+(`board/doing/connector-packaging.md`) reserves that decision for the operator,
+who has not made it yet. An earlier revision of this file said "Accepted"; that
+was the authoring agent overstepping its mandate, not a record of approval.
 
 ## Record Completeness
 
