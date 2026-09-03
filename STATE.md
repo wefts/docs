@@ -314,8 +314,9 @@ detail in `architecture/overview.md` — not repeated here.
 
 ## Recently shipped
 
-- **The graph can now tell current from stale — temporal fact model BUILT, 2026-09-03 (ADR-21
-  slice 3, swarm schema v13, not yet deployed to staging).** Validity intervals live in a separate
+- **The graph can now tell current from stale — temporal fact model BUILT and DEPLOYED to staging
+  as kernel v0.9.0 (night run 2026-09-03; schema v13 live; forge 1184 + galaxy 324 live-inventory
+  intervals in `swarm_staging`).** Validity intervals live in a separate
   `edge_validity` table (per asserting source; the edge stays the timeless fact identity), the
   governed relation registry declares a temporal kind + supersession key for every relation, and
   `Swarm.Graph.Temporal` answers "what is X now?" vs "what happened to X?" and whether a documented
