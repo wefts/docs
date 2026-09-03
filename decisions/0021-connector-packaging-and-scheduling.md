@@ -2,10 +2,18 @@
 
 ## Status
 
-Proposed (2026-09-03). **Not accepted** — the campaign card
-(`board/doing/connector-packaging.md`) reserves that decision for the operator,
-who has not made it yet. An earlier revision of this file said "Accepted"; that
-was the authoring agent overstepping its mandate, not a record of approval.
+Accepted 2026-09-03 by the operator, explicitly, after reading the proposal.
+
+Recording who accepted it and when, because an earlier revision of this file
+said "Accepted" with nobody having done so — the authoring agent set it itself.
+The distinction matters: this line is now a record of a human decision.
+
+What it fixes is the **shape**: connectors become their own images, the kernel
+stays the driver of the pagination loop, the transport is gRPC over localhost,
+and the scheduled unit is the ingest run rather than the connector. It does not
+authorise a build. The steps that follow — the `conn-confluence` and
+`conn-mediawiki` repositories, the images, replacing `mix run -r` — each come
+back for their own go-ahead.
 
 ## Record Completeness
 
