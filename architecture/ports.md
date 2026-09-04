@@ -57,6 +57,20 @@ The current top-level kinds are:
 These names are deliberately generic. Specific systems belong in the domain
 part of the plugin name, not in the kernel.
 
+### Profiles: a narrower contract inside a kind
+
+Several plugins of the same kind may share a contract stricter than the kind
+itself. That is a **profile**, not a new kind — adding a kind for it would push a
+specific system into the kernel's vocabulary, which the rule above forbids.
+
+- **environment-observation profile** (`connector` kind; workspace ADR-22,
+  Proposed). A conforming connector reports what is *actually running in its own
+  environment*: only directly observed facts, never inferred ones; every
+  observation names the command or API call that produced it; it may assert about
+  its own environment and no other. Absence closes a fact only when the run
+  completed. Implementations: `localenv_connector`, `k8s_connector`,
+  `sshhost_connector`.
+
 ## Naming Rule
 
 Plugin manifests and plugin directories should use:
