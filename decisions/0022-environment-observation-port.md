@@ -366,7 +366,67 @@ cannot be named is not an observation.
 
 Critic: SOUND, no change.
 
-## The two questions no critic answered
+## The two questions ~~no critic answered~~ — answered 2026-09-04 by two families
+
+~~No critic answered these.~~ **They were never asked.** The two local critics intended for
+(c) and (d) died mid-request when `earlyoom` SIGKILLed the model daemon, and what got
+recorded instead was a conclusion about the *models* — see *Review breadth* above. Retried
+on a healthy daemon, both answered, and **both returned FLAWED on both questions.**
+Verdicts below; each claim was then checked against the code rather than accepted.
+
+### (c) completeness — FLAWED, and the two families converge
+
+`llama3.3:70b`: a `complete` from the Kubernetes observer "implies a stronger guarantee
+than the same status from the POSIX observer".
+
+`gemma4:31b`, the sharper diagnosis: *"K8s `complete` is a point-in-time snapshot; POSIX
+`complete` is a temporal smear. The three-valued status is a red herring for POSIX because
+it tracks **execution success** (did the command run?) rather than **state consistency** (is
+this a coherent snapshot?). Downstream this leads to phantom states where the system
+asserts a configuration that was never live."* Proposed fix: an `is_atomic` flag on the
+envelope.
+
+**Checked, and it is real — the defect is narrower and more specific than either said.**
+Per-observation-class completeness is *necessary but not sufficient*, because the run-level
+envelope oversells coherence: `Hive.Posix.Connector` derives **one `snapshot_token` from a
+single `observed` timestamp for the whole run**, and then executes the classes
+**sequentially**, each with its own `transport.exec`. So a token whose stated purpose is
+"pages of one logical read belong to the same snapshot" is stamped across classes read
+seconds apart. Nothing today reads those facts, so no wrong answer has been served — but
+the envelope currently asserts an atomicity the shell path does not have. Carded:
+`board/todo/observation-run-snapshot-coherence.md`. **My per-class answer to (c) was
+incomplete, and this is the correction.**
+
+### (d) drift over months — FLAWED twice, on different grounds, and both need correcting
+
+`llama3.3:70b`: the worse mode is **fact duplication** — the old fact persists until its
+validity interval expires, so two facts describe one service. *Largely already handled:*
+schema v13 `edge_validity` closes a fact at its last observation per source and supersedes
+on a world-level `supersession_key` with a no-overlap constraint. Not a new failure mode.
+
+`gemma4:31b`: the worse mode is **"Configuration Blindness"** — because observers use a
+*fixed list* of commands, "if a unit is renamed, the old fact closes, but the new fact is
+never emitted because the observer is not configured to look for the new name. The system
+becomes entirely blind to B."
+
+**That is wrong about this design, at the level it was claimed.** Every read here
+*enumerates*: `systemctl list-units --type=service --state=active --output=json`,
+`ss -H -l -tun`, `docker ps`, and the Kubernetes `list` verbs. A renamed unit **is**
+discovered — it appears in the next enumeration. Blindness would require per-name queries,
+which this design does not use.
+
+It is right one level up, and that is worth keeping: a new **observation class** — a kind
+of thing absent from `classes()` — is never discovered, because the class list is fixed
+code. So the residual hazard is *class-level* blindness, not entity-level. Much narrower
+than stated, and it does not displace the drift mode already named.
+
+**Net on (d): no confirmed worse failure mode than the one this ADR already states.** The
+stated one stands, with class-level blindness added beside it.
+
+Both questions now have two decorrelated opinions. (c) produced a real defect and a card;
+(d) did not overturn the design. Kept struck-through rather than rewritten.
+
+### The original statement of both questions
 
 Stated as mine, so they can be attacked.
 
