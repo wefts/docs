@@ -151,8 +151,8 @@ target.
 > chosen.~~
 >
 > **Withdrawn.** That framing was wrong, and dropping it removes machinery rather than
-> adding it. If the observer reaches `10.1.2.3` and that machine reports
-> `keycloak.service` active, **it is a true fact about `10.1.2.3`.** The connector reported
+> adding it. If the observer reaches `192.0.2.3` and that machine reports
+> `keycloak.service` active, **it is a true fact about `192.0.2.3`.** The connector reported
 > exactly what it saw and introduced no error at all. A target-selection ledger would have
 > been provenance bookkeeping for a problem that does not exist.
 
