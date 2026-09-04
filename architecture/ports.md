@@ -66,13 +66,16 @@ specific system into the kernel's vocabulary, which the rule above forbids.
 - **environment-observation profile** (`connector` kind; workspace ADR-22,
   Proposed). A conforming connector reports what is *actually running* in an
   environment: only directly observed facts, never inferred ones; every observation
-  names the command or API call that produced it **and why that target was chosen**;
-  it may assert about the observed environment and no other.
+  names the command or API call that produced it; it may assert about the observed
+  environment and no other. An observer reports **what it reached, not what it was told
+  to reach** — every run carries the environment's own self-identification beside the
+  target dialled, so "asked for A, reached something calling itself B" is visible without
+  any extra ledger.
 
   The profile governs the **observation-run envelope** — continuant and incarnation
   identity, observation class, coverage boundary, snapshot token,
-  `complete`/`partial`/`unsupported` status, target selection and transport — and the
-  reconciliation rule: absence closes a fact only for that environment and that class,
+  `complete`/`partial`/`unsupported` status, intended target, self-reported identity and
+  transport — and the reconciliation rule: absence closes a fact only for that environment and that class,
   after a completed final page.
 
   Two conforming observers, deliberately distinct: a **POSIX observer** (which owns its

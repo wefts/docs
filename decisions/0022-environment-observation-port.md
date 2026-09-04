@@ -118,18 +118,38 @@ selection is a third concern that neither of them owns.
 A client laptop needs no new concept: POSIX observer, local transport, itself as the
 target.
 
-### The feedback loop, and why provenance must record *why* a target was chosen
+### The observer reports what it *reached*, not what it was told to reach
 
-Taking targets from the graph closes a loop: Swarm observes infrastructure, and that
-observation tells it what to observe next. **A wrong host in the graph sends the observer
-to the wrong machine, and the answer comes back as an `observation` — carrying the highest
-authority this system grants anything. A data error is laundered into evidence.**
+> ~~Taking targets from the graph closes a loop, so a wrong host in the graph launders a
+> data error into evidence, and the envelope must therefore record **why** a target was
+> chosen.~~
+>
+> **Withdrawn.** That framing was wrong, and dropping it removes machinery rather than
+> adding it. If the observer reaches `10.1.2.3` and that machine reports
+> `keycloak.service` active, **it is a true fact about `10.1.2.3`.** The connector reported
+> exactly what it saw and introduced no error at all. A target-selection ledger would have
+> been provenance bookkeeping for a problem that does not exist.
 
-So the envelope records not only what was observed but **why this target was chosen**:
-which source proposed it, and the identifier it was proposed under. Without that, a bad
-fact cannot be traced back to the bad target that produced it, and the loop is
-unauditable. This is the same rule the answer-provenance record follows — an observation
-whose origin cannot be named is not an observation.
+The real issue is narrower. The observer knows *"the thing at address X"*. Whether that
+thing is the graph node anyone **meant** is a question of **identity binding**, not of
+observation quality — the same gap ADR-17 died on, and the same one round 2 named when it
+said `env:` is not tied to `net:host:`.
+
+**So the rule is: every observation carries the environment's own self-identification** —
+machine-id, hostname, pod or container UID, whatever that environment can state about
+itself — beside the target that was dialled. Then *"asked for A, reached something calling
+itself B"* is visible at once, with no extra ledger and no new component.
+
+Three things fall out, all free:
+
+- **the target loop is safe** without target-provenance machinery: a mis-supplied host
+  produces a correct observation about a *different* environment, and the mismatch is
+  computable from the envelope alone;
+- **responsibility lands where it belongs.** Supply the wrong host and that is the
+  caller's error — and now it shows, rather than being absorbed silently;
+- **a drift detector, for nothing.** Intended target versus self-reported identity is
+  exactly the signal this campaign has spent the day trying to construct. It arrives as a
+  side effect of stating identity honestly.
 
 ### Build order: one new thing at a time
 
@@ -290,7 +310,8 @@ Every run carries an envelope; without it, none of D2's or D2b's rules are expre
 | **declared coverage boundary** | what this run *attempted* to cover, so a narrower-than-expected run is visible rather than looking complete |
 | **snapshot token** | ties pages of one logical read together, so a set assembled across pages is known to be one snapshot rather than a mix |
 | **status** | `complete` / `partial` / `unsupported` — three, not two: `unsupported` is how an environment that has no systemd says so without looking empty |
-| **target selection** | which source proposed this target and under which identifier — config list, k8s controller, or the graph. Without it a bad graph fact that misdirected the observer cannot be traced from the observation it produced |
+| **intended target** | the address or handle actually dialled — not *why* it was chosen, just what was asked for |
+| **self-reported identity** | what the reached environment says it is. **Required.** Never taken from the target entry, or the observer would be reporting what it was told rather than what it found. Intended-vs-reached mismatch is computable from these two fields alone |
 | **transport** | which transport carried the run, so a transport-specific failure mode is attributable |
 
 **The reconciliation rule, stated exactly:** absence may close a fact **only** for *that
@@ -381,19 +402,26 @@ rather than merely specified.
 
 | field | v1 value |
 | --- | --- |
-| continuant id | `/etc/machine-id` for a host; for a container, the image-and-workload identity supplied by the target entry — **never** the container UID, which is an incarnation |
+| continuant id | **self-reported only.** `/etc/machine-id` for a host. A container that cannot state a continuant identity of its own is recorded as **incarnation-only** — never given one from the target entry, which would be the observer trusting what it was told |
 | incarnation id | boot id for a host, container UID for a container |
 | observation class | `active_units` \| `listening_sockets` |
 | coverage boundary | "this environment, this class" — v1 never claims more |
 | snapshot token | one per run; v1 is single-page per class, and the field exists so multi-page transports do not have to change the contract |
 | status | per class, `complete` only when the command exited 0 **and** its output parsed |
-| target selection | `config` plus the literal config entry — v1 has no other source, and the field is populated anyway so the loop-provenance path is exercised before the loop exists |
+| intended target | the literal config entry (v1: `self`) |
+| self-reported identity | machine-id and hostname as the environment states them; recorded even when v1's only target is `self`, so the mismatch check is exercised before it can matter |
 | transport | `local` |
 
 ### Rules
 
 - a unit whose name does not parse is a recorded skip, never a silent drop (ADR-21);
-- refuse to run if no continuant identifier can be established, rather than inventing one;
+- an environment that can self-report only an **incarnation** (a typical container) is
+  recorded as incarnation-only. Its facts are explicitly **non-continuous**: they do not
+  survive redeployment and no history is claimed across incarnations. That is a real
+  limitation of what such an environment can say about itself, not a defect to paper over
+  by borrowing an identity from configuration;
+- refuse to run if the environment can state **no** identity at all, rather than inventing
+  one;
 - refuse and quarantine if a continuant id is already bound to another live environment —
   a cloned machine-id is a collision, not a merge;
 - scope: the source scope of the `environment` source, per ADR-20;
@@ -410,7 +438,8 @@ It does not.)*
 | the observer/transport seam (one transport, but through the seam) | a second transport, and transport-specific enforcement |
 | two observation classes, and per-class closure | RBAC-limited partial coverage |
 | `unsupported` as distinct from empty-and-complete | multi-command partial success across classes |
-| the envelope end to end, including target-selection provenance | pagination and a stable snapshot across pages |
+| the envelope end to end, including self-reported identity | pagination and a stable snapshot across pages |
+| the intended-vs-reached mismatch check (trivially, since v1's target is `self`) | that check firing on a genuinely mis-supplied target |
 | continuant/incarnation separation on redeploy | observer disappearance and retirement over real elapsed time |
 
 The right-hand column is the argument for the build order above, not a gap to apologise
