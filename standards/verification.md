@@ -73,6 +73,48 @@ When sources conflict, trust in this strict order:
 A higher level always overrides a lower one. A passing test beats a model's
 confident objection; two models agreeing does not beat a failing test.
 
+## A check that did not run is not a check that passed
+
+Verification has a failure mode worse than a wrong answer: a check that **silently
+did not happen**, whose absence then reads as a pass. Two rules follow, both learned
+the expensive way.
+
+### Read the artifact, not the clock
+
+When auditing whether a measurement is trustworthy, **open its output**. Do not decide
+from timestamps against the window an outage is believed to span.
+
+The event that taught this: a model daemon was SIGKILLed by `earlyoom`, which kills the
+largest process before the kernel OOM killer and therefore never sets Docker's
+`OOMKilled` flag. Docker recorded `FinishedAt` as the moment the container finished
+exiting — but two calls that **precede** that timestamp had already failed with
+`RemoteDisconnected`, because they were the requests in flight while the process was
+being torn down. The outage began at least fifty seconds before the timestamp that
+appeared to define it. **An audit keyed to `FinishedAt` cleared two artifacts that had
+already failed.** Only reading the files caught it.
+
+Generalise past that one cause: a timestamp bounds when a process *finished*, never when
+it *stopped working*. Degradation precedes death, and the artifact is the only witness to
+it. So an audit is not done until each result has been checked for a signature that only
+a working dependency could have produced — an error status, a differentiated output, a
+value that varies with the condition it was supposed to vary with.
+
+### A guard must assert the dependency, not its side effects
+
+Health checks must test the thing they claim to protect. The guard around the same
+measurements printed `MemAvailable` and memory PSI, and both looked *excellent* right
+after the kill — precisely **because** the largest process had just been killed. The
+guard was reading the consequence of the failure as evidence of health.
+
+So: assert liveness of the dependency itself, require it before **and after** the work,
+and **abort rather than warn** — a run against a dead dependency must not be able to
+write a number. Where the work is already on disk before the after-check can run, mark
+it void beside itself rather than leaving a half-real file to be found later and trusted.
+
+And when an unattended call is the check, **inspect its exit status**, never the
+existence of its output file. Three critic reviews in that episode were a traceback, a
+traceback, and zero bytes, sitting in a directory looking like a council.
+
 ## Cost asymmetry
 
 Same principle as the swarm: cheap checks run constantly, expensive checks are a
