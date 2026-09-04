@@ -111,6 +111,13 @@ and **abort rather than warn** — a run against a dead dependency must not be a
 write a number. Where the work is already on disk before the after-check can run, mark
 it void beside itself rather than leaving a half-real file to be found later and trusted.
 
+**And confirm the check ran against the thing you meant.** `leak_scan.sh` derives its
+repo root from its own path (`cd $(dirname $0)/..`), so invoking one repo's copy from
+inside another silently scans *the script's* repo and reports a confident OK about a repo
+it never opened. Four such OKs were recorded in one day for `swarm/` and `docs/` that had
+all scanned `hive/`, and `docs/` — a public repo — turned out to have never been scanned at
+all. A green check names its subject, or it is not evidence about your subject.
+
 And when an unattended call is the check, **inspect its exit status**, never the
 existence of its output file. Three critic reviews in that episode were a traceback, a
 traceback, and zero bytes, sitting in a directory looking like a council.
