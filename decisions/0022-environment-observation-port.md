@@ -16,11 +16,20 @@ defines. The registry gains a profile, not a kind.
 ## Status
 
 **Proposed.** Design only — no access requested, no credentials, nothing run against
-production. One decorrelated critic consulted **before** this was written
-(`qwen3:14b`, local, a different model family); its two FLAWED findings are folded in
-below and named as such. Two of the four questions put to it — (c) whether one port with
-three adapters is right, and (d) what breaks only after months — **came back unanswered**,
-so those sections are my reasoning alone and are the weakest part of this document.
+production.
+
+Two decorrelated critic rounds, both **before** Accepted:
+
+- *round 1* (`qwen3:14b`, local, different family), consulted before this was first
+  written: FLAWED on identity and on what-is-observed. Folded in.
+- *round 2*, on the written ADR: **FLAWED**, with one survival — **the connector-kind
+  decision is sound, so "a profile, not a new port kind" stands.** What failed is the
+  profile. Four findings, all conceded, folded in below and each marked
+  *(round 2)*. Two of them correct claims that had been made *to* me and that I passed
+  through without testing; those are marked as such rather than quietly fixed.
+
+The original decomposition and the original v1 framing are kept struck through. The wrong
+version is part of how the right one was reached.
 
 ## Context
 
@@ -41,25 +50,112 @@ this ADR against the specific rows: `dependency_track` links and is correct;
 judgement; and `agencies_wireguard` would have linked **wrongly**, to agency endpoints at
 two other sites, had the rule been laxer.
 
-So the link is not there to be found. **An observation channel does not find it — it makes
-it.** A machine that reports "a unit named `keycloak.service` is active here" states a fact
-nobody wrote down.
+So the link is not there to be found in the written record.
+
+> ~~**An observation channel does not find it — it makes it.** A machine that reports "a
+> unit named `keycloak.service` is active here" states a fact nobody wrote down.~~
+>
+> **Withdrawn *(round 2)*, and it was my sentence as much as anyone's.** It is not true of
+> v1. The emitted fact is `env:<id> has_active_unit "<unit-name>"`. `env:<id>` is not tied
+> to `net:host:<site>/<name>`, and a unit name is not tied to a service identity. **Both
+> identity edges the join needs are still missing**, so v1 does not make the
+> service→host link — it makes a *different* fact that a later, separately evidenced
+> step might one day join. Saying otherwise would repeat exactly the overclaim the
+> campaign has spent the day removing.
+
+**Honest v1 scope, stated once and plainly:** a history of literal runtime artifacts
+observed on one environment incarnation. Not service placement.
 
 ## Decision
 
-Define **one shared contract**, the *environment-observation profile*, implemented by
+> **REVISED before Accepted, 2026-09-04, on an operator proposal.** The first decomposition
+> — one contract, three peer adapters (local, k8s, SSH) — is kept below struck through,
+> because the reason it was wrong is the useful part. The revision splits **what to
+> observe** from **how to reach it**. Assessment of the proposal, including where I push
+> back on it, is in *"The split, assessed"*.
+
+### ~~Original: one contract, three peer adapters~~
+
+~~Define **one shared contract**, the *environment-observation profile*, implemented by
 several `connector` plugins. A conforming connector answers one question — *what is
 actually running in this environment* — and reports observations, never claims. ADR-21's contract is unchanged: kernel drives, adapter is a sidecar, runs
 are finite and scheduled, skips are recorded, `truncated` is preserved.
 
-Three implementations, named per the `<domain>_<kind>` rule — `localenv_connector`,
-`k8s_connector`, `sshhost_connector` — in this build order, and the first is load-bearing:
+~~Three implementations — `localenv_connector`, `k8s_connector`, `sshhost_connector` —
+local first, Kubernetes second, SSH last.~~
 
-1. **Local / self.** The environment Swarm itself runs in. No access grant, no
-   negotiation, and it exercises the whole port. It also answers something we cannot
-   answer today: what Swarm's own deployment consists of.
-2. **Kubernetes.** The API reports workloads and placement directly. No shell.
-3. **Remote host over SSH.** Last, because it is the only one with a shell on production.
+**Why that was wrong:** three peer adapters would each need to know that
+`systemctl list-units --type=service --state=active` answers "what runs here", and how to
+parse it. That knowledge is *identical down every transport*, so it would be written three
+times and the copies would drift. The same failure this campaign spent a day on, in a new
+place.
+
+### Revised: three things, not two
+
+An earlier revision split *what to observe* from *how to reach it*. That was right and did
+not go far enough — it still let Kubernetes appear in two roles. The shape is **three
+things**:
+
+**1. The k8s controller.** Kubernetes only, through the API, no shell. It answers *what
+exists and where*. It is **not a transport**.
+
+**2. The POSIX observer.** One body of knowledge about what to ask a Unix-like OS — which
+units are active, what is listening, versions, mounts — and how to parse each answer. It
+**owns its own transports**: local exec, SSH, `docker exec`, `kubectl exec`. That
+`kubectl exec` happens to use Kubernetes credentials does not make Kubernetes a transport;
+exec-into-a-pod is the POSIX observer's business, and the control plane is the
+controller's.
+
+**3. Targets.** Where the POSIX observer should go. Three possible sources: an explicit
+list in configuration, the k8s controller, or Swarm's own graph — which already holds 754
+site-qualified hosts from the hypervisor connector.
+
+This is why the double-role confusion is gone: **Kubernetes never appears twice.** The
+knowledge about a Unix-like OS is written once, transport-agnostic, so it cannot drift
+between copies; the control plane is a separate observer with its own contract; and target
+selection is a third concern that neither of them owns.
+
+A client laptop needs no new concept: POSIX observer, local transport, itself as the
+target.
+
+### The feedback loop, and why provenance must record *why* a target was chosen
+
+Taking targets from the graph closes a loop: Swarm observes infrastructure, and that
+observation tells it what to observe next. **A wrong host in the graph sends the observer
+to the wrong machine, and the answer comes back as an `observation` — carrying the highest
+authority this system grants anything. A data error is laundered into evidence.**
+
+So the envelope records not only what was observed but **why this target was chosen**:
+which source proposed it, and the identifier it was proposed under. Without that, a bad
+fact cannot be traced back to the bad target that produced it, and the loop is
+unauditable. This is the same rule the answer-provenance record follows — an observation
+whose origin cannot be named is not an observation.
+
+### Build order: one new thing at a time
+
+The simplest thing that works, and it is deliberately smaller than the first draft's:
+
+> **v1 = the POSIX observer, ONE transport (local), and an EXPLICIT target list in
+> configuration.**
+
+Graph-driven targets and the k8s controller come **after** that is proven, one at a time.
+Introducing a new observer, a new transport and a new target source together means a
+failure cannot be attributed to any of them — the same reason this campaign ablated the
+three placement fixes separately, which is what turned an unattributable 12/18 into
+cue +4, binding +7, precedence 0. That lesson was expensive; spending it here is free.
+
+Order, therefore: local transport → explicit targets → a second transport (SSH, with its
+own enforcement) → graph-driven targets (with the loop provenance above) → the k8s
+controller as a separate observer.
+
+### Security decomposes along the same seam
+
+The *set of reads* is a property of the **observer** — it is a statement about what we want
+to know, identical whichever way we reach the machine. *Enforcement* is a property of the
+**transport**: server-side `command=` or a forced-command wrapper for SSH, RBAC for
+`kubectl exec`, nothing needed for local. The first draft mixed these, putting the
+allowlist in an "SSH security" section as though its contents were an SSH concern. They
+are not; only its enforcement is.
 
 ### D1 — Identity. The critic was right, and the design changed
 
@@ -88,6 +184,37 @@ matching hostname would be the ADR-17 error again, one layer along.
   the check fails, the tie needs a declaration from a source that states it, and that is a
   different decision.
 
+### D1b — What an environment IS, before choosing an identifier *(round 2)*
+
+The first draft picked identifiers before defining the thing. `/etc/machine-id`, a pod
+UID and a namespace UID are not the same kind of thing: an OS installation, a running
+incarnation, and a logical cluster sit at **different lifecycle levels**. Container UIDs
+change on every redeployment; machine-ids survive redeployment and can be **cloned** by
+imaging a VM.
+
+So, definition first:
+
+> An **environment** is a bounded execution context that is observed as a unit. It has two
+> identity levels, and facts attach to different ones.
+>
+> - **Continuant** — the thing that persists across restarts and is what a fact is *about*.
+>   For a VM, the OS installation. For a Kubernetes workload, the controller (Deployment /
+>   StatefulSet) identity, **not** the pod.
+> - **Incarnation** — the specific running instance: pod UID, container UID, boot id. An
+>   attribute of the run, never the subject of a fact.
+
+Consequences that follow, rather than being bolted on:
+
+- observations are keyed on the **continuant**; every run records its **incarnation**, so
+  a redeployment is visible as a new incarnation of the same subject rather than as a new
+  subject;
+- **a cloned machine-id is an identity collision, and is refused, not merged.** If the same
+  machine-id is observed on two concurrently-live environments, both are quarantined and
+  neither is written. This is the ADR-17 rule applied before it can bite: an identifier
+  that turns out not to be unique is not an identity.
+- where a continuant identifier cannot be established at all, the adapter **refuses to
+  run** rather than inventing one.
+
 ### D2 — Observation versus declaration
 
 Adapter output is `evidence_kind: observation`, `valid_time` = the observation instant,
@@ -102,6 +229,30 @@ purpose or intent, ever — those stay testimony.
 **Rejected, deliberately.** A scalar is exactly how a wrong observation gets averaged into
 a right one; this project spent a day building a metric that refuses to do that.
 Completeness stays a hard flag: complete, or absence means nothing.
+
+### D2b — Observer disappearance, the case with no answer *(round 2)*
+
+The dangerous one, and the first draft had nothing for it. A replaced or unreachable
+environment **never supplies a final complete run**, so under D2's own rule its intervals
+can never be authoritatively closed. Left alone, the graph accumulates facts that are
+neither current nor closeable, and every one of them still reads as true.
+
+Chosen, of leases / freshness / explicit retirement: **all three, in defined roles, and
+never time-based closure.**
+
+- **Lease.** Each environment declares an expected next-observation interval. Cheap, and
+  it makes "should have reported by now" a fact rather than a judgement.
+- **Freshness is the visible degradation.** When a lease lapses, facts are **not** closed.
+  They stop being served as current and are rendered as *"last observed on X at T; current
+  state unknown"* — the phrasing `board/todo/source-authority.md` already settled for a
+  stale authoritative source.
+- **Explicit retirement is the only other closer.** An operator (or a control plane
+  reporting the workload deleted) retires the environment, which closes its open intervals
+  with a recorded reason and a retirement instant.
+
+**Never close on elapsed time.** Time-based closure is absence asserted without a complete
+run, which is precisely what D2 forbids; a network partition would silently delete a live
+estate.
 
 ### D3 — What is observed. The critic's second FLAWED, resolved more narrowly than proposed
 
@@ -126,6 +277,28 @@ cabinet got built, and it does not remove the inference, it buries it.
 
 This keeps v1 minimal and keeps the proxy case from becoming a false fact rather than
 merely an unresolved one.
+
+### D3b — The observation-run envelope *(round 2, the critic's asked-for change)*
+
+Every run carries an envelope; without it, none of D2's or D2b's rules are expressible.
+
+| field | why it must be there |
+| --- | --- |
+| **environment continuant id** | what the facts are about |
+| **incarnation id** | which instance produced them; a redeployment is a new incarnation, not a new subject |
+| **observation class** | `active_units`, `listening_sockets`, … — closure is per class, never global |
+| **declared coverage boundary** | what this run *attempted* to cover, so a narrower-than-expected run is visible rather than looking complete |
+| **snapshot token** | ties pages of one logical read together, so a set assembled across pages is known to be one snapshot rather than a mix |
+| **status** | `complete` / `partial` / `unsupported` — three, not two: `unsupported` is how an environment that has no systemd says so without looking empty |
+| **target selection** | which source proposed this target and under which identifier — config list, k8s controller, or the graph. Without it a bad graph fact that misdirected the observer cannot be traced from the observation it produced |
+| **transport** | which transport carried the run, so a transport-specific failure mode is attributable |
+
+**The reconciliation rule, stated exactly:** absence may close a fact **only** for *that
+environment*, *that observation class*, after a **completed final page** of a single
+snapshot. Not across classes, not across environments, not on a partial run, and not on
+`unsupported`.
+
+`unsupported` earns its place immediately — see the internal inconsistency below.
 
 ### D4 — Client machines
 
@@ -177,31 +350,104 @@ port as designed has no answer to it.
 - Nothing here touches the serve path. A new domain reading `env:` facts is a later
   decision with its own precedence question (`domain.ex` first-match, ADR-17 rejection).
 
-## The local adapter, concretely
+## v1, concretely: POSIX observer, local transport, explicit targets
 
-Enough to build; nothing here requires an access grant.
+Enough to build; nothing here needs an access grant.
 
-| | |
+### The inconsistency this fixes *(round 2)*
+
+The first draft permitted a container identity **and** named `systemctl` as the only
+observation. A Swarm container commonly has no systemd, so that adapter would have
+observed nothing — testing neither the local environment nor the future Kubernetes shape,
+while reporting an empty set that looks like a valid answer. Two changes remove it:
+
+- **observation classes**, not one command. `active_units` is one class; a container
+  reports `unsupported` for it and `complete` for the classes it can answer.
+- **`unsupported` is a first-class status.** An environment that cannot answer a class
+  says so, and `unsupported` **closes nothing** — distinct from `complete` with an empty
+  result, which does.
+
+### What v1 observes
+
+| class | reads | when unsupported |
+| --- | --- | --- |
+| `active_units` | one `systemctl list-units --type=service --state=active --output=json` | no systemd (most containers) |
+| `listening_sockets` | one `ss -H -l -tunp` | no `ss` binary |
+
+Two classes, not one, precisely so per-class closure and `unsupported` are exercised
+rather than merely specified.
+
+### Envelope, filled in for v1
+
+| field | v1 value |
 | --- | --- |
-| identity | `/etc/machine-id`, or the container's own UID when Swarm runs containerised; refuse to run if neither is readable rather than inventing one |
-| observed | active systemd units by exact name and state, from one `systemctl list-units --type=service --state=active --output=json` |
-| emitted | `env:<kind>:<uuid> has_active_unit <unit-name>`, `evidence_kind: observation`, `valid_time` = run instant, provenance = the exact argv |
-| completeness | the run is complete iff the single command exited 0 and its output parsed; anything else marks the run partial and **closes nothing** |
-| skips | a unit whose name does not parse is a recorded skip, never a silent drop (ADR-21) |
-| scope | the source scope of the `environment` source, per ADR-20 |
-| never | no shell pipeline, no config reads, no process table, no network probing, no writes |
+| continuant id | `/etc/machine-id` for a host; for a container, the image-and-workload identity supplied by the target entry — **never** the container UID, which is an incarnation |
+| incarnation id | boot id for a host, container UID for a container |
+| observation class | `active_units` \| `listening_sockets` |
+| coverage boundary | "this environment, this class" — v1 never claims more |
+| snapshot token | one per run; v1 is single-page per class, and the field exists so multi-page transports do not have to change the contract |
+| status | per class, `complete` only when the command exited 0 **and** its output parsed |
+| target selection | `config` plus the literal config entry — v1 has no other source, and the field is populated anyway so the loop-provenance path is exercised before the loop exists |
+| transport | `local` |
 
-Test before trusting: the adapter must be exercised against a fixture environment with a
-known unit set, including a partial-run case that must close nothing — the same shape as
-the learner-eval fixtures, and for the same reason.
+### Rules
+
+- a unit whose name does not parse is a recorded skip, never a silent drop (ADR-21);
+- refuse to run if no continuant identifier can be established, rather than inventing one;
+- refuse and quarantine if a continuant id is already bound to another live environment —
+  a cloned machine-id is a collision, not a merge;
+- scope: the source scope of the `environment` source, per ADR-20;
+- never: no shell pipeline, no config file reads, no process table, no network probing,
+  no writes.
+
+### What v1 does and does not test — stated, because the first draft overclaimed
+
+*(round 2: I was told the local adapter tests the port, and I repeated it without checking.
+It does not.)*
+
+| exercised by v1 | **not** exercised by v1 |
+| --- | --- |
+| the observer/transport seam (one transport, but through the seam) | a second transport, and transport-specific enforcement |
+| two observation classes, and per-class closure | RBAC-limited partial coverage |
+| `unsupported` as distinct from empty-and-complete | multi-command partial success across classes |
+| the envelope end to end, including target-selection provenance | pagination and a stable snapshot across pages |
+| continuant/incarnation separation on redeploy | observer disappearance and retirement over real elapsed time |
+
+The right-hand column is the argument for the build order above, not a gap to apologise
+for: each item arrives with the increment that first needs it.
+
+Test before trusting: a fixture environment with a known unit set, a container fixture
+that must report `unsupported` rather than empty, and a partial-run fixture that must
+close nothing — the same shape as the learner-eval fixtures, and for the same reason.
 
 ## What must be true before this is Accepted
 
-1. A decorrelated critic on **(c)** and **(d)**, which this round did not cover. Note
-   that (c) — one contract or two — is now partly a question about the *profile*, not a
-   port kind, which lowers its stakes: two profiles inside one kind cost far less than two
-   kinds.
-2. Agreement that `env:` staying unjoined from `net:host:` is acceptable for v1 — it is
-   the honest position, but it means the port does not close the measured gap yet.
-3. The D1 precondition check named and scheduled, as a read the operator authorises, not
-   as an assumption this ADR is allowed to make.
+1. **The profile survives, the shape changed.** Round 2 confirmed the connector-kind
+   decision, so *"a profile, not a new port kind"* stands. Under the three-part shape the
+   profile is narrower than first written: it governs the **observation-run envelope** and
+   the reconciliation rule, which the POSIX observer and the k8s controller both obey.
+   Transports are not part of it — they are a property of one observer.
+2. A decorrelated critic on **(c)** and **(d)**, still unanswered by round 1 and not put to
+   round 2. Note (c) has largely dissolved: with the observer owning its transports, "one
+   contract for a shell prober and an API prober" is no longer the question — they are two
+   observers sharing only an envelope.
+3. Agreement that v1's honest scope — *a history of literal runtime artifacts on one
+   environment incarnation* — is worth building, given it does **not** close the
+   service→host gap that motivated the campaign. Both identity edges (`env:`→`net:host:`,
+   unit→service) remain missing and are out of v1's scope.
+4. The D1 precondition check for the environment↔inventory tie, named and scheduled as a
+   read the operator authorises — not an assumption this ADR may make.
+
+## What this ADR still does not answer
+
+Written down rather than left implicit, because three rounds of review have each found one:
+
+- **the unit→service edge.** `has_active_unit "keycloak.service"` is not "runs Keycloak",
+  and nothing here proposes how that inference would ever be evidenced.
+- **the `env:`→`net:host:` edge.** Blocked on the D1 precondition; if that check fails,
+  observation and inventory stay two disconnected keyspaces and the campaign's measured
+  gap is untouched.
+- **(d) what breaks after months.** My guess remains unit-name drift on migration: the
+  graph faithfully records one thing stopping and another starting and nobody is told they
+  are the same service. D1b's continuant/incarnation split addresses the *environment*
+  version of this and does nothing for the *unit* version.

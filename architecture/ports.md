@@ -64,12 +64,21 @@ itself. That is a **profile**, not a new kind — adding a kind for it would pus
 specific system into the kernel's vocabulary, which the rule above forbids.
 
 - **environment-observation profile** (`connector` kind; workspace ADR-22,
-  Proposed). A conforming connector reports what is *actually running in its own
-  environment*: only directly observed facts, never inferred ones; every
-  observation names the command or API call that produced it; it may assert about
-  its own environment and no other. Absence closes a fact only when the run
-  completed. Implementations: `localenv_connector`, `k8s_connector`,
-  `sshhost_connector`.
+  Proposed). A conforming connector reports what is *actually running* in an
+  environment: only directly observed facts, never inferred ones; every observation
+  names the command or API call that produced it **and why that target was chosen**;
+  it may assert about the observed environment and no other.
+
+  The profile governs the **observation-run envelope** — continuant and incarnation
+  identity, observation class, coverage boundary, snapshot token,
+  `complete`/`partial`/`unsupported` status, target selection and transport — and the
+  reconciliation rule: absence closes a fact only for that environment and that class,
+  after a completed final page.
+
+  Two conforming observers, deliberately distinct: a **POSIX observer** (which owns its
+  own transports — local, SSH, `docker exec`, `kubectl exec`) and a **Kubernetes control-plane
+  observer** (API only, no shell). Kubernetes is not a transport: exec-into-a-pod belongs
+  to the POSIX observer, the control plane to the controller.
 
 ## Naming Rule
 
