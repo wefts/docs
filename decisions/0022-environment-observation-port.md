@@ -18,7 +18,8 @@ defines. The registry gains a profile, not a kind.
 **Proposed.** Design only — no access requested, no credentials, nothing run against
 production.
 
-Two decorrelated critic rounds, both **before** Accepted:
+Two critic rounds, both **before** Accepted. **Neither was decorrelated, and that is a
+known gap in this ADR's review, not a claim it meets the bar** — see *Review breadth* below.
 
 - *round 1* (`qwen3:14b`, local, different family), consulted before this was first
   written: FLAWED on identity and on what-is-observed. Folded in.
@@ -30,6 +31,31 @@ Two decorrelated critic rounds, both **before** Accepted:
 
 The original decomposition and the original v1 framing are kept struck through. The wrong
 version is part of how the right one was reached.
+
+### Review breadth — under this ADR's own bar
+
+A council of four local families was attempted on the design brief. **Three of the four
+calls produced nothing**, and this was found only by an audit after the fact:
+
+| critic | 2026-09-04 UTC | result |
+| --- | --- | --- |
+| `llama` | 10:59:22 | `RemoteDisconnected` — killed mid-request |
+| `gemma` | 11:00:00 | `RemoteDisconnected` — killed mid-request |
+| `qwen3:14b` | 11:01:27 | answered: FLAWED (this is round 1) |
+| `glm` | 11:02:03 | **0 bytes** |
+
+`earlyoom` SIGKILLed the model daemon at ~10:59:22Z; it stayed dead 2h17m and set no
+Docker OOM flag. The calls wrote their exit status to nobody, so three empty reviews sat in
+a directory looking like a council.
+
+So **round 1 was one model and round 2 was one operator-relayed critic — both rounds are
+single-source.** A foundational decision here wants at least two decorrelated families. This
+ADR does not have that yet, and must not be read as if it does. It is *unverified breadth*,
+not a known-wrong design: every finding that was actually returned is folded in below.
+
+Owed before Accepted, in addition to the two open questions: **a genuine second family on
+the design as written**, with the call's exit status checked rather than its output file's
+existence taken as success.
 
 ## Context
 
